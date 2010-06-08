@@ -1,6 +1,0 @@
-## Interface: 30300
-## Title: OmniCC
-## Notes: Cooldown count for everything
-## Author: Tuller
-## Version: 3.0
-omnicc.lua
