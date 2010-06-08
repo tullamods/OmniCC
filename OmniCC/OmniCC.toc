@@ -3,4 +3,5 @@
 ## Notes: Cooldown count for everything
 ## Author: Tuller
 ## Version: 3.0
-omnicc.lua
+core.lua
+ears.lua

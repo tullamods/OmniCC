@@ -92,6 +92,7 @@ function Timer:Update()
 		self:UpdateDisplay()
 	else
 		self:Stop()
+		OmniCC:SendMessage('COOLDOWN_FINISHED', self)
 	end
 end
 
