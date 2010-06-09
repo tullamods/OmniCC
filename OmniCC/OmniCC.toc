@@ -5,3 +5,4 @@
 ## Version: 3.0
 core.lua
 ears.lua
+hook.lua
