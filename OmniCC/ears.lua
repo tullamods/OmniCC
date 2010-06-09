@@ -14,9 +14,9 @@ end
 
 function Ears:Inject(f)
 	local ear = self:New()
-	for k, v in pairs(e) do
-		assert(not f[k], f:GetName() .. ('%s already has a method named "%s"'):format(f:GetName(), k))
-		f[k] = function(self, ...) ear:(...) end
+	for k, v in pairs(self) do
+		assert(not f[k], f:GetName() .. string.format('%s already has a method named "%s"', f:GetName(), k))
+		f[k] = function(self, ...) ear[k](ear, ...) end
 	end
 end
 

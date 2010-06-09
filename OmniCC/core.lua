@@ -81,7 +81,7 @@ function Timer:UpdateDisplay()
 	local font, size, outline = OmniCC:GetFont(scale)
 	local text = self.text
 
-	if fontSize < OmniCC:GetMinFontSize() then
+	if size < OmniCC:GetMinFontSize() then
 		text:Hide()
 	else
 		if not(text.font == font and text.fontSize == size and text.fontOutline == outline) then
@@ -175,6 +175,10 @@ function OmniCC:UpdateTimers()
 	for timer in pairs(self.timers) do
 		timer:Update()
 	end
+end
+
+function OmniCC:StartTimer(cooldown, start, duration)
+	Timer:Start(cooldown, start, duration)
 end
 
 --[[
