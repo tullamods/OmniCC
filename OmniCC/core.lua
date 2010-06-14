@@ -15,9 +15,39 @@ local floor = math.floor
 local min = math.min
 
 
---[[
+--[[---------------------------------------------------------------------------
+	Local Functions of Justice
+--]]---------------------------------------------------------------------------
+
+local function removeDefaults(tbl, defaults)
+	for k, v in pairs(defaults) do
+		if type(tbl[k]) == 'table' and type(v) == 'table' then
+			removeDefaults(tbl[k], v)
+
+			if next(tbl[k]) == nil then
+				tbl[k] = nil
+			end
+		elseif tbl[k] == v then
+			tbl[k] = nil
+		end
+	end
+end
+
+local function copyDefaults(tbl, defaults)
+	for k, v in pairs(defaults) do
+		if type(v) == 'table' then
+			tbl[k] = copyDefaults(tbl[k] or {}, v)
+		elseif tbl[k] == nil then
+			tbl[k] = v
+		end
+	end
+	return tbl
+end
+
+
+--[[---------------------------------------------------------------------------
 	Timer Code
---]]
+--]]---------------------------------------------------------------------------
 
 local Timer = CreateFrame('Frame'); Timer:Hide()
 local timer_MT = {__index = Timer}
@@ -77,7 +107,7 @@ function Timer:Update()
 end
 
 function Timer:UpdateDisplay()
-	local scale = floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE --icon sizes seem to vary a little bit, so this takes care of making them round to whole numbers
+	local scale = self:GetFontScale()
 	local font, size, outline = OmniCC:GetFont(scale)
 	local text = self.text
 
@@ -99,10 +129,18 @@ function Timer:GetRemainingTime()
 	return self.duration - (GetTime() - self.start)
 end
 
+function Timer:GetFontScale()
+	if OmniCC:ScalingText() then
+		 --icon sizes seem to vary a little bit, so this takes care of making them round to whole numbers
+		return floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE 
+	end
+	return 1
+end
 
---[[
+
+--[[---------------------------------------------------------------------------
 	Global Updater/Event Handler
---]]
+--]]---------------------------------------------------------------------------
 
 local OmniCC = CreateFrame('Frame', 'OmniCC', UIParent); OmniCC:Hide()
 OmniCC.timers = {}
@@ -144,7 +182,12 @@ function OmniCC:PLAYER_ENTERING_WORLD()
 	self:UpdateTimers()
 end
 
+function OmniCC:PLAYER_LOGOUT()
+	self:ClearDefaults()
+end
+
 OmniCC:RegisterEvent('PLAYER_ENTERING_WORLD')
+OmniCC:RegisterEvent('PLAYER_LOGOUT')
 
 
 --[[
@@ -181,29 +224,117 @@ function OmniCC:StartTimer(cooldown, start, duration)
 	Timer:Start(cooldown, start, duration)
 end
 
---[[
-	Config Settings
---]]
 
---how many seconds, in length, must a cooldown be to show text
-function OmniCC:GetMinDuration()
-	return 3
+--[[---------------------------------------------------------------------------
+	Config Settings
+--]]---------------------------------------------------------------------------
+
+function OmniCC:GetDB()
+	if not self.db then
+		self.db = _G['OmniCCGlobalSettings']
+		if self.db then
+			if self:IsDBOutOfDate() then
+				self:UpgradeDB()
+			end
+		else
+			self.db = self:CreateNewDB()
+			Bagnon:Print(L.NewUser)
+		end
+		copyDefaults(self.db, self:GetDefaultSettings())
+	end
+	return self.db
 end
 
---enables|disables showing cooldown models
-function OmniCC:ShowingModels()
-	return true
+function OmniCC:GetDefaults()
+	self.defaults = self.defaults or {
+		font = STANDARD_TEXT_FONT,
+		fontSize = 18,
+		fontOutline = 'OUTLINE',
+		scaleText = true,
+		minDuration = 3,
+		minFontSize = 8,
+	}
+	return self.defaults
+end
+
+function OmniCC:CreateNewDB()
+	local db = {
+		version = self:GetAddOnVersion()
+	}
+
+	_G['OmniCCGlobalSettings'] = db
+	return db
+end
+
+function OmniCC:UpgradeDB()
+	local major, minor = self:GetDBVersion():match('(%w+)%.(%w+)')
+	
+	self:GetDB().version = self:GetAddOnVersion()
+	self:Print(string.format('Updated to v%s', self:GetDBVersion()))
+end
+
+function OmniCC:IsDBOutOfDate()
+	return self:GetDBVersion() ~= self:GetAddOnVersion()
+end
+
+function OmniCC:GetDBVersion()
+	return self:GetDB().version
+end
+
+function SavedSettings:GetAddOnVersion()
+	return GetAddOnMetadata('OmnICC', 'Version')
+end
+
+--how many seconds, in length, must a cooldown be to show text
+function OmniCC:SetMinDuration(duration)
+	self:GetDB().minDuration = duration or 0
+	self:UpdateTimers()
+end
+
+function OmniCC:GetMinDuration()
+	return self:GetDB().minDuration
 end
 
 --retrieves font information at the given scale
 --defaults scale to 1 if omitted
+function OmniCC:SetFontFace(font)
+	self:GetDB().fontFace = font
+	self:UpdateTimers()
+end
+
+function OmniCC:SetFontSize(size)
+	self:GetDB().fontSize = size
+	self:UpdateTimers()
+end
+
+function OmniCC:SetFontOutline(outline)
+	self:GetDB().fontOutline = outline
+	self:UpdateTimers()
+end
+
 function OmniCC:GetFont(scale)
-	return STANDARD_TEXT_FONT, 18 * (scale or 1), 'OUTLINE'
+	local db = self:GetDB()
+	return db.fontFace, db.fontSize * (scale or 1), db.fontOutline
+end
+
+--returns true if font scaling is enabled or not
+function OmniCC:SetScaleText(enable)
+	self:GetDB().scaleText = enable and true or false
+	self:UpdateTimers()
+end
+
+function OmniCC:ScalingText()
+	return self:GetDB().scaleText
 end
 
 --returns the minimum size to display text at
+function OmniCC:SetMinFontSize(size)
+	self:GetDB().minFontSize = size
+	self:UpdateTimers()
+end
+
 function OmniCC:GetMinFontSize()
-	return 8
+	return self:GetDB().minFontSize
 end
 
 function OmniCC:GetFormattedTime(s)
