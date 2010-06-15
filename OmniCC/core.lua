@@ -238,16 +238,16 @@ function OmniCC:GetDB()
 			end
 		else
 			self.db = self:CreateNewDB()
-			Bagnon:Print(L.NewUser)
+			self:Print('OmniCC Initialized')
 		end
-		copyDefaults(self.db, self:GetDefaultSettings())
+		copyDefaults(self.db, self:GetDefaults())
 	end
 	return self.db
 end
 
 function OmniCC:GetDefaults()
 	self.defaults = self.defaults or {
-		font = STANDARD_TEXT_FONT,
+		fontFace = STANDARD_TEXT_FONT,
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
 		scaleText = true,
@@ -270,7 +270,7 @@ function OmniCC:UpgradeDB()
 	local major, minor = self:GetDBVersion():match('(%w+)%.(%w+)')
 	
 	self:GetDB().version = self:GetAddOnVersion()
-	self:Print(string.format('Updated to v%s', self:GetDBVersion()))
+	self:Print(('Updated to v%s'):format(self:GetDBVersion()))
 end
 
 function OmniCC:IsDBOutOfDate()
@@ -281,8 +281,8 @@ function OmniCC:GetDBVersion()
 	return self:GetDB().version
 end
 
-function SavedSettings:GetAddOnVersion()
-	return GetAddOnMetadata('OmnICC', 'Version')
+function OmniCC:GetAddOnVersion()
+	return GetAddOnMetadata('OmniCC', 'Version')
 end
 
 --how many seconds, in length, must a cooldown be to show text
@@ -350,4 +350,8 @@ function OmniCC:GetFormattedTime(s)
 		return RED_FONT_COLOR_CODE .. floor(s + 0.5) .. FONT_COLOR_CODE_CLOSE
 	end
 	return GREEN_FONT_COLOR_CODE .. format('%.1f', s) .. FONT_COLOR_CODE_CLOSE
+end
+
+function OmniCC:Print(...)
+	return print('OmniCC:', ...)
 end

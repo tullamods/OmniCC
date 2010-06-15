@@ -3,6 +3,7 @@
 ## Notes: Cooldown count for everything
 ## Author: Tuller
 ## Version: 3.0
+## SavedVariables: OmniCCGlobalSettings
 core.lua
 ears.lua
 hook.lua
