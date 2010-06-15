@@ -24,8 +24,7 @@ local enabledFrames = setmetatable({}, {__index = function(t, k)
 end})
 
 local function shouldShowTimer(cooldown)
-	return true
---	return enabledFrames[cooldown] and not cooldown.noCooldownCount
+	return enabledFrames[cooldown] and not cooldown.noCooldownCount
 end
 
 local function hideTimer(cooldown)

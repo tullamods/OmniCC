@@ -355,3 +355,8 @@ end
 function OmniCC:Print(...)
 	return print('OmniCC:', ...)
 end
+
+function OmniCC:AddFrame(f, enable)
+	CooldownTextFrames = CooldownTextFrames or {}
+	CooldownTextFrames[f] = enable
+end
