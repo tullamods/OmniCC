@@ -10,8 +10,8 @@ else
 	return
 end
 
-L.GeneralSettings = 'General'
-L.GeneralSettingsTitle = 'General Configuration Settings'
+L.GeneralSettings = 'General Settings'
+L.GeneralSettingsTitle = 'General configuration settings for OmniCC'
 
 L.UseWhitelist = 'Only display text on registered frames'
 

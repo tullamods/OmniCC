@@ -7,7 +7,7 @@ local OmniCC = OmniCC
 local L = OMNICC_LOCALS
 
 --a hack panel, this is designed to force open to the general options panel when clicked
-local OmniCCOptions = OmniCCOptions.OptionsPanel:New('OmniCC', nil, 'OmniCC')
+local OmniCCOptions = OmniCC.OptionsPanel:New('OmniCC', nil, 'OmniCC')
 OmniCCOptions:SetScript('OnShow', function(self)
 	InterfaceOptionsFrame_OpenToCategory(OmniCC.GeneralOptions)
 	self:Hide()
@@ -42,7 +42,7 @@ function GeneralOptions:AddWidgets()
 	
 	--sliders
 	local minDuration = self:CreateMinDurationSlider()
-	minDuration:SetWidth(180)
+	minDuration:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
 	minDuration:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
 
 	local minFontSize = self:CreateMinFontSizeSlider()
@@ -74,16 +74,16 @@ end
 --use whitelist
 function GeneralOptions:CreateUseWhitelistCheckbox()
 	local b = self:NewCheckbox(L.UseWhitelist)
-	b.OnEnableSetting = function(self, enable) OmniCC.Settings:SetUseWhitelist(enable) end
-	b.IsSettingEnabled = function(self) return OmniCC.Settings:UsingWhitelist() end
+	b.OnEnableSetting = function(self, enable) OmniCC:SetUseWhitelist(enable) end
+	b.IsSettingEnabled = function(self) return OmniCC:UsingWhitelist() end
 	return b
 end
 
 --scale text
 function GeneralOptions:CreateScaleTextCheckbox()
 	local b = self:NewCheckbox(L.ScaleText)
-	b.OnEnableSetting = function(self, enable) OmniCC.Settings:SetScaleText(enable) end
-	b.IsSettingEnabled = function(self) return OmniCC.Settings:ScalingText() end
+	b.OnEnableSetting = function(self, enable) OmniCC:SetScaleText(enable) end
+	b.IsSettingEnabled = function(self) return OmniCC:ScalingText() end
 	return b
 end
 
@@ -92,7 +92,7 @@ end
 GeneralOptions.sliders = {}
 
 function GeneralOptions:NewSlider(name, low, high, step)
-	local s = OmniCC.OptionsSlider:New(name, parent, low, high, step, self)
+	local s = OmniCC.OptionsSlider:New(name, self, low, high, step)
 	table.insert(self.sliders, s)
 	return s
 end
@@ -101,7 +101,7 @@ function GeneralOptions:CreateMinDurationSlider()
 	local s = self:NewSlider(L.MinDuration, 0, 30, 0.5)
 	s.SetSavedValue = function(self, value) OmniCC:SetMinDuration(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinDuration() end
-	s.GetFormattedText = function(self, value) return floor(value * 100 + 0.5) .. SECONDS_ABBR end
+	s.GetFormattedText = function(self, value) return SECONDS_ABBR:format(value) end
 	return s
 end
 

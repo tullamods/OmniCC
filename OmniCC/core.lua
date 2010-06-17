@@ -258,10 +258,10 @@ end
 
 function OmniCC:GetDefaults()
 	self.defaults = self.defaults or {
-		useWhitelist = true,
+		useWhiteList = false,
 		fontFace = STANDARD_TEXT_FONT,
 		fontSize = 18,
-		fontOutline = 'NONE',
+		fontOutline = 'OUTLINE',
 		scaleText = true,
 		minDuration = 3,
 		minFontSize = 8,
@@ -309,7 +309,7 @@ function OmniCC:SetUseWhitelist(enable)
 end
 
 function OmniCC:UsingWhitelist()
-	return self:GetDB().useWhitelist
+	return self:GetDB().useWhiteList
 end
 
 --how many seconds, in length, must a cooldown be to show text
@@ -346,7 +346,8 @@ end
 
 --returns true if font scaling is enabled or not
 function OmniCC:SetScaleText(enable)
-	setBool(self:GetDB(), 'scaleText', enable)
+	self:GetDB().scaleText = enable and true or false
+
 	self:UpdateTimers()
 end
 

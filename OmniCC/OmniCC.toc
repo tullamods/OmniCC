@@ -4,6 +4,7 @@
 ## Author: Tuller
 ## Version: 3.0
 ## SavedVariables: OmniCCGlobalSettings
+embeds.xml
 core.lua
 ears.lua
 hook.lua
