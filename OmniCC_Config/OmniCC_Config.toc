@@ -1,0 +1,10 @@
+## Interface: 30300
+## Title: OmniCC Config
+## Notes: OmniCC's configuration menu
+## Author: Tuller
+## Dependencies: OmniCC
+## LoadOnDemand: 1
+localization.xml
+classy.lua
+widgets.xml
+panels.xml

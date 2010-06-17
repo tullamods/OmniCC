@@ -14,36 +14,12 @@ local format = string.format
 local floor = math.floor
 local min = math.min
 
-
---[[---------------------------------------------------------------------------
-	Local Functions of Justice
---]]---------------------------------------------------------------------------
-
-local function removeDefaults(tbl, defaults)
-	for k, v in pairs(defaults) do
-		if type(tbl[k]) == 'table' and type(v) == 'table' then
-			removeDefaults(tbl[k], v)
-
-			if next(tbl[k]) == nil then
-				tbl[k] = nil
-			end
-		elseif tbl[k] == v then
-			tbl[k] = nil
-		end
-	end
-end
-
-local function copyDefaults(tbl, defaults)
-	for k, v in pairs(defaults) do
-		if type(v) == 'table' then
-			tbl[k] = copyDefaults(tbl[k] or {}, v)
-		elseif tbl[k] == nil then
-			tbl[k] = v
-		end
-	end
-	return tbl
-end
-
+local GRAY_FONT_COLOR_CODE = GRAY_FONT_COLOR_CODE
+local NORMAL_FONT_COLOR_CODE = NORMAL_FONT_COLOR_CODE
+local YELLOW_FONT_COLOR_CODE = YELLOW_FONT_COLOR_CODE
+local RED_FONT_COLOR_CODE = RED_FONT_COLOR_CODE
+local GREEN_FONT_COLOR_CODE = GREEN_FONT_COLOR_CODE
+local FONT_COLOR_CODE_CLOSE = FONT_COLOR_CODE_CLOSE
 
 --[[---------------------------------------------------------------------------
 	Timer Code
@@ -167,19 +143,20 @@ OmniCC:SetScript('OnUpdate', function(self, elapsed)
 	end
 end)
 
-
 OmniCC:SetScript('OnHide', function(self, elapsed)
 	self.elapsed = UPDATE_DELAY
 end)
 
 
---[[
-	Events
---]]
+--[[ Events ]]--
 
 --force update on entering world to handle things like arena resets
 function OmniCC:PLAYER_ENTERING_WORLD()
 	self:UpdateTimers()
+end
+
+function OmniCC:PLAYER_LOGIN()
+	self:CreateOptionsLoader()
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -188,11 +165,10 @@ end
 
 OmniCC:RegisterEvent('PLAYER_ENTERING_WORLD')
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
+OmniCC:RegisterEvent('PLAYER_LOGIN')
 
 
---[[
-	Actions
---]]
+--[[ Actions ]]--
 
 function OmniCC:Add(timer)
 	self.timers[timer] = true
@@ -224,10 +200,45 @@ function OmniCC:StartTimer(cooldown, start, duration)
 	Timer:Start(cooldown, start, duration)
 end
 
+--create a loader for the options menu
+function OmniCC:CreateOptionsLoader()
+	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
+	f:SetScript('OnShow', function(self)
+		self:SetScript('OnShow', nil)
+		LoadAddOn('OmniCC_Config')
+	end)
+end
+
+
 
 --[[---------------------------------------------------------------------------
-	Config Settings
+	Saved Settings
 --]]---------------------------------------------------------------------------
+
+local function removeDefaults(tbl, defaults)
+	for k, v in pairs(defaults) do
+		if type(tbl[k]) == 'table' and type(v) == 'table' then
+			removeDefaults(tbl[k], v)
+
+			if next(tbl[k]) == nil then
+				tbl[k] = nil
+			end
+		elseif tbl[k] == v then
+			tbl[k] = nil
+		end
+	end
+end
+
+local function copyDefaults(tbl, defaults)
+	for k, v in pairs(defaults) do
+		if type(v) == 'table' then
+			tbl[k] = copyDefaults(tbl[k] or {}, v)
+		elseif tbl[k] == nil then
+			tbl[k] = v
+		end
+	end
+	return tbl
+end
 
 function OmniCC:GetDB()
 	if not self.db then
@@ -247,9 +258,10 @@ end
 
 function OmniCC:GetDefaults()
 	self.defaults = self.defaults or {
+		useWhitelist = true,
 		fontFace = STANDARD_TEXT_FONT,
 		fontSize = 18,
-		fontOutline = 'OUTLINE',
+		fontOutline = 'NONE',
 		scaleText = true,
 		minDuration = 3,
 		minFontSize = 8,
@@ -285,6 +297,21 @@ function OmniCC:GetAddOnVersion()
 	return GetAddOnMetadata('OmniCC', 'Version')
 end
 
+
+--[[---------------------------------------------------------------------------
+	Configuration
+--]]---------------------------------------------------------------------------
+
+--whitelist settings
+function OmniCC:SetUseWhitelist(enable)
+	self:GetDB().useWhiteList = enable and true or false
+--	self:UpdateWhitelist()
+end
+
+function OmniCC:UsingWhitelist()
+	return self:GetDB().useWhitelist
+end
+
 --how many seconds, in length, must a cooldown be to show text
 function OmniCC:SetMinDuration(duration)
 	self:GetDB().minDuration = duration or 0
@@ -292,7 +319,7 @@ function OmniCC:SetMinDuration(duration)
 end
 
 function OmniCC:GetMinDuration()
-	return self:GetDB().minDuration
+	return self:GetDB().minDuration or 0
 end
 
 --retrieves font information at the given scale
@@ -314,12 +341,12 @@ end
 
 function OmniCC:GetFont(scale)
 	local db = self:GetDB()
-	return db.fontFace, db.fontSize * (scale or 1), db.fontOutline
+	return db.fontFace or STANDARD_TEXT_FONT, (db.fontSize or 18) * (scale or 1), db.fontOutline
 end
 
 --returns true if font scaling is enabled or not
 function OmniCC:SetScaleText(enable)
-	self:GetDB().scaleText = enable and true or false
+	setBool(self:GetDB(), 'scaleText', enable)
 	self:UpdateTimers()
 end
 
@@ -334,7 +361,7 @@ function OmniCC:SetMinFontSize(size)
 end
 
 function OmniCC:GetMinFontSize()
-	return self:GetDB().minFontSize
+	return self:GetDB().minFontSize or 8
 end
 
 function OmniCC:GetFormattedTime(s)
@@ -351,6 +378,11 @@ function OmniCC:GetFormattedTime(s)
 	end
 	return GREEN_FONT_COLOR_CODE .. format('%.1f', s) .. FONT_COLOR_CODE_CLOSE
 end
+
+
+--[[---------------------------------------------------------------------------
+	Utility
+--]]---------------------------------------------------------------------------
 
 function OmniCC:Print(...)
 	return print('OmniCC:', ...)
