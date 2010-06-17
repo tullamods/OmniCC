@@ -101,7 +101,7 @@ function GeneralOptions:CreateMinDurationSlider()
 	local s = self:NewSlider(L.MinDuration, 0, 30, 0.5)
 	s.SetSavedValue = function(self, value) OmniCC:SetMinDuration(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinDuration() end
-	s.GetFormattedText = function(self, value) return SECONDS_ABBR:format(value) end
+	s.GetFormattedText = function(self, value) return ('%.1f Sec'):format(value) end
 	return s
 end
 
