@@ -182,6 +182,7 @@ end
 
 function OmniCC:PLAYER_LOGIN()
 	self:CreateOptionsLoader()
+	self:AddSlashCommands()
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -232,6 +233,22 @@ function OmniCC:CreateOptionsLoader()
 		self:SetScript('OnShow', nil)
 		LoadAddOn('OmniCC_Config')
 	end)
+end
+
+function OmniCC:ShowOptions()
+	if LoadAddOn('OmniCC_Config') then
+		InterfaceOptionsFrame_OpenToCategory(self.GeneralOptions)
+		return true
+	end
+	return false
+end
+
+function OmniCC:AddSlashCommands()
+	SLASH_OmniCC1 = '/omnicc'
+	SLASH_OmniCC2 = '/occ'
+	SlashCmdList['OmniCC'] = function(msg)
+		self:ShowOptions()
+	end
 end
 
 
