@@ -1,6 +1,5 @@
 --[[
-	General.lua
-		General Bagnon settings
+	General configuration settings for OmniCC
 --]]
 
 local OmniCC = OmniCC

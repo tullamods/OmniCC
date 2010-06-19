@@ -3,11 +3,16 @@
 		Displays text for cooldowns
 --]]
 
+--libraries!
+local LSM = LibStub('LibSharedMedia-3.0')
+
 --constants!
 local PADDING = 2
 local ICON_SIZE = 36 --the normal size for an icon
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --value in seconds for days, hours, and minutes
 local UPDATE_DELAY = 0.01 --minimum time between timer updates
+local LSM_FONT = LSM.MediaType.FONT --local binding to LSM.MediaType.Font
+local DEFAULT_FONT = 'Friz Quadrata TT' --the default font id to use
 
 --omg speed
 local format = string.format
@@ -37,7 +42,7 @@ function Timer:New(parent)
 
 	local text = t:CreateFontString(nil, 'OVERLAY')
 	text:SetPoint('CENTER', 0, 1)
-	text:SetFont(OmniCC:GetFont())
+	text:SetFont(self:GetFont())
 	t.text = text
 
 	return t
@@ -83,8 +88,7 @@ function Timer:Update()
 end
 
 function Timer:UpdateDisplay()
-	local scale = self:GetFontScale()
-	local font, size, outline = OmniCC:GetFont(scale)
+	local font, size, outline = self:GetFont(self:GetFontScale())
 	local text = self.text
 
 	if size < OmniCC:GetMinFontSize() then
@@ -105,12 +109,34 @@ function Timer:GetRemainingTime()
 	return self.duration - (GetTime() - self.start)
 end
 
+--[[ Font Retrieval ]]--
+
 function Timer:GetFontScale()
 	if OmniCC:ScalingText() then
 		 --icon sizes seem to vary a little bit, so this takes care of making them round to whole numbers
 		return floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE 
 	end
 	return 1
+end
+
+--wrapper for LSM functionality
+local function fetchFont(fontId)
+	if fontName and LSM:IsValid(LSM_FONT, fontName) then
+		return LSM:Fetch(LSM_FONT, fontName)
+	end
+	return LSM:Fetch(LSM_FONT, DEFAULT_FONT)
+end
+
+local function fetchOutline(outlineId)
+	if outlineId == NONE then
+		return nil
+	end
+	return outlineId
+end
+
+function Timer:GetFont(scale)
+	local scale = scale or 1
+	return fetchFont(OmniCC:GetFontID()), OmniCC:GetFontSize() * scale, fetchOutline(OmniCC:GetFontOutline())
 end
 
 
@@ -259,7 +285,7 @@ end
 function OmniCC:GetDefaults()
 	self.defaults = self.defaults or {
 		useWhiteList = false,
-		fontFace = STANDARD_TEXT_FONT,
+		font = DEFAULT_FONT,
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
 		scaleText = true,
@@ -322,11 +348,14 @@ function OmniCC:GetMinDuration()
 	return self:GetDB().minDuration or 0
 end
 
---retrieves font information at the given scale
---defaults scale to 1 if omitted
-function OmniCC:SetFontFace(font)
-	self:GetDB().fontFace = font
+--retrieves the id of the font we've chosen to use
+function OmniCC:SetFontID(font)
+	self:GetDB().font = font
 	self:UpdateTimers()
+end
+
+function OmniCC:GetFontID()
+	return self:GetDB().font or DEFAULT_FONT
 end
 
 function OmniCC:SetFontSize(size)
@@ -334,20 +363,22 @@ function OmniCC:SetFontSize(size)
 	self:UpdateTimers()
 end
 
+function OmniCC:GetFontSize()
+	return self:GetDB().fontSize or 18
+end
+
 function OmniCC:SetFontOutline(outline)
 	self:GetDB().fontOutline = outline
 	self:UpdateTimers()
 end
 
-function OmniCC:GetFont(scale)
-	local db = self:GetDB()
-	return db.fontFace or STANDARD_TEXT_FONT, (db.fontSize or 18) * (scale or 1), db.fontOutline
+function OmniCC:GetFontOutline()
+	return self:GetDB().fontOutline or NONE
 end
 
 --returns true if font scaling is enabled or not
 function OmniCC:SetScaleText(enable)
 	self:GetDB().scaleText = enable and true or false
-
 	self:UpdateTimers()
 end
 
