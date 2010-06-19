@@ -185,7 +185,7 @@ function OmniCC:PLAYER_LOGIN()
 end
 
 function OmniCC:PLAYER_LOGOUT()
-	self:ClearDefaults()
+	self:RemoveDefaults()
 end
 
 OmniCC:RegisterEvent('PLAYER_ENTERING_WORLD')
@@ -292,6 +292,13 @@ function OmniCC:GetDefaults()
 		minFontSize = 8,
 	}
 	return self.defaults
+end
+
+function OmniCC:RemoveDefaults()
+	local db = self.db
+	if db then
+		removeDefaults(db, self:GetDefaults())
+	end
 end
 
 function OmniCC:CreateNewDB()
