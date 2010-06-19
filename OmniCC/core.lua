@@ -11,20 +11,19 @@ local PADDING = 2
 local ICON_SIZE = 36 --the normal size for an icon
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --value in seconds for days, hours, and minutes
 local UPDATE_DELAY = 0.01 --minimum time between timer updates
-local LSM_FONT = LSM.MediaType.FONT --local binding to LSM.MediaType.Font
 local DEFAULT_FONT = 'Friz Quadrata TT' --the default font id to use
 
---omg speed
+--local bindings!
 local format = string.format
 local floor = math.floor
 local min = math.min
-
 local GRAY_FONT_COLOR_CODE = GRAY_FONT_COLOR_CODE
 local NORMAL_FONT_COLOR_CODE = NORMAL_FONT_COLOR_CODE
 local YELLOW_FONT_COLOR_CODE = YELLOW_FONT_COLOR_CODE
 local RED_FONT_COLOR_CODE = RED_FONT_COLOR_CODE
 local GREEN_FONT_COLOR_CODE = GREEN_FONT_COLOR_CODE
 local FONT_COLOR_CODE_CLOSE = FONT_COLOR_CODE_CLOSE
+local LSM_FONT = LSM.MediaType.FONT
 
 --[[---------------------------------------------------------------------------
 	Timer Code
@@ -275,7 +274,7 @@ function OmniCC:GetDB()
 			end
 		else
 			self.db = self:CreateNewDB()
-			self:Print('OmniCC Initialized')
+--			self:Print('OmniCC Initialized')
 		end
 		copyDefaults(self.db, self:GetDefaults())
 	end
@@ -305,10 +304,9 @@ function OmniCC:CreateNewDB()
 end
 
 function OmniCC:UpgradeDB()
-	local major, minor = self:GetDBVersion():match('(%w+)%.(%w+)')
-	
+	local oldMajor, oldMinor = self:GetDBVersion():match('(%w+)%.(%w+)')
 	self:GetDB().version = self:GetAddOnVersion()
-	self:Print(('Updated to v%s'):format(self:GetDBVersion()))
+--	self:Print(('Updated to v%s'):format(self:GetDBVersion()))
 end
 
 function OmniCC:IsDBOutOfDate()
@@ -420,7 +418,13 @@ function OmniCC:Print(...)
 	return print('OmniCC:', ...)
 end
 
-function OmniCC:AddFrame(f, enable)
+function OmniCC:AddFrame(f)
 	CooldownTextFrames = CooldownTextFrames or {}
-	CooldownTextFrames[f] = enable
+	CooldownTextFrames[f] = true
+end
+
+function OmniCC:RemoveFrame(f)
+	if CooldownTextFrames then
+		CooldownTextFrames[f] = nil
+	end
 end
