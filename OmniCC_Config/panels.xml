@@ -1,6 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="panels\general.lua"/>
-	<Script file="panels\frameOptions.lua"/>
-	<Script file="panels\displayOptions.lua"/>
-	<Script file="panels\colorOptions.lua"/>
+	<Script file="panels\font.lua"/>
 </Ui>

@@ -49,24 +49,11 @@ function GeneralOptions:AddWidgets()
 	minFontSize:SetPoint('BOTTOMRIGHT', minDuration, 'TOPRIGHT', 0, 20)
 end
 
-function GeneralOptions:UpdateWidgets()
-	if not self:IsVisible() then
-		return
-	end
-	
-	for _, checkbox in pairs(self.checkboxes) do
-		checkbox:UpdateChecked()
-	end
-end
-
 
 --[[ Checkboxes ]]--
 
-GeneralOptions.checkboxes = {}
-
 function GeneralOptions:NewCheckbox(name)
 	local b = OmniCC.OptionsCheckButton:New(name, self)
-	table.insert(self.checkboxes, b)
 	return b
 end
 
@@ -88,11 +75,8 @@ end
 
 --[[ Sliders ]]--
 
-GeneralOptions.sliders = {}
-
 function GeneralOptions:NewSlider(name, low, high, step)
 	local s = OmniCC.OptionsSlider:New(name, self, low, high, step)
-	table.insert(self.sliders, s)
 	return s
 end
 

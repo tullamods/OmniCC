@@ -7,11 +7,12 @@
 local LSM = LibStub('LibSharedMedia-3.0')
 
 --constants!
-local PADDING = 2
+local PADDING = 4
 local ICON_SIZE = 36 --the normal size for an icon
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --value in seconds for days, hours, and minutes
 local UPDATE_DELAY = 0.01 --minimum time between timer updates
 local DEFAULT_FONT = 'Friz Quadrata TT' --the default font id to use
+local NO_OUTLINE = 'none'
 
 --local bindings!
 local format = string.format
@@ -112,22 +113,21 @@ end
 
 function Timer:GetFontScale()
 	if OmniCC:ScalingText() then
-		 --icon sizes seem to vary a little bit, so this takes care of making them round to whole numbers
-		return floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE 
+		return floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE
 	end
 	return 1
 end
 
 --wrapper for LSM functionality
 local function fetchFont(fontId)
-	if fontName and LSM:IsValid(LSM_FONT, fontName) then
-		return LSM:Fetch(LSM_FONT, fontName)
+	if fontId and LSM:IsValid(LSM_FONT, fontId) then
+		return LSM:Fetch(LSM_FONT, fontId)
 	end
 	return LSM:Fetch(LSM_FONT, DEFAULT_FONT)
 end
 
 local function fetchOutline(outlineId)
-	if outlineId == NONE then
+	if outlineId == NO_OUTLINE then
 		return nil
 	end
 	return outlineId

@@ -28,7 +28,7 @@ function OptionsPanel:New(name, parent, title, subtitle, icon)
 	subtext:SetJustifyV('TOP')
 	subtext:SetText(subtitle)
 	
-	InterfaceOptions_AddCategory(f, 'Bagnon')
+	InterfaceOptions_AddCategory(f, 'OmniCC')
 
 	return f
 end
