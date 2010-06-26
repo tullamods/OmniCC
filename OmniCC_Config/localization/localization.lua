@@ -19,6 +19,7 @@ L.BlacklistSettingsTitle = "Hey, don't display text there!"
 
 L.UseWhitelist = "Only display text on registered frames"
 L.UseBlacklist = "Enable frame blacklist"
+L.Blacklist = "Blacklist"
 
 L.Font = "Font"
 L.FontSize = "Base Font Size"

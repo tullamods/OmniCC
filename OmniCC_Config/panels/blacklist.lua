@@ -4,7 +4,6 @@
 
 local OmniCC = OmniCC
 local L = OMNICC_LOCALS
-local SPACING = 6
 
 local BlacklistOptions = OmniCC.OptionsPanel:New('OmniCCOptions_Blacklist', 'OmniCC', L.BlacklistSettings, L.BlacklistSettingsTitle)
 OmniCC.BlacklistOptions = BlacklistOptions
@@ -20,16 +19,15 @@ function BlacklistOptions:AddWidgets()
 	
 	--add blacklist editor
 	local blacklistEditor = self:CreateBlacklistEditor()
-	blacklistEditor:SetPoint('TOPLEFT', useBlacklist, 'BOTTOMLEFT', 2, -SPACING)	
-	blacklistEditor:SetSize(346, 244)
+	blacklistEditor:SetPoint('TOPLEFT', useBlacklist, 'BOTTOMLEFT', 2, -16)
+	blacklistEditor:SetSize(360, 284)
 end
 
 
 --[[ Widgets, yay! ]]--
 
 function BlacklistOptions:NewCheckbox(name)
-	local b = OmniCC.OptionsCheckButton:New(name, self)
-	return b
+	return OmniCC.OptionsCheckButton:New(name, self)
 end
 
 --use whitelist
@@ -42,10 +40,12 @@ function BlacklistOptions:CreateUseBlacklistCheckbox()
 end
 
 function BlacklistOptions:CreateBlacklistEditor()
-	local f = OmniCC.ListEditor:New(name, self)
+	local f = OmniCC.ListEditor:New(L.Blacklist, self)
 	f.OnAddItem = function(self, value) OmniCC:AddToBlacklist(value) end
 	f.OnRemoveItem = function(self, value) return OmniCC:RemoveFromBlacklist(value) end
 	f.GetItems = function(self) return OmniCC:GetBlacklist() end
 
 	return f
 end
+
+BlacklistOptions:Load()

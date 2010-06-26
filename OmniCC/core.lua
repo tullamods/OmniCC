@@ -261,7 +261,6 @@ local function removeDefaults(tbl, defaults)
 	for k, v in pairs(defaults) do
 		if type(tbl[k]) == 'table' and type(v) == 'table' then
 			removeDefaults(tbl[k], v)
-
 			if next(tbl[k]) == nil then
 				tbl[k] = nil
 			end
@@ -291,7 +290,7 @@ function OmniCC:GetDB()
 			end
 		else
 			self.db = self:CreateNewDB()
---			self:Print('OmniCC Initialized')
+--		self:Print('OmniCC Initialized')
 		end
 		copyDefaults(self.db, self:GetDefaults())
 	end
@@ -381,8 +380,8 @@ function OmniCC:AddToBlacklist(patternToAdd)
 			return i
 		end
 	end
-	
-	table.insert(blacklist, pattern)
+
+	table.insert(blacklist, patternToAdd)
 	table.sort(blacklist)
 
 	for i, pattern in pairs(blacklist) do
@@ -488,8 +487,8 @@ end
 --and false otherwise
 --frames with no name are considered NOT on the blacklist
 do
-	local blacklistedFrames = setmetatable({}, {__index = function(table, frame)
-		local frameName = k:GetName()
+	local blacklistedFrames = setmetatable({}, {__index = function(t, frame)
+		local frameName = frame:GetName()
 		local blacklisted = false
 
 		if frameName then
@@ -501,7 +500,7 @@ do
 			end
 		end	
 
-		table[frame] = blacklisted
+		t[frame] = blacklisted
 		return blacklisted
 	end})
 
@@ -526,7 +525,7 @@ do
 		return isDescendant(frame:GetParent(), otherFrame)
 	end
 
-	local whitelistedFrames = setmetatable({}, {__index = function(table, frame)
+	local whitelistedFrames = setmetatable({}, {__index = function(t, frame)
 		local cooldownTextFrames = _G['CooldownTextFrames']
 		local whitelisted = false
 					
@@ -539,11 +538,11 @@ do
 			end
 		end
 
-		table[frame] = whitelisted		
+		t[frame] = whitelisted		
 		return whitelisted
 	end})
 
-	function Omnicc:IsWhitelisted(frame)
+	function OmniCC:IsWhitelisted(frame)
 		return whitelistedFrames[frame]
 	end
 end

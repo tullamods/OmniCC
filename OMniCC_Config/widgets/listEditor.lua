@@ -14,10 +14,10 @@ local SCROLL_STEP = BUTTON_HEIGHT + PADDING
 
 local ListButton = OmniCC.Classy:New('CheckButton')
 
-function ListButton:New(parent)
+function ListButton:New(parent, onClick)
 	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
 	b:SetHeight(BUTTON_HEIGHT)
-	b:SetScript('OnClick', b.OnClick)
+	b:SetScript('OnClick', onClick)
 	b:SetScript('OnHide', b.OnHide)	
 	
 	local ht = b:CreateTexture(nil, 'BACKGROUND')
@@ -47,10 +47,6 @@ function ListButton:OnHide()
 	self:SetChecked(false)
 end
 
-function ListButton:OnClick()
-	self:GetParent():Select(self:GetValue())
-end
-
 function ListButton:SetValue(value)
 	self:SetText(value)
 end
@@ -70,11 +66,17 @@ OmniCC.ListEditor = ListEditor
 function ListEditor:New(title, parent)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. title, parent, 'OptionsBoxTemplate'))
 	f:SetScript('OnShow', f.Load)
+	f:SetScript('OnSizeChanged', f.OnSizeChanged)
+	
 	f:SetBackdropBorderColor(0.4, 0.4, 0.4)
 	f:SetBackdropColor(0.15, 0.15, 0.15, 0.5)
 	_G[f:GetName() .. 'Title']:SetText(title)
 
 	return f
+end
+
+function ListEditor:OnSizeChanged()	
+	self:UpdateScrollFrameSize()
 end
 
 do
@@ -112,6 +114,18 @@ do
 
 		return scrollFrame
 	end
+	
+	function ListEditor:UpdateScrollFrameSize()
+		local w, h = self:GetSize()
+		w = w - 16
+		h = h - 48
+		
+		if self.scrollBar:IsShown() then
+			w = w - (self.scrollBar:GetWidth() + 4)
+		end
+		
+		self.scrollFrame:SetSize(w, h)
+	end
 end
 
 do
@@ -142,7 +156,7 @@ end
 function ListEditor:CreateScrollChild()
 	local scrollChild = CreateFrame('Frame')
 	scrollChild:SetWidth(self.scrollFrame:GetWidth())
-	self.scrollFrame:AddChild(scrollChild)
+	self.scrollFrame:SetScrollChild(scrollChild)
 
 	return scrollChild
 end
@@ -168,11 +182,12 @@ function ListEditor:Load()
 	scrollBar:SetWidth(16)
 	self.scrollBar = scrollBar
 	
+	local listButton_OnClick = function(b) self:Select(b:GetValue()) end
 	self.buttons = setmetatable({}, {__index = function(t, k)
-		local button = ListButton:New(scrollChild)
+		local button = ListButton:New(scrollChild, listButton_OnClick)
 		if k == 1 then
-			f:SetPoint('TOPLEFT')
-			f:SetPoint('TOPRIGHT')
+			button:SetPoint('TOPLEFT')
+			button:SetPoint('TOPRIGHT')
 		else
 			local prevButton = t[k-1]
 			button:SetPoint('TOPLEFT', prevButton, 'BOTTOMLEFT', 0, -PADDING)
@@ -201,29 +216,31 @@ function ListEditor:UpdateList()
 		self.buttons[i]:Hide()
 	end
 
-	local scrollHeight = #self.buttons * (BUTTON_HEIGHT + PADDING) - PADDING
+	local scrollHeight = #items * (BUTTON_HEIGHT + PADDING) - PADDING
 	local scrollMax = max(scrollHeight - self.scrollFrame:GetHeight(), 0)
 	
 	local scrollBar = self.scrollBar
 	scrollBar:SetMinMaxValues(0, scrollMax)
-	scrollBar:SetValue(min(scrollMax, scrollBar:GetValue())
-
-	self.scrollChild:SetHeight(scrollHeight)
+	scrollBar:SetValue(min(scrollMax, scrollBar:GetValue()))
+	if scrollMax > 0 then
+		self.scrollBar:Show()
+	else
+		self.scrollBar:Hide()
+	end
 	
+	self.scrollChild:SetHeight(scrollHeight)
+	self:UpdateScrollFrameSize()
 	self:UpdateSelected()
 end
 
-function ListEditor:Select(index)
-	self.selected = index
+function ListEditor:Select(value)
+	self.selected = value
 	self:UpdateSelected()
 end
 
 function ListEditor:UpdateSelected()
-	local selectedValue = self:GetSavedValue()
-	for i, button in pairs(self.buttons) do
-		if button:IsShown() then
-			button:SetChecked(button:GetFontID() == selectedValue)
-		end
+	for i, v in pairs(self:GetItems()) do
+		self.buttons[i]:SetChecked(self.selected == v)
 	end
 end
 
