@@ -1,11 +1,11 @@
 #!/bin/sh
 
-rm -rf "/Applications/World of Warcraft/Interface/AddOns/OmniCC"
-rm -rf "/Applications/World of Warcraft/Interface/AddOns/OmniCC_Config"
+rm -rf "${WOW_ADDON_DIR}OmniCC"
+rm -rf "${WOW_ADDON_DIR}OmniCC_Config"
 
-cp -r OmniCC "/Applications/World of Warcraft/Interface/AddOns/"
-cp -r OmniCC_Config "/Applications/World of Warcraft/Interface/Addons/"
+cp -r OmniCC "${WOW_ADDON_DIR}"
+cp -r OmniCC_Config "${WOW_ADDON_DIR}"
 
-cp LICENSE "/Applications/World of Warcraft/Interface/AddOns/OmniCC/"
-cp README  "/Applications/World of Warcraft/Interface/AddOns/OmniCC/"
-cp LICENSE "/Applications/World of Warcraft/Interface/AddOns/OmniCC_Config"
+cp LICENSE "${WOW_ADDON_DIR}OmniCC"
+cp README  "${WOW_ADDON_DIR}OmniCC"
+cp LICENSE "${WOW_ADDON_DIR}OmniCC_Config"
