@@ -301,6 +301,8 @@ end
 function OmniCC:GetDefaults()
 	self.defaults = self.defaults or {
 		useWhiteList = false,
+		useBlacklist = false,
+		blacklist = {},
 		font = DEFAULT_FONT,
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
@@ -353,11 +355,54 @@ end
 --whitelist settings
 function OmniCC:SetUseWhitelist(enable)
 	self:GetDB().useWhiteList = enable and true or false
---	self:UpdateWhitelist()
 end
 
 function OmniCC:UsingWhitelist()
 	return self:GetDB().useWhiteList
+end
+
+function OmniCC:SetUseBlacklist(enable)
+	self:GetDB().useBlacklist = enable and true or false
+end
+
+function OmniCC:UsingBlacklist()
+	return self:GetDB().useBlacklist
+end
+
+function OmniCC:GetBlacklist()
+	return self:GetDB().blacklist
+end
+
+function OmniCC:AddToBlacklist(patternToAdd)
+	local blacklist = self:GetBlacklist()
+
+	for i, pattern in pairs(blacklist) do
+		if pattern == patternToAdd then
+			return i
+		end
+	end
+	
+	table.insert(blacklist, pattern)
+	table.sort(blacklist)
+
+	for i, pattern in pairs(blacklist) do
+		if pattern == patternToAdd then
+			return i
+		end
+	end
+
+	return false
+end
+
+function OmniCC:RemoveFromBlacklist(patternToRemove)
+	local blacklist = self:GetBlacklist()
+	for i, pattern in pairs(blacklist) do
+		if pattern == patternToRemove then
+			table.remove(blacklist, i)
+			return i
+		end
+	end
+	return false
 end
 
 --how many seconds, in length, must a cooldown be to show text
@@ -435,6 +480,76 @@ end
 
 
 --[[---------------------------------------------------------------------------
+	Blacklisting/Whitelisting
+--]]---------------------------------------------------------------------------
+
+--blacklisting
+--returns true if the name of the given frame matches a pattern on the blacklist
+--and false otherwise
+--frames with no name are considered NOT on the blacklist
+do
+	local blacklistedFrames = setmetatable({}, {__index = function(table, frame)
+		local frameName = k:GetName()
+		local blacklisted = false
+
+		if frameName then
+			for _, pattern in pairs(OmniCC:GetBlacklist()) do
+				if frameName:match(pattern) then
+					blacklisted = true
+					break
+				end
+			end
+		end	
+
+		table[frame] = blacklisted
+		return blacklisted
+	end})
+
+	function OmniCC:IsBlacklisted(frame)
+		return blacklistedFrames[frame]
+	end
+end
+
+--whitelisting
+--returns true if the given frame is registered with CooldownTextFrames
+--and false otherwise
+--returns FALSE if CooldownTextFrames does not exist
+do
+	--returns true if the given frame is a descendant of the other frame
+	local function isDescendant(frame, otherFrame)
+		if not (frame and otherFrame) then
+			return false
+		end
+		if frame == otherFrame then
+			return true
+		end
+		return isDescendant(frame:GetParent(), otherFrame)
+	end
+
+	local whitelistedFrames = setmetatable({}, {__index = function(table, frame)
+		local cooldownTextFrames = _G['CooldownTextFrames']
+		local whitelisted = false
+					
+		if cooldownTextFrames then
+			for f, enabled in pairs(cooldownTextFrames) do
+				if isDescendant(frame, f) then
+					whitelisted = enabled
+					break
+				end
+			end
+		end
+
+		table[frame] = whitelisted		
+		return whitelisted
+	end})
+
+	function Omnicc:IsWhitelisted(frame)
+		return whitelistedFrames[frame]
+	end
+end
+
+
+--[[---------------------------------------------------------------------------
 	Utility
 --]]---------------------------------------------------------------------------
 
@@ -442,6 +557,7 @@ function OmniCC:Print(...)
 	return print('OmniCC:', ...)
 end
 
+--convienence functions for testing CooldownTextFrames
 function OmniCC:AddFrame(f)
 	CooldownTextFrames = CooldownTextFrames or {}
 	CooldownTextFrames[f] = true

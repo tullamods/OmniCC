@@ -4,27 +4,14 @@
 
 local OmniCC = OmniCC
 
-local function isParent(parent, frame)
-	if parent and frame then
-		local fParent = frame:GetParent()
-		return parent == fParent or isParent(parent, fParent)
-	end
-end
-
-local enabledFrames = setmetatable({}, {__index = function(t, k)
-	local frames = _G['CooldownTextFrames']
-	if frames then
-		for f, enabled in pairs(frames) do
-			if isParent(f, k) then
-				t[k] = enabled
-				return enabled
-			end
-		end
-	end
-end})
-
 local function shouldShowTimer(cooldown)
-	return (not OmniCC:UsingWhitelist() or enabledFrames[cooldown]) and not cooldown.noCooldownCount
+	if OmniCC:UsingBlacklist() and OmniCC:IsBlacklisted(cooldown)
+		return false
+	end
+	if OmniCC:UsingWhitelist() and not OmniCC:IsWhitelisting(cooldown) then
+		return false
+	end
+	return true
 end
 
 local function hideTimer(cooldown)

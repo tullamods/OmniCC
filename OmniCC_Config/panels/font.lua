@@ -34,11 +34,6 @@ function FontOptions:AddWidgets()
 	fontSize:SetPoint('BOTTOMRIGHT', outlinePicker, 'TOPRIGHT', 0, 20)
 end
 
-function FontOptions:UpdateWidgets()
-	if not self:IsVisible() then
-		return
-	end
-end
 
 --[[ Font Selector ]]--
 

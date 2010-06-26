@@ -33,11 +33,11 @@ end
 
 function GeneralOptions:AddWidgets()
 	--checkboxes
-	local showWhitelist = self:CreateUseWhitelistCheckbox()
-	showWhitelist:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
+	local useWhitelist = self:CreateUseWhitelistCheckbox()
+	useWhitelist:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
 	
 	local scaleText = self:CreateScaleTextCheckbox()
-	scaleText:SetPoint('TOPLEFT', showWhitelist, 'BOTTOMLEFT', 0, -SPACING)
+	scaleText:SetPoint('TOPLEFT', useWhitelist, 'BOTTOMLEFT', 0, -SPACING)
 	
 	--sliders
 	local minDuration = self:CreateMinDurationSlider()
