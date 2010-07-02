@@ -377,7 +377,7 @@ function OmniCC:AddToBlacklist(patternToAdd)
 
 	for i, pattern in pairs(blacklist) do
 		if pattern == patternToAdd then
-			return i
+			return false, i
 		end
 	end
 
@@ -386,22 +386,24 @@ function OmniCC:AddToBlacklist(patternToAdd)
 
 	for i, pattern in pairs(blacklist) do
 		if pattern == patternToAdd then
-			return i
+			return true, i
 		end
 	end
 
-	return false
+	return false, nil
 end
 
 function OmniCC:RemoveFromBlacklist(patternToRemove)
 	local blacklist = self:GetBlacklist()
+	
 	for i, pattern in pairs(blacklist) do
 		if pattern == patternToRemove then
 			table.remove(blacklist, i)
-			return i
+			return true, i
 		end
 	end
-	return false
+	
+	return false, nil
 end
 
 --how many seconds, in length, must a cooldown be to show text
@@ -553,7 +555,7 @@ end
 --]]---------------------------------------------------------------------------
 
 function OmniCC:Print(...)
-	return print('OmniCC:', ...)
+	return print('|cff33aa33OmniCC|r:', ...)
 end
 
 --convienence functions for testing CooldownTextFrames
