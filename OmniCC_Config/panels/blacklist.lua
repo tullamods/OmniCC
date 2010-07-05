@@ -41,9 +41,34 @@ end
 
 function BlacklistOptions:CreateBlacklistEditor()
 	local f = OmniCC.ListEditor:New(L.Blacklist, self)
-	f.OnAddItem = function(self, value) OmniCC:AddToBlacklist(value) end
-	f.OnRemoveItem = function(self, value) return OmniCC:RemoveFromBlacklist(value) end
-	f.GetItems = function(self) return OmniCC:GetBlacklist() end
+	
+	f.OnAddItem = function(self, value) 
+		if OmniCC:AddToBlacklist(value) then
+			OmniCC:ClearBlacklistCache()
+			return true
+		end
+		return false
+	end
+	
+	f.OnRemoveItem = function(self, value) 
+		if OmniCC:RemoveFromBlacklist(value) then
+			OmniCC:ClearBlacklistCache()
+			return true
+		end
+		return false
+	end
+	
+	f.GetItems = function(self) 
+		return OmniCC:GetBlacklist() 
+	end
+	
+	f.IsAddButtonEnabled = function(self)
+		return not OmniCC:GetBlacklistIndex(self.editFrame:GetValue())
+	end
+
+	f.IsRemoveButtonEnabled = function(self)
+		return OmniCC:GetBlacklistIndex(self.editFrame:GetValue())
+	end
 
 	return f
 end

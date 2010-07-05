@@ -4,6 +4,7 @@
 --]]
 
 
+local Classy = OmniCC.Classy
 local PADDING = 2
 local BUTTON_HEIGHT = 18
 local SCROLL_STEP = BUTTON_HEIGHT + PADDING
@@ -12,13 +13,12 @@ local SCROLL_STEP = BUTTON_HEIGHT + PADDING
 	a list button
 --]]
 
-local ListButton = OmniCC.Classy:New('CheckButton')
+local ListButton = Classy:New('Button')
 
 function ListButton:New(parent, onClick)
-	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
+	local b = self:Bind(CreateFrame('Button', nil, parent))
 	b:SetHeight(BUTTON_HEIGHT)
 	b:SetScript('OnClick', onClick)
-	b:SetScript('OnHide', b.OnHide)	
 	
 	local ht = b:CreateTexture(nil, 'BACKGROUND')
 	ht:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
@@ -27,24 +27,15 @@ function ListButton:New(parent, onClick)
 	ht:SetAllPoints(b)
 	b:SetHighlightTexture(ht)
 
-	local ct = b:CreateTexture(nil, 'OVERLAY')
-	ct:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
-	ct:SetSize(24, 24)
-	ct:SetPoint('LEFT')
-	b:SetCheckedTexture(ct)
-
 	local text = b:CreateFontString(nil, 'ARTWORK')
-	text:SetPoint('LEFT', ct, 'RIGHT', 4, 0)
+	text:SetJustifyH('LEFT')
+	text:SetAllPoints(b)
 	b:SetFontString(text)
 
-	b:SetNormalFontObject('GameFontNormalSmall')
-	b:SetHighlightFontObject('GameFontHighlightSmall')
+	b:SetNormalFontObject('GameFontNormal')
+	b:SetHighlightFontObject('GameFontHighlight')
 
 	return b
-end
-
-function ListButton:OnHide()
-	self:SetChecked(false)
 end
 
 function ListButton:SetValue(value)
@@ -52,7 +43,89 @@ function ListButton:SetValue(value)
 end
 
 function ListButton:GetValue()
-	return self:GetText()
+	return self:GetText() or ''
+end
+
+
+--[[
+	Edit Frame
+--]]
+
+local EditFrame = Classy:New('Frame')
+
+local function editBox_OnEnterPressed(self)
+	local parent = self:GetParent()
+	parent:AddItem(parent:GetValue())
+end
+
+local function editBox_OnTextChanged(self)
+	local parent = self:GetParent()
+	parent:UpdateAddRemoveButtons()
+end
+
+local function addButton_OnClick(self)
+	local parent = self:GetParent()
+	parent:AddItem(parent:GetValue())
+end
+
+local function removeButton_OnClick(self)
+	local parent = self:GetParent()
+	parent:RemoveItem(parent:GetValue())
+end
+
+function EditFrame:New(parent)
+	--create parent frame
+	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. 'EditFrame', parent))
+	
+	--create edit box 
+	local editBox = CreateFrame('EditBox', f:GetName() .. 'EditBox', f, 'InputBoxTemplate')
+	editBox:SetPoint('TOPLEFT', f, 'TOPLEFT', 8, 0); editBox:SetPoint('BOTTOMRIGHT', f, 'BOTTOMRIGHT', -60, 0)
+	editBox:SetScript('OnEnterPressed', editBox_OnEnterPressed)
+	editBox:SetScript('OnTextChanged', editBox_OnTextChanged)
+	editBox:SetAutoFocus(false)
+	f.editBox = editBox
+	
+	--create remove button
+	local removeButton = CreateFrame('Button', f:GetName() .. 'RemoveButton', f)
+	removeButton:SetSize(24, 24)
+	removeButton:SetPoint('RIGHT')
+	removeButton:SetScript('OnClick', removeButton_OnClick)
+	removeButton:SetNormalTexture([[Interface\Buttons\UI-MinusButton-UP]])
+	removeButton:SetPushedTexture([[Interface\Buttons\UI-MinusButton-DOWN]])
+	removeButton:SetHighlightTexture([[Interface\Buttons\UI-PlusButton-Hilight]])
+	f.removeButton = removeButton
+	
+	--create add button
+	local addButton = CreateFrame('Button', f:GetName() .. 'AddButton', f)
+	addButton:SetSize(24, 24)
+	addButton:SetPoint('RIGHT', removeButton, 'LEFT', -2, 0)
+	addButton:SetScript('OnClick', addButton_OnClick)
+	addButton:SetNormalTexture([[Interface\Buttons\UI-PlusButton-UP]])
+	addButton:SetPushedTexture([[Interface\Buttons\UI-PlusButton-DOWN]])
+	addButton:SetHighlightTexture([[Interface\Buttons\UI-PlusButton-Hilight]])
+	f.addButton = addButton
+	
+	return f
+end
+
+function EditFrame:SetValue(value)
+	self.editBox:SetText(value)
+end
+
+function EditFrame:GetValue()
+	return self.editBox:GetText()
+end
+
+function EditFrame:AddItem()
+	self:GetParent():AddItem(self:GetValue())
+end
+
+function EditFrame:RemoveItem()
+	self:GetParent():RemoveItem(self:GetValue())
+end
+
+function EditFrame:UpdateAddRemoveButtons()
+	self:GetParent():UpdateAddRemoveButtons()
 end
 
 
@@ -60,7 +133,7 @@ end
 	The list panel
 --]]
 
-local ListEditor = OmniCC.Classy:New('Frame')
+local ListEditor = Classy:New('Frame')
 OmniCC.ListEditor = ListEditor
 
 function ListEditor:New(title, parent)
@@ -161,6 +234,10 @@ function ListEditor:CreateScrollChild()
 	return scrollChild
 end
 
+function ListEditor:CreateEditFrame()
+	return EditFrame:New(self)
+end
+
 
 function ListEditor:OnShow()
 	self:UpdateList()
@@ -168,8 +245,13 @@ function ListEditor:OnShow()
 end
 
 function ListEditor:Load()
+	local editFrame = self:CreateEditFrame()
+	editFrame:SetPoint('TOPLEFT', self, 'TOPLEFT', 8, -4)
+	editFrame:SetPoint('BOTTOMRIGHT', self, 'TOPRIGHT', -8, -36)
+	self.editFrame = editFrame
+
 	local scrollFrame = self:CreateScrollFrame()
-	scrollFrame:SetPoint('TOPLEFT', 8, -8)
+	scrollFrame:SetPoint('TOPLEFT',  editFrame, 'BOTTOMLEFT', 0, -4)
 	self.scrollFrame = scrollFrame
 
 	local scrollChild = self:CreateScrollChild()
@@ -177,7 +259,7 @@ function ListEditor:Load()
 	self.scrollChild = scrollChild
 
 	local scrollBar = self:CreateScrollBar()
-	scrollBar:SetPoint('TOPRIGHT', -8, -8)
+	scrollBar:SetPoint('TOPRIGHT',  editFrame, 'BOTTOMRIGHT', 0, -4)
 	scrollBar:SetPoint('BOTTOMRIGHT', -8, 6)
 	scrollBar:SetWidth(16)
 	self.scrollBar = scrollBar
@@ -235,23 +317,53 @@ end
 
 function ListEditor:Select(value)
 	self.selected = value
+	self.editFrame:SetValue(value)
 	self:UpdateSelected()
 end
 
 function ListEditor:UpdateSelected()
-	for i, v in pairs(self:GetItems()) do
-		self.buttons[i]:SetChecked(self.selected == v)
-	end
+--	for i, v in pairs(self:GetItems()) do
+--		self.buttons[i]:SetChecked(self.selected == v)
+--	end
 end
 
 function ListEditor:AddItem(value)
-	self:OnAddItem(value)
-	self:UpdateList()
+	if self:OnAddItem(value) then
+		self:UpdateList()
+		self:UpdateAddRemoveButtons()
+	end
 end
 
 function ListEditor:RemoveItem(value)
-	self:OnRemoveItem(value)
-	self:UpdateList()
+	if self:OnRemoveItem(value) then
+		self:UpdateList()
+
+		local nextItem = ''
+		for i, v in pairs(self:GetItems()) do
+			nextItem = v
+			break
+		end
+		self.editFrame:SetValue(nextItem)
+
+		self:UpdateAddRemoveButtons()
+	end
+end
+
+function ListEditor:UpdateAddRemoveButtons()
+	local editFrame = self.editFrame
+	local noText = editFrame.editBox:GetText():match('^%s*$')
+
+	local addEnabled = not(noText) and self:IsAddButtonEnabled()
+	editFrame.addButton:Enable(addEnabled)
+	editFrame.addButton:GetNormalTexture():SetDesaturated(not addEnabled)
+	editFrame.addButton:GetHighlightTexture():SetDesaturated(not addEnabled)
+	editFrame.addButton:GetPushedTexture():SetDesaturated(not addEnabled)
+
+	local removeEnabled = not(noText) and self:IsRemoveButtonEnabled()
+	editFrame.removeButton:Enable(removeEnabled)
+	editFrame.removeButton:GetNormalTexture():SetDesaturated(not removeEnabled)
+	editFrame.removeButton:GetHighlightTexture():SetDesaturated(not addEnabled)
+	editFrame.removeButton:GetPushedTexture():SetDesaturated(not addEnabled)
 end
 
 function ListEditor:OnAddItem()
@@ -260,6 +372,14 @@ end
 
 function ListEditor:OnRemoveItem()
 	assert(false, 'Hey, you forgot to set OnRemoveItem for ' .. self:GetName())
+end
+
+function ListEditor:IsAddButtonEnabled()
+	return true
+end
+
+function ListEditor:IsRemoveButtonEnabled()
+	return true
 end
 
 function ListEditor:GetItems()

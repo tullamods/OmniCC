@@ -138,7 +138,6 @@ function Timer:GetFont(scale)
 	return fetchFont(OmniCC:GetFontID()), OmniCC:GetFontSize() * scale, fetchOutline(OmniCC:GetFontOutline())
 end
 
-
 --[[---------------------------------------------------------------------------
 	Global Updater/Event Handler
 --]]---------------------------------------------------------------------------
@@ -172,7 +171,6 @@ OmniCC:SetScript('OnHide', function(self, elapsed)
 	self.elapsed = UPDATE_DELAY
 end)
 
-
 --[[ Events ]]--
 
 --force update on entering world to handle things like arena resets
@@ -192,7 +190,6 @@ end
 OmniCC:RegisterEvent('PLAYER_ENTERING_WORLD')
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
 OmniCC:RegisterEvent('PLAYER_LOGIN')
-
 
 --[[ Actions ]]--
 
@@ -250,8 +247,6 @@ function OmniCC:AddSlashCommands()
 		self:ShowOptions()
 	end
 end
-
-
 
 --[[---------------------------------------------------------------------------
 	Saved Settings
@@ -346,7 +341,6 @@ function OmniCC:GetAddOnVersion()
 	return GetAddOnMetadata('OmniCC', 'Version')
 end
 
-
 --[[---------------------------------------------------------------------------
 	Configuration
 --]]---------------------------------------------------------------------------
@@ -372,38 +366,52 @@ function OmniCC:GetBlacklist()
 	return self:GetDB().blacklist
 end
 
-function OmniCC:AddToBlacklist(patternToAdd)
-	local blacklist = self:GetBlacklist()
+do
+	local function isValidBlacklistPattern(pattern)
+		return pattern and not pattern:match('^%s*$')
+	end
 
-	for i, pattern in pairs(blacklist) do
-		if pattern == patternToAdd then
-			return false, i
+	function OmniCC:AddToBlacklist(patternToAdd)
+		if not isValidBlacklistPattern(patternToAdd) then
+			return false
+		end
+		
+		if not self:GetBlacklistIndex(patternToAdd) then
+			local blacklist = self:GetBlacklist()
+			table.insert(blacklist, patternToAdd)
+			table.sort(blacklist)
+
+			for i, pattern in pairs(blacklist) do
+				if pattern == patternToAdd then
+					return true
+				end
+			end
 		end
 	end
 
-	table.insert(blacklist, patternToAdd)
-	table.sort(blacklist)
+	function OmniCC:RemoveFromBlacklist(patternToRemove)
+		if not isValidBlacklistPattern(patternToRemove) then
+			return false
+		end
 
-	for i, pattern in pairs(blacklist) do
-		if pattern == patternToAdd then
-			return true, i
+		local index = self:GetBlacklistIndex(patternToRemove)
+		if index then
+			table.remove(self:GetBlacklist(), index)
+			return true
 		end
 	end
 
-	return false, nil
-end
+	function OmniCC:GetBlacklistIndex(patternToFind)
+		if not isValidBlacklistPattern(patternToFind) then
+			return false
+		end
 
-function OmniCC:RemoveFromBlacklist(patternToRemove)
-	local blacklist = self:GetBlacklist()
-	
-	for i, pattern in pairs(blacklist) do
-		if pattern == patternToRemove then
-			table.remove(blacklist, i)
-			return true, i
+		for i, pattern in pairs(self:GetBlacklist()) do
+			if pattern == patternToFind then
+				return i
+			end
 		end
 	end
-	
-	return false, nil
 end
 
 --how many seconds, in length, must a cooldown be to show text
@@ -479,7 +487,6 @@ function OmniCC:GetFormattedTime(s)
 	return GREEN_FONT_COLOR_CODE .. format('%.1f', s) .. FONT_COLOR_CODE_CLOSE
 end
 
-
 --[[---------------------------------------------------------------------------
 	Blacklisting/Whitelisting
 --]]---------------------------------------------------------------------------
@@ -506,6 +513,12 @@ do
 		return blacklisted
 	end})
 
+	function OmniCC:ClearBlacklistCache()
+		for k, v in pairs(blacklistedFrames) do
+			blacklistedFrames[k] = nil
+		end
+	end
+
 	function OmniCC:IsBlacklisted(frame)
 		return blacklistedFrames[frame]
 	end
@@ -530,7 +543,7 @@ do
 	local whitelistedFrames = setmetatable({}, {__index = function(t, frame)
 		local cooldownTextFrames = _G['CooldownTextFrames']
 		local whitelisted = false
-					
+
 		if cooldownTextFrames then
 			for f, enabled in pairs(cooldownTextFrames) do
 				if isDescendant(frame, f) then
@@ -544,11 +557,16 @@ do
 		return whitelisted
 	end})
 
+	function OmniCC:ClearWhitelistCache()
+		for k, v in pairs(whitelistedFrames) do
+			whitelistedFrames[k] = nil
+		end
+	end
+
 	function OmniCC:IsWhitelisted(frame)
 		return whitelistedFrames[frame]
 	end
 end
-
 
 --[[---------------------------------------------------------------------------
 	Utility
