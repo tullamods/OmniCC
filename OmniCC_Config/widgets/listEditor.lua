@@ -4,7 +4,7 @@
 --]]
 
 
-local Classy = OmniCC.Classy
+local Classy = LibStub('Classy-1.0')
 local PADDING = 2
 local BUTTON_HEIGHT = 18
 local SCROLL_STEP = BUTTON_HEIGHT + PADDING

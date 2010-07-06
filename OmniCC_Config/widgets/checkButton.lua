@@ -3,7 +3,7 @@
 		A bagnon dropdown menu
 --]]
 
-local OptionsCheckButton = OmniCC.Classy:New('CheckButton')
+local OptionsCheckButton = LibStub('Classy-1.0'):New('CheckButton')
 OmniCC.OptionsCheckButton = OptionsCheckButton
 
 function OptionsCheckButton:New(name, parent)

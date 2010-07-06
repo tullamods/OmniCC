@@ -5,6 +5,7 @@
 
 
 local LSM = LibStub('LibSharedMedia-3.0')
+local Classy = LibStub('Classy-1.0')
 local LSM_FONT = LSM.MediaType.FONT
 local PADDING = 2
 local FONT_HEIGHT = 18
@@ -26,7 +27,7 @@ end
 	The Font Button
 --]]
 
-local FontButton = OmniCC.Classy:New('CheckButton')
+local FontButton = Classy:New('CheckButton')
 
 function FontButton:New(parent, useAltColor)
 	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
@@ -90,7 +91,7 @@ end
 	The Font Selector
 --]]
 
-local FontSelector = OmniCC.Classy:New('Frame')
+local FontSelector = Classy:New('Frame')
 OmniCC.FontSelector = FontSelector
 
 function FontSelector:New(title, parent)

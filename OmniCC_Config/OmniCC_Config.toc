@@ -5,6 +5,5 @@
 ## Dependencies: OmniCC
 ## LoadOnDemand: 1
 localization.xml
-classy.lua
 widgets.xml
 panels.xml

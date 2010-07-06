@@ -3,7 +3,7 @@
 		A bagnon options panel
 --]]
 
-local OptionsPanel = OmniCC.Classy:New('Frame')
+local OptionsPanel = LibStub('Classy-1.0'):New('Frame')
 OmniCC.OptionsPanel = OptionsPanel
 
 function OptionsPanel:New(name, parent, title, subtitle, icon)

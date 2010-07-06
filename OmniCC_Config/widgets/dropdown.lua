@@ -3,7 +3,7 @@
 		A bagnon dropdown menu
 --]]
 
-local OptionsDropdown = OmniCC.Classy:New('Frame')
+local OptionsDropdown = LibStub('Classy-1.0'):New('Frame')
 OmniCC.OptionsDropdown = OptionsDropdown
 
 function OptionsDropdown:New(name, parent, width)

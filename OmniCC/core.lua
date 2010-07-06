@@ -569,6 +569,54 @@ do
 end
 
 --[[---------------------------------------------------------------------------
+	Finish Effects
+--]]---------------------------------------------------------------------------
+
+function OmniCC:RegisterEffect(effect)
+	if not self:GetEffect(effect.id) then
+		local effects = self.effects or {}
+		table.insert(effects, effect)
+		self.effects = effects
+	end
+	effect:Enable()
+end
+
+function OmniCC:GetEffect(id)
+	if self.effects then
+		for i, effect in pairs(self.effects) do
+			if effect.id == id then
+				return effect
+			end
+		end
+	end
+end
+
+function OmniCC:GetEffectNames(results)
+	local results = results or {}
+	if self.effects then
+		for _, effect in pairs(self.effects) do
+			table.insert(results, effect:GetName())
+		end
+	end
+	table.sort(results)
+	return results
+end
+
+function OmniCC:ForEachEffect(f, ...)
+	local results
+	if self.effects then
+		for _, effect in pairs(self.effects) do
+			local result = f(effect, ...)
+			if result then
+				results = results or {}
+				table.insert(results, result)
+			end
+		end
+	end
+	return results
+end
+
+--[[---------------------------------------------------------------------------
 	Utility
 --]]---------------------------------------------------------------------------
 

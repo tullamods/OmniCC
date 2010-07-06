@@ -1,12 +1,8 @@
 3.0 beta:
-Add in blacklist support
 Add in shine plugin
-Add in way to edit code for GetFormattedTime (advanced settings)
+Add in way to select between shine/pulse
 
 3.0 release:
 Will be determined by user need
-If users ask for it, add in the ability to hide the cooldown model again
-If users ask for it, add in ability to scale text on a per duration basis
-
-3.1:
-add in pulse plugin
+Hide cooldown models?
+Color/scale configuration for different time periods?

@@ -3,7 +3,7 @@
 		A bagnon options slider
 --]]
 
-local OptionsSlider = OmniCC.Classy:New('Slider')
+local OptionsSlider = LibStub('Classy-1.0'):New('Slider')
 OmniCC.OptionsSlider = OptionsSlider
 
 
