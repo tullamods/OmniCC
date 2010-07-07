@@ -2,13 +2,14 @@
 	OmniCC localization - English
 --]]
 
+OMNICC_LOCALS = {} --should be done in the US locale file, only
+
 local L = OMNICC_LOCALS
-if (not L) and GetLocale() == "enUS" then
-	L = {}
-	OMNICC_LOCALS = L
-else
+--[[
+if not GetLocale() == 'enUS' then
 	return
 end
+--]]
 
 L.Updated = "Updated to v%s"
 L.None = NONE
