@@ -1,6 +1,6 @@
 --[[
-	pulse.lua
-		a pulsing effect for when a cooldown completes
+	shine.lua
+		a shine effect for when a cooldown completes
 --]]
 
 local Classy = LibStub('Classy-1.0')
@@ -11,7 +11,7 @@ local TEXTURE = [[Interface\Cooldown\star4]]
 
 
 --[[
-	The pulse object
+	The shine object
 --]]
 
 local Shine = Classy:New('Frame')

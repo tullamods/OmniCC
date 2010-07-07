@@ -1,7 +1,3 @@
-3.0 beta:
-Add in shine plugin
-Add in way to select between shine/pulse
-
 3.0 release:
 Will be determined by user need
 Hide cooldown models?

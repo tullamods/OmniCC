@@ -3,12 +3,6 @@
 --]]
 
 local L = OMNICC_LOCALS
-if (not L) and GetLocale() == "enUS" then
-	L = {}
-	OMNICC_LOCALS = L
-else
-	return
-end
 
 L.GeneralSettings = "General"
 L.GeneralSettingsTitle = "The common stuff"
@@ -18,7 +12,7 @@ L.BlacklistSettings = "Blacklist"
 L.BlacklistSettingsTitle = "Hey, don't display text there!"
 
 L.UseWhitelist = "Only display text on registered frames"
-L.UseBlacklist = "Enable frame blacklist"
+L.UseBlacklist = "Only display text on frames not on the blacklist"
 L.Blacklist = "Blacklist"
 
 L.Font = "Font"
@@ -35,3 +29,6 @@ L.ScaleText = "Automatically scale text to fit within frames"
 
 L.Add = "Add"
 L.Remove = "Remove"
+
+L.FinishEffect = 'Finish Effect'
+L.MinEffectDuration = 'Minimum duration to display finish effect'

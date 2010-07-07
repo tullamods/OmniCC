@@ -4,6 +4,7 @@
 --]]
 
 --libraries!
+local Classy = LibStub('Classy-1.0')
 local LSM = LibStub('LibSharedMedia-3.0')
 
 --constants!
@@ -30,11 +31,10 @@ local LSM_FONT = LSM.MediaType.FONT
 	Timer Code
 --]]---------------------------------------------------------------------------
 
-local Timer = CreateFrame('Frame'); Timer:Hide()
-local timer_MT = {__index = Timer}
+local Timer = Classy:New('Frame'); Timer:Hide()
 
 function Timer:New(parent)
-	local t = setmetatable(CreateFrame('Frame', nil, parent), timer_MT)
+	local t = self:Bind(CreateFrame('Frame', nil, parent))
 	t:Hide()
 	t:SetAllPoints(parent)
 	t:SetScript('OnShow', t.OnShow)
@@ -83,7 +83,9 @@ function Timer:Update()
 		self:UpdateDisplay()
 	else
 		self:Stop()
-		OmniCC:SendMessage('COOLDOWN_FINISHED', self:GetParent())
+		if self.duration >= OmniCC:GetMinEffectDuration() then
+			OmniCC:SendMessage('COOLDOWN_FINISHED', self:GetParent())
+		end
 	end
 end
 
@@ -145,6 +147,7 @@ end
 local OmniCC = CreateFrame('Frame', 'OmniCC', UIParent); OmniCC:Hide()
 OmniCC.timers = {}
 OmniCC.elapsed = UPDATE_DELAY
+LibStub('Ears-1.0'):Inject(OmniCC)
 
 OmniCC:SetScript('OnEvent', function(self, event, ...)
 	local a = self[event]
@@ -181,6 +184,7 @@ end
 function OmniCC:PLAYER_LOGIN()
 	self:CreateOptionsLoader()
 	self:AddSlashCommands()
+	self:EnableEffect(self:GetSelectedEffectID())
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -285,7 +289,6 @@ function OmniCC:GetDB()
 			end
 		else
 			self.db = self:CreateNewDB()
---		self:Print('OmniCC Initialized')
 		end
 		copyDefaults(self.db, self:GetDefaults())
 	end
@@ -303,6 +306,8 @@ function OmniCC:GetDefaults()
 		scaleText = true,
 		minDuration = 3,
 		minFontSize = 8,
+		effect = 'pulse',
+		minEffectDuration = 15,
 	}
 	return self.defaults
 end
@@ -326,7 +331,7 @@ end
 function OmniCC:UpgradeDB()
 	local oldMajor, oldMinor = self:GetDBVersion():match('(%w+)%.(%w+)')
 	self:GetDB().version = self:GetAddOnVersion()
---	self:Print(('Updated to v%s'):format(self:GetDBVersion()))
+	self:Print(L.Updated:format(self:GetDBVersion()))
 end
 
 function OmniCC:IsDBOutOfDate()
@@ -581,6 +586,29 @@ function OmniCC:RegisterEffect(effect)
 	effect:Enable()
 end
 
+do
+	local function effect_EnableIfSelected(effect, selectedID)
+			if effect.id == selectedID then
+				effect:Enable()
+			else
+				effect:Disable()
+			end
+	end
+
+	function OmniCC:EnableEffect(effectID)
+		self:ForEachEffect(effect_EnableIfSelected, effectID)
+	end
+end
+
+function OmniCC:SetEffect(effectID)
+	self:GetDB().effect = effectID
+	self:EnableEffect(effectID)
+end
+
+function OmniCC:GetSelectedEffectID()
+	return self:GetDB().effect or 'none'
+end
+
 function OmniCC:GetEffect(id)
 	if self.effects then
 		for i, effect in pairs(self.effects) do
@@ -589,17 +617,6 @@ function OmniCC:GetEffect(id)
 			end
 		end
 	end
-end
-
-function OmniCC:GetEffectNames(results)
-	local results = results or {}
-	if self.effects then
-		for _, effect in pairs(self.effects) do
-			table.insert(results, effect:GetName())
-		end
-	end
-	table.sort(results)
-	return results
 end
 
 function OmniCC:ForEachEffect(f, ...)
@@ -614,6 +631,14 @@ function OmniCC:ForEachEffect(f, ...)
 		end
 	end
 	return results
+end
+
+function OmniCC:SetMinEffectDuration(duration)
+	self:GetDB().minEffectDuration = duration
+end
+
+function OmniCC:GetMinEffectDuration()
+	return self:GetDB().minEffectDuration
 end
 
 --[[---------------------------------------------------------------------------

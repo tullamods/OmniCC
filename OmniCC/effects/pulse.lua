@@ -4,8 +4,9 @@
 --]]
 
 local Classy = LibStub('Classy-1.0')
+local L = OMNICC_LOCALS
 local PULSE_SCALE = 3
-local PULSE_DURATION = 0.5
+local PULSE_DURATION = 0.8
 
 --[[
 	The pulse object
@@ -14,11 +15,11 @@ local PULSE_DURATION = 0.5
 local Pulse = Classy:New('Frame')
 
 function Pulse:New(parent)
-	local f = self:Bind(CreateFrame('Frame', nil, parent)) 
+	local f = self:Bind(CreateFrame('Frame', nil, parent))
 	f:SetAllPoints(parent)
 	f:SetToplevel(true)
 	f:Hide()
-	
+
 	f.animation = f:CreatePulseAnimation()
 	f:SetScript('OnHide', f.OnHide)
 
@@ -38,7 +39,7 @@ do
 			parent:Hide()
 		end
 	end
-	
+
 	local function grow_OnFinished(self)
 		if self.reversed then
 			self.reversed = nil
@@ -59,7 +60,7 @@ do
 		grow:SetOrigin('CENTER', 0, 0)
 		grow:SetDuration(PULSE_DURATION/2)
 		grow:SetOrder(1)
-		grow:SetSmoothing('IN')
+		--grow:SetSmoothing('IN')
 		grow:SetScript('OnFinished', grow_OnFinished)
 
 		return g
@@ -92,33 +93,31 @@ do
 		t[k] = f
 		return f
 	end})
-	
+
 	local function getTexture(frame)
 		if not frame then
 			return
 		end
-		
+
 		local icon = frame.icon
 		if icon then
 			return icon
 		end
-		
+
 		local name = frame:GetName()
 		if name then
 		 	return _G[name .. 'Icon'] or _G[name .. 'IconTexture']
 		end
 	end
-	
+
 	OmniCC:RegisterEffect{
 		id = 'pulse',
-		GetName = function(self) 
-			return OMNICC_LOCALS['Pulse'] 
-		end,
+		name = L.Pulse,
 		Enable = function(self)
-			OmniCC:Listen(self, 'COOLDOWN_FINISHED')
+			OmniCC:AddListener(self, 'COOLDOWN_FINISHED')
 		end,
 		Disable = function(self)
-			OmniCC:Ignore(self, 'COOLDOWN_FINISHED')
+			OmniCC:RemoveListener(self, 'COOLDOWN_FINISHED')
 		end,
 		COOLDOWN_FINISHED = function(self, msg, cooldown)
 			local parent = cooldown:GetParent()

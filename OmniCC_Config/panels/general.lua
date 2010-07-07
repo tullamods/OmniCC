@@ -39,10 +39,17 @@ function GeneralOptions:AddWidgets()
 	local scaleText = self:CreateScaleTextCheckbox()
 	scaleText:SetPoint('TOPLEFT', useWhitelist, 'BOTTOMLEFT', 0, -SPACING)
 	
+	local finishEffect = self:CreateFinishEffectPicker()
+	finishEffect:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', -16, -(SPACING + 12))
+	
 	--sliders
+	local minEffectDuration = self:CreateMinEffectDurationSlider()
+	minEffectDuration:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
+	minEffectDuration:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
+	
 	local minDuration = self:CreateMinDurationSlider()
-	minDuration:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
-	minDuration:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
+	minDuration:SetPoint('BOTTOMLEFT', minEffectDuration, 'TOPLEFT', 0, 20)
+	minDuration:SetPoint('BOTTOMRIGHT', minEffectDuration, 'TOPRIGHT', 0, 20)
 
 	local minFontSize = self:CreateMinFontSizeSlider()
 	minFontSize:SetPoint('BOTTOMLEFT', minDuration, 'TOPLEFT', 0, 20)
@@ -93,6 +100,41 @@ function GeneralOptions:CreateMinFontSizeSlider()
 	s.SetSavedValue = function(self, value) OmniCC:SetMinFontSize(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinFontSize() end
 	return s
+end
+
+function GeneralOptions:CreateMinEffectDurationSlider()
+	local s = self:NewSlider(L.MinEffectDuration, 0, 60, 1)
+	s.SetSavedValue = function(self, value) OmniCC:SetMinEffectDuration(value) end
+	s.GetSavedValue = function(self) return OmniCC:GetMinEffectDuration() end
+	return s
+end
+
+
+--[[ Dropdown ]]--
+
+function GeneralOptions:CreateFinishEffectPicker()
+	local dd = OmniCC.OptionsDropdown:New(L.FinishEffect, self, 120)
+	
+	dd.Initialize = function()
+		dd:AddItem(NONE, 'none')
+	
+		local effects = OmniCC:ForEachEffect(function(effect) return {effect.name, effect.id} end)
+		table.sort(effects, function(e1, e2) return e1[1] < e2[1] end)
+	
+		for n, v in ipairs(effects) do
+			dd:AddItem(unpack(v))
+		end
+	end
+	
+	dd.SetSavedValue = function(self, value)
+		OmniCC:SetEffect(value)
+	end
+	
+	dd.GetSavedValue = function(self)
+		return OmniCC:GetSelectedEffectID()
+	end
+	
+	return dd
 end
 
 --[[ Load the thing ]]--

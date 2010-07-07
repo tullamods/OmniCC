@@ -5,6 +5,7 @@
 ## Version: 3.0
 ## SavedVariables: OmniCCGlobalSettings
 embeds.xml
+localization.xml
 core.lua
 ears.lua
 hook.lua

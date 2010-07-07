@@ -8,7 +8,7 @@ local function shouldShowTimer(cooldown)
 	if OmniCC:UsingBlacklist() and OmniCC:IsBlacklisted(cooldown) then
 		return false
 	end
-	if OmniCC:UsingWhitelist() and not OmniCC:IsWhitelisting(cooldown) then
+	if OmniCC:UsingWhitelist() and not OmniCC:IsWhitelisted(cooldown) then
 		return false
 	end
 	return true
