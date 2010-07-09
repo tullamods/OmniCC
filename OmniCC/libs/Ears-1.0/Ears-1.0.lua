@@ -21,6 +21,7 @@ function Ears:Inject(f)
 		assert(not f[k], (f:GetName() or '<Unknown Frame>') .. string.format('%s already has a method named "%s"', (f:GetName() or '<Unknown Frame>'), k))
 		f[k] = function(self, ...) ear[k](ear, ...) end
 	end
+	return f
 end
 
 

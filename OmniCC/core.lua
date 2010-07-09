@@ -11,7 +11,7 @@ local LSM = LibStub('LibSharedMedia-3.0')
 local PADDING = 4
 local ICON_SIZE = 36 --the normal size for an icon
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --value in seconds for days, hours, and minutes
-local UPDATE_DELAY = 0.01 --minimum time between timer updates
+local UPDATE_DELAY = 0.02 --minimum time between timer updates
 local DEFAULT_FONT = 'Friz Quadrata TT' --the default font id to use
 local NO_OUTLINE = 'none'
 
@@ -19,12 +19,6 @@ local NO_OUTLINE = 'none'
 local format = string.format
 local floor = math.floor
 local min = math.min
-local GRAY_FONT_COLOR_CODE = GRAY_FONT_COLOR_CODE
-local NORMAL_FONT_COLOR_CODE = NORMAL_FONT_COLOR_CODE
-local YELLOW_FONT_COLOR_CODE = YELLOW_FONT_COLOR_CODE
-local RED_FONT_COLOR_CODE = RED_FONT_COLOR_CODE
-local GREEN_FONT_COLOR_CODE = GREEN_FONT_COLOR_CODE
-local FONT_COLOR_CODE_CLOSE = FONT_COLOR_CODE_CLOSE
 local LSM_FONT = LSM.MediaType.FONT
 
 --[[---------------------------------------------------------------------------
@@ -39,10 +33,10 @@ function Timer:New(parent)
 	t:SetAllPoints(parent)
 	t:SetScript('OnShow', t.OnShow)
 	t:SetScript('OnHide', t.OnHide)
+	t:SetScript('OnSizeChanged', t.OnSizeChanged)
 
 	local text = t:CreateFontString(nil, 'OVERLAY')
 	text:SetPoint('CENTER', 0, 1)
-	text:SetFont(self:GetFont())
 	t.text = text
 
 	return t
@@ -51,6 +45,7 @@ end
 function Timer:OnShow()
 	if self:GetRemainingTime() > 0 then
 		OmniCC:Add(self)
+		self:UpdateFont()
 	else
 		self:Stop()
 	end
@@ -60,13 +55,15 @@ function Timer:OnHide()
 	OmniCC:Remove(self)
 end
 
-function Timer:Start(cooldown, start, duration)
-	local timer = cooldown.timer
-	if not timer then
-		timer = Timer:New(cooldown)
-		cooldown.timer = timer
+function Timer:OnSizeChanged()
+	if self:IsVisible() and OmniCC:ScalingText() then
+		self:UpdateFont()
 	end
+end
 
+local timers = setmetatable({}, {__index = function(t, k) t[k] = Timer:New(k); return t[k] end})
+function Timer:Start(cooldown, start, duration)
+	local timer = timers[cooldown]
 	timer.start = start
 	timer.duration = duration
 	timer:Show()
@@ -79,8 +76,9 @@ function Timer:Stop()
 end
 
 function Timer:Update()
-	if self:GetRemainingTime() > 0 then
-		self:UpdateDisplay()
+	local remain = self:GetRemainingTime()
+	if remain > 0 then
+		self:UpdateDisplay(remain)
 	else
 		self:Stop()
 		if self.duration >= OmniCC:GetMinEffectDuration() then
@@ -89,21 +87,10 @@ function Timer:Update()
 	end
 end
 
-function Timer:UpdateDisplay()
-	local font, size, outline = self:GetFont(self:GetFontScale())
+function Timer:UpdateDisplay(remain)
 	local text = self.text
-
-	if size < OmniCC:GetMinFontSize() then
-		text:Hide()
-	else
-		if not(text.font == font and text.fontSize == size and text.fontOutline == outline) then
-			text:SetFont(font, size, outline)
-			text.font = font
-			text.fontSize = size
-			text.fontOutline = outline
-		end
-		text:SetText(OmniCC:GetFormattedTime(self:GetRemainingTime()))
-		text:Show()
+	if text:IsShown() then
+		text:SetText(self:GetFormattedTime(remain))
 	end
 end
 
@@ -113,6 +100,23 @@ end
 
 --[[ Font Retrieval ]]--
 
+function Timer:UpdateFont()
+	local font, size, outline = self:GetFont()
+	local text = self.text
+
+	if size < OmniCC:GetMinFontSize() then
+		text:Hide()
+	else
+		text:SetFont(self:GetFont())
+		text:Show()
+	end
+end
+
+function Timer:GetFont()
+	local font, size, outline = OmniCC:GetFontInfo()
+	return font, size * self:GetFontScale(), outline
+end
+
 function Timer:GetFontScale()
 	if OmniCC:ScalingText() then
 		return floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE
@@ -120,34 +124,29 @@ function Timer:GetFontScale()
 	return 1
 end
 
---wrapper for LSM functionality
-local function fetchFont(fontId)
-	if fontId and LSM:IsValid(LSM_FONT, fontId) then
-		return LSM:Fetch(LSM_FONT, fontId)
+function Timer:GetFormattedTime(s)
+	if s >= DAY then
+		return format('|cff808080%ds|r', floor(s/DAY + 0.5))
+	elseif s >= HOUR then
+		return format('|cffffd200%dh|r', floor(s/HOUR + 0.5))
+	elseif s >= 90 then
+		return format('|cffffff00%dm|r', floor(s/MINUTE + 0.5))
+	elseif s >= 10 then
+		return format('|cffffff00%d|r', floor(s + 0.5))
+	elseif s >= 3 then
+		return format('|cffff2020%d|r', floor(s + 0.5))
 	end
-	return LSM:Fetch(LSM_FONT, DEFAULT_FONT)
+	return format('|cff20ff20%.1f|r', s)
 end
 
-local function fetchOutline(outlineId)
-	if outlineId == NO_OUTLINE then
-		return nil
-	end
-	return outlineId
-end
-
-function Timer:GetFont(scale)
-	local scale = scale or 1
-	return fetchFont(OmniCC:GetFontID()), OmniCC:GetFontSize() * scale, fetchOutline(OmniCC:GetFontOutline())
-end
 
 --[[---------------------------------------------------------------------------
 	Global Updater/Event Handler
 --]]---------------------------------------------------------------------------
 
-local OmniCC = CreateFrame('Frame', 'OmniCC', UIParent); OmniCC:Hide()
-OmniCC.timers = {}
+local OmniCC = LibStub('Ears-1.0'):Inject(CreateFrame('Frame', 'OmniCC', UIParent));OmniCC:Hide()
 OmniCC.elapsed = UPDATE_DELAY
-LibStub('Ears-1.0'):Inject(OmniCC)
+OmniCC.timers = {}
 
 OmniCC:SetScript('OnEvent', function(self, event, ...)
 	local a = self[event]
@@ -223,6 +222,12 @@ function OmniCC:UpdateTimers()
 	end
 end
 
+function OmniCC:UpdateTimerFonts()
+	for timer in pairs(self.timers) do
+		timer:UpdateFont()
+	end
+end
+
 function OmniCC:StartTimer(cooldown, start, duration)
 	Timer:Start(cooldown, start, duration)
 end
@@ -251,6 +256,7 @@ function OmniCC:AddSlashCommands()
 		self:ShowOptions()
 	end
 end
+
 
 --[[---------------------------------------------------------------------------
 	Saved Settings
@@ -359,6 +365,7 @@ function OmniCC:UsingWhitelist()
 	return self:GetDB().useWhiteList
 end
 
+--blacklist settings
 function OmniCC:SetUseBlacklist(enable)
 	self:GetDB().useBlacklist = enable and true or false
 end
@@ -380,7 +387,7 @@ do
 		if not isValidBlacklistPattern(patternToAdd) then
 			return false
 		end
-		
+
 		if not self:GetBlacklistIndex(patternToAdd) then
 			local blacklist = self:GetBlacklist()
 			table.insert(blacklist, patternToAdd)
@@ -426,71 +433,60 @@ function OmniCC:SetMinDuration(duration)
 end
 
 function OmniCC:GetMinDuration()
-	return self:GetDB().minDuration or 0
+	return self:GetDB().minDuration
 end
 
---retrieves the id of the font we've chosen to use
+--font id
 function OmniCC:SetFontID(font)
 	self:GetDB().font = font
-	self:UpdateTimers()
+	self:GetFontInfo(true)
+	self:UpdateTimerFonts()
 end
 
 function OmniCC:GetFontID()
-	return self:GetDB().font or DEFAULT_FONT
+	return self:GetDB().font
 end
 
+--font size
 function OmniCC:SetFontSize(size)
 	self:GetDB().fontSize = size
-	self:UpdateTimers()
+	self:UpdateTimerFonts()
 end
 
 function OmniCC:GetFontSize()
-	return self:GetDB().fontSize or 18
+	return self:GetDB().fontSize
 end
 
+--font outline
 function OmniCC:SetFontOutline(outline)
 	self:GetDB().fontOutline = outline
-	self:UpdateTimers()
+	self:UpdateTimerFonts()
 end
 
 function OmniCC:GetFontOutline()
-	return self:GetDB().fontOutline or NONE
+	return self:GetDB().fontOutline
 end
 
---returns true if font scaling is enabled or not
+--font scaling
 function OmniCC:SetScaleText(enable)
 	self:GetDB().scaleText = enable and true or false
-	self:UpdateTimers()
+	self:UpdateTimerFonts()
 end
 
 function OmniCC:ScalingText()
 	return self:GetDB().scaleText
 end
 
---returns the minimum size to display text at
+--minimum font size to display text
 function OmniCC:SetMinFontSize(size)
 	self:GetDB().minFontSize = size
-	self:UpdateTimers()
+	self:UpdateTimerFonts()
 end
 
 function OmniCC:GetMinFontSize()
-	return self:GetDB().minFontSize or 8
+	return self:GetDB().minFontSize
 end
 
-function OmniCC:GetFormattedTime(s)
-	if s >= DAY then
-		return GRAY_FONT_COLOR_CODE .. format('%dd', floor(s/DAY + 0.5)) .. FONT_COLOR_CODE_CLOSE
-	elseif s >= HOUR then
-		return NORMAL_FONT_COLOR_CODE .. format('%dh', floor(s/HOUR + 0.5)) .. FONT_COLOR_CODE_CLOSE
-	elseif s >= MINUTE then
-		return YELLOW_FONT_COLOR_CODE .. format('%dm', floor(s/MINUTE + 0.5)) .. FONT_COLOR_CODE_CLOSE
-	elseif floor(s + 0.5) > 10 then
-		return YELLOW_FONT_COLOR_CODE .. floor(s + 0.5) .. FONT_COLOR_CODE_CLOSE
-	elseif s >= 3 then
-		return RED_FONT_COLOR_CODE .. floor(s + 0.5) .. FONT_COLOR_CODE_CLOSE
-	end
-	return GREEN_FONT_COLOR_CODE .. format('%.1f', s) .. FONT_COLOR_CODE_CLOSE
-end
 
 --[[---------------------------------------------------------------------------
 	Blacklisting/Whitelisting
@@ -512,7 +508,7 @@ do
 					break
 				end
 			end
-		end	
+		end
 
 		t[frame] = blacklisted
 		return blacklisted
@@ -558,7 +554,7 @@ do
 			end
 		end
 
-		t[frame] = whitelisted		
+		t[frame] = whitelisted
 		return whitelisted
 	end})
 
@@ -572,6 +568,7 @@ do
 		return whitelistedFrames[frame]
 	end
 end
+
 
 --[[---------------------------------------------------------------------------
 	Finish Effects
@@ -641,22 +638,37 @@ function OmniCC:GetMinEffectDuration()
 	return self:GetDB().minEffectDuration
 end
 
+
+--[[---------------------------------------------------------------------------
+	Font Retrieval - Really here to just minimize calls to SharedMedia/saved settings access
+--]]---------------------------------------------------------------------------
+
+do
+	--these functions are here to minimize calls to SharedMedia
+	local function fetchFont(fontId)
+		if fontId and LSM:IsValid(LSM_FONT, fontId) then
+			return LSM:Fetch(LSM_FONT, fontId)
+		end
+		return LSM:Fetch(LSM_FONT, DEFAULT_FONT)
+	end
+
+	function OmniCC:GetFontInfo(force)
+		local font = self.font
+		if (not font) or force then
+			font = fetchFont(self:GetFontID())
+			self.font = font
+		end
+
+		local db = self:GetDB()
+		return font, db.fontSize, db.fontOutline
+	end
+end
+
+
 --[[---------------------------------------------------------------------------
 	Utility
 --]]---------------------------------------------------------------------------
 
 function OmniCC:Print(...)
 	return print('|cff33aa33OmniCC|r:', ...)
-end
-
---convienence functions for testing CooldownTextFrames
-function OmniCC:AddFrame(f)
-	CooldownTextFrames = CooldownTextFrames or {}
-	CooldownTextFrames[f] = true
-end
-
-function OmniCC:RemoveFrame(f)
-	if CooldownTextFrames then
-		CooldownTextFrames[f] = nil
-	end
 end
