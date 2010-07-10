@@ -1,3 +1,2 @@
-3.0 release:
-Tenths of seconds checkbox
-Color configuration for each time period
+Tenths of seconds configuration slider
+Color configuration
