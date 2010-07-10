@@ -20,7 +20,7 @@ local function fetchFont(fontId)
 	if fontId and LSM:IsValid(LSM_FONT, fontId) then
 		return LSM:Fetch(LSM_FONT, fontId)
 	end
-	return LSM:Fetch(LSM_FONT, DEFAULT_FONT)
+	return LSM:GetDefault(LSM_FONT)
 end
 
 --[[
