@@ -7,6 +7,4 @@
 embeds.xml
 localization.xml
 core.lua
-ears.lua
-hook.lua
 effects.xml

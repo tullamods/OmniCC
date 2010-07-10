@@ -21,15 +21,16 @@ local floor = math.floor
 local min = math.min
 local LSM_FONT = LSM.MediaType.FONT
 
+
 --[[---------------------------------------------------------------------------
 	Timer Code
 --]]---------------------------------------------------------------------------
 
 local Timer = Classy:New('Frame'); Timer:Hide()
+Timer.timers = {}
 
 function Timer:New(parent)
-	local t = self:Bind(CreateFrame('Frame', nil, parent))
-	t:Hide()
+	local t = self:Bind(CreateFrame('Frame', nil, parent)); t:Hide()
 	t:SetAllPoints(parent)
 	t:SetScript('OnShow', t.OnShow)
 	t:SetScript('OnHide', t.OnHide)
@@ -39,13 +40,13 @@ function Timer:New(parent)
 	text:SetPoint('CENTER', 0, 1)
 	t.text = text
 
+	t:UpdateFont()
 	return t
 end
 
 function Timer:OnShow()
 	if self:GetRemainingTime() > 0 then
 		OmniCC:Add(self)
-		self:UpdateFont()
 	else
 		self:Stop()
 	end
@@ -61,12 +62,22 @@ function Timer:OnSizeChanged()
 	end
 end
 
-local timers = setmetatable({}, {__index = function(t, k) t[k] = Timer:New(k); return t[k] end})
 function Timer:Start(cooldown, start, duration)
-	local timer = timers[cooldown]
+	local timer = self.timers[cooldown]
+	if not timer then
+		timer = Timer:New(cooldown)
+		self.timers[cooldown] = timer
+	end
 	timer.start = start
 	timer.duration = duration
-	timer:Show()
+
+	--this handles the case of timers that are being updated for one reason or another
+	--like cooldowns expiring, etc
+	if timer:IsShown() then
+		timer:Update()
+	else
+		timer:Show()
+	end
 end
 
 function Timer:Stop()
@@ -80,10 +91,10 @@ function Timer:Update()
 	if remain > 0 then
 		self:UpdateDisplay(remain)
 	else
-		self:Stop()
 		if self.duration >= OmniCC:GetMinEffectDuration() then
-			OmniCC:SendMessage('COOLDOWN_FINISHED', self:GetParent())
+			OmniCC:TriggerEffect(self:GetParent())
 		end
+		self:Stop()
 	end
 end
 
@@ -129,9 +140,9 @@ function Timer:GetFormattedTime(s)
 		return format('|cff808080%ds|r', floor(s/DAY + 0.5))
 	elseif s >= HOUR then
 		return format('|cffffd200%dh|r', floor(s/HOUR + 0.5))
-	elseif s >= 90 then
+	elseif s >= 90 then --three minutes
 		return format('|cffffff00%dm|r', floor(s/MINUTE + 0.5))
-	elseif s >= 10 then
+	elseif s >= 10 then --10 seconds
 		return format('|cffffff00%d|r', floor(s + 0.5))
 	elseif s >= 3 then
 		return format('|cffff2020%d|r', floor(s + 0.5))
@@ -139,12 +150,15 @@ function Timer:GetFormattedTime(s)
 	return format('|cff20ff20%.1f|r', s)
 end
 
+function Timer:Get(cooldown)
+	return self.timers[cooldown]
+end
 
 --[[---------------------------------------------------------------------------
 	Global Updater/Event Handler
 --]]---------------------------------------------------------------------------
 
-local OmniCC = LibStub('Ears-1.0'):Inject(CreateFrame('Frame', 'OmniCC', UIParent));OmniCC:Hide()
+local OmniCC = CreateFrame('Frame', 'OmniCC', UIParent); OmniCC:Hide()
 OmniCC.elapsed = UPDATE_DELAY
 OmniCC.timers = {}
 
@@ -183,7 +197,6 @@ end
 function OmniCC:PLAYER_LOGIN()
 	self:CreateOptionsLoader()
 	self:AddSlashCommands()
-	self:EnableEffect(self:GetSelectedEffectID())
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -232,6 +245,13 @@ function OmniCC:StartTimer(cooldown, start, duration)
 	Timer:Start(cooldown, start, duration)
 end
 
+function OmniCC:StopTimer(cooldown)
+	local timer = Timer:Get(cooldown)
+	if timer then
+		timer:Hide()
+	end
+end
+
 --create a loader for the options menu
 function OmniCC:CreateOptionsLoader()
 	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
@@ -256,6 +276,33 @@ function OmniCC:AddSlashCommands()
 		self:ShowOptions()
 	end
 end
+
+
+--[[---------------------------------------------------------------------------
+	Cooldown Model Hook
+--]]---------------------------------------------------------------------------
+
+local function shouldShowTimer(cooldown)
+	if OmniCC:UsingBlacklist() and OmniCC:IsBlacklisted(cooldown) then
+		return false
+	end
+	if OmniCC:UsingWhitelist() and not OmniCC:IsWhitelisted(cooldown) then
+		return false
+	end
+	return true
+end
+
+--ActionButton1Cooldown here, is something we think will always exist
+hooksecurefunc(getmetatable(_G['ActionButton1Cooldown']).__index, 'SetCooldown', function(self, start, duration)
+	if shouldShowTimer(self) then
+		--self:SetAlpha(OmniCC:ShowingModels() and 1 or 0)
+		if start > 0 and duration > OmniCC:GetMinDuration() then
+			OmniCC:StartTimer(self, start, duration)
+			return
+		end
+	end
+	OmniCC:StopTimer(self)
+end)
 
 
 --[[---------------------------------------------------------------------------
@@ -351,6 +398,7 @@ end
 function OmniCC:GetAddOnVersion()
 	return GetAddOnMetadata('OmniCC', 'Version')
 end
+
 
 --[[---------------------------------------------------------------------------
 	Configuration
@@ -574,41 +622,23 @@ end
 	Finish Effects
 --]]---------------------------------------------------------------------------
 
+function OmniCC:TriggerEffect(cooldown)
+	local effect = self:GetSelectedEffect()
+	if effect then
+		effect:Run(cooldown)
+	end
+end
+
 function OmniCC:RegisterEffect(effect)
 	if not self:GetEffect(effect.id) then
-		local effects = self.effects or {}
-		table.insert(effects, effect)
-		self.effects = effects
+		self.effects = self.effects or {}
+		table.insert(self.effects, effect)
 	end
-	effect:Enable()
-end
-
-do
-	local function effect_EnableIfSelected(effect, selectedID)
-			if effect.id == selectedID then
-				effect:Enable()
-			else
-				effect:Disable()
-			end
-	end
-
-	function OmniCC:EnableEffect(effectID)
-		self:ForEachEffect(effect_EnableIfSelected, effectID)
-	end
-end
-
-function OmniCC:SetEffect(effectID)
-	self:GetDB().effect = effectID
-	self:EnableEffect(effectID)
-end
-
-function OmniCC:GetSelectedEffectID()
-	return self:GetDB().effect or 'none'
 end
 
 function OmniCC:GetEffect(id)
 	if self.effects then
-		for i, effect in pairs(self.effects) do
+		for _, effect in pairs(self.effects) do
 			if effect.id == id then
 				return effect
 			end
@@ -628,6 +658,20 @@ function OmniCC:ForEachEffect(f, ...)
 		end
 	end
 	return results
+end
+
+
+--effect configuration
+function OmniCC:SetEffect(effectID)
+	self:GetDB().effect = effectID
+end
+
+function OmniCC:GetSelectedEffectID()
+	return self:GetDB().effect or 'none'
+end
+
+function OmniCC:GetSelectedEffect()
+	return self:GetEffect(self:GetSelectedEffectID())
 end
 
 function OmniCC:SetMinEffectDuration(duration)

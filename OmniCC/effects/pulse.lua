@@ -40,18 +40,9 @@ do
 		end
 	end
 
-	local function grow_OnFinished(self)
-		if self.reversed then
-			self.reversed = nil
-			self:GetParent():Finish()
-		else
-			self.reversed = true
-		end
-	end
-
 	function Pulse:CreatePulseAnimation()
 		local g = self:CreateAnimationGroup()
-		g:SetLooping('BOUNCE')
+		g:SetLooping('NONE')
 		g:SetScript('OnFinished', animation_OnFinished)
 
 		--animation = AnimationGroup:CreateAnimation("animationType" [, "name" [, "inheritsFrom"]])
@@ -60,8 +51,12 @@ do
 		grow:SetOrigin('CENTER', 0, 0)
 		grow:SetDuration(PULSE_DURATION/2)
 		grow:SetOrder(1)
-		--grow:SetSmoothing('IN')
-		grow:SetScript('OnFinished', grow_OnFinished)
+
+		local shrink = g:CreateAnimation('Scale')
+		shrink:SetScale(-PULSE_SCALE, -PULSE_SCALE)
+		shrink:SetOrigin('CENTER', 0, 0)
+		shrink:SetDuration(PULSE_DURATION/2)
+		shrink:SetOrder(2)
 
 		return g
 	end
@@ -113,13 +108,7 @@ do
 	OmniCC:RegisterEffect{
 		id = 'pulse',
 		name = L.Pulse,
-		Enable = function(self)
-			OmniCC:AddListener(self, 'COOLDOWN_FINISHED')
-		end,
-		Disable = function(self)
-			OmniCC:RemoveListener(self, 'COOLDOWN_FINISHED')
-		end,
-		COOLDOWN_FINISHED = function(self, msg, cooldown)
+		Run = function(self, cooldown)
 			local parent = cooldown:GetParent()
 			local texture = getTexture(parent)
 			if texture then

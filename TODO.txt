@@ -1,4 +1,3 @@
 3.0 release:
-Will be determined by user need
-Hide cooldown models?
-Color/scale configuration for different time periods?
+Tenths of seconds checkbox
+Color configuration for each time period

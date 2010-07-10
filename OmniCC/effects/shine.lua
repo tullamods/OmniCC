@@ -103,13 +103,7 @@ do
 	OmniCC:RegisterEffect{
 		id = 'shine',
 		name = L.Shine,
-		Enable = function(self)
-			OmniCC:AddListener(self, 'COOLDOWN_FINISHED')
-		end,
-		Disable = function(self)
-			OmniCC:RemoveListener(self, 'COOLDOWN_FINISHED')
-		end,
-		COOLDOWN_FINISHED = function(self, msg, cooldown)
+		Run = function(self, cooldown)
 			shines[cooldown:GetParent()]:Start()
 		end
 	}
