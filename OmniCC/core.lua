@@ -11,6 +11,12 @@ local LSM = LibStub('LibSharedMedia-3.0')
 local PADDING = 4
 local ICON_SIZE = 36 --the normal size for an icon
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --value in seconds for days, hours, and minutes
+
+local DAYISH = 3600 * 23.5 --used for transition points when rounding (http://www.gammon.com.au/forum/?id=7805)
+local HOURISH = 60 * 59.5
+local MINUTEISH = 59.5
+local SOONISH = 10.5
+
 local UPDATE_DELAY = 0.02 --minimum time between timer updates
 local DEFAULT_FONT = 'Friz Quadrata TT' --the default font id to use
 local NO_OUTLINE = 'none'
@@ -21,6 +27,11 @@ local floor = math.floor
 local min = math.min
 local LSM_FONT = LSM.MediaType.FONT
 
+--local functions!
+local function round(x)
+	return floor(x + 0.5)
+end
+
 
 --[[---------------------------------------------------------------------------
 	Timer Code
@@ -29,9 +40,10 @@ local LSM_FONT = LSM.MediaType.FONT
 local Timer = Classy:New('Frame'); Timer:Hide()
 Timer.timers = {}
 
-function Timer:New(parent)
-	local t = self:Bind(CreateFrame('Frame', nil, parent)); t:Hide()
-	t:SetAllPoints(parent)
+--constructor
+function Timer:New(cooldown)
+	local t = self:Bind(CreateFrame('Frame', nil, cooldown)); t:Hide()
+	t:SetAllPoints(cooldown)
 	t:SetScript('OnShow', t.OnShow)
 	t:SetScript('OnHide', t.OnHide)
 	t:SetScript('OnSizeChanged', t.OnSizeChanged)
@@ -40,12 +52,17 @@ function Timer:New(parent)
 	text:SetPoint('CENTER', 0, 1)
 	t.text = text
 
-	t:UpdateFont()
 	return t
 end
 
+function Timer:Get(cooldown)
+	return self.timers[cooldown]
+end
+
+--frame events
 function Timer:OnShow()
 	if self:GetRemainingTime() > 0 then
+		self:UpdateFont()
 		OmniCC:Add(self)
 	else
 		self:Stop()
@@ -62,6 +79,7 @@ function Timer:OnSizeChanged()
 	end
 end
 
+--actions
 function Timer:Start(cooldown, start, duration)
 	local timer = self.timers[cooldown]
 	if not timer then
@@ -70,6 +88,7 @@ function Timer:Start(cooldown, start, duration)
 	end
 	timer.start = start
 	timer.duration = duration
+	timer:UpdateFont()
 
 	--this handles the case of timers that are being updated for one reason or another
 	--like cooldowns expiring, etc
@@ -102,14 +121,15 @@ function Timer:UpdateDisplay(remain)
 	local text = self.text
 	if text:IsShown() then
 		text:SetText(self:GetFormattedTime(remain))
+
+		local r, g, b = self:GetFormattedColor(remain)
+		text:SetVertexColor(r, g, b)
 	end
 end
 
 function Timer:GetRemainingTime()
 	return self.duration - (GetTime() - self.start)
 end
-
---[[ Font Retrieval ]]--
 
 function Timer:UpdateFont()
 	local font, size, outline = self:GetFont()
@@ -123,6 +143,7 @@ function Timer:UpdateFont()
 	end
 end
 
+--settings
 function Timer:GetFont()
 	local font, size, outline = OmniCC:GetFontInfo()
 	return font, size * self:GetFontScale(), outline
@@ -130,28 +151,37 @@ end
 
 function Timer:GetFontScale()
 	if OmniCC:ScalingText() then
-		return floor(self:GetWidth() - PADDING + 0.5) / ICON_SIZE
+		return round(self:GetWidth() - PADDING) / ICON_SIZE
 	end
 	return 1
 end
 
 function Timer:GetFormattedTime(s)
-	if s >= DAY then
-		return format('|cff808080%ds|r', floor(s/DAY + 0.5))
-	elseif s >= HOUR then
-		return format('|cffffd200%dh|r', floor(s/HOUR + 0.5))
-	elseif s >= 90 then --three minutes
-		return format('|cffffff00%dm|r', floor(s/MINUTE + 0.5))
-	elseif s >= 10 then --10 seconds
-		return format('|cffffff00%d|r', floor(s + 0.5))
-	elseif s >= 3 then
-		return format('|cffff2020%d|r', floor(s + 0.5))
+	if s < OmniCC:GetTenthsDuration() then
+		return format('%.1f', s)
+	elseif s < 90.5 then --format text as seconds when at 90 seconds or below
+		return round(s)
+	elseif s < OmniCC:GetMMSSDuration() then --format text as MM:SS when below the MM:SS threshold
+		return format('%d:%02d', s/MINUTE, s%MINUTE)
+	elseif s < HOURISH then --format text as minutes when below an hour
+		return round(s/MINUTE) .. 'm'
+	elseif s < DAYISH then --format text as hours when below a day
+		return round(s/HOUR) .. 'h'
+	else --format text as days
+		return round(s/DAY) .. 'd'
 	end
-	return format('|cff20ff20%.1f|r', s)
 end
 
-function Timer:Get(cooldown)
-	return self.timers[cooldown]
+function Timer:GetFormattedColor(s)
+	if s < SOONISH then
+		return OmniCC:GetColor('soon')
+	elseif s < MINUTEISH then
+		return OmniCC:GetColor('seconds')
+	elseif s <  HOURISH then
+		return OmniCC:GetColor('minutes')
+	else
+		return OmniCC:GetColor('hours')
+	end
 end
 
 --[[---------------------------------------------------------------------------
@@ -161,6 +191,8 @@ end
 local OmniCC = CreateFrame('Frame', 'OmniCC', UIParent); OmniCC:Hide()
 OmniCC.elapsed = UPDATE_DELAY
 OmniCC.timers = {}
+
+--[[ Frame Events ]]--
 
 OmniCC:SetScript('OnEvent', function(self, event, ...)
 	local a = self[event]
@@ -197,6 +229,7 @@ end
 function OmniCC:PLAYER_LOGIN()
 	self:CreateOptionsLoader()
 	self:AddSlashCommands()
+	self:SetUseDynamicColor(false)
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -295,7 +328,6 @@ end
 --ActionButton1Cooldown here, is something we think will always exist
 hooksecurefunc(getmetatable(_G['ActionButton1Cooldown']).__index, 'SetCooldown', function(self, start, duration)
 	if shouldShowTimer(self) then
-		--self:SetAlpha(OmniCC:ShowingModels() and 1 or 0)
 		if start > 0 and duration > OmniCC:GetMinDuration() then
 			OmniCC:StartTimer(self, start, duration)
 			return
@@ -361,6 +393,14 @@ function OmniCC:GetDefaults()
 		minFontSize = 8,
 		effect = 'pulse',
 		minEffectDuration = 15,
+		tenthsDuration = 0,
+		mmSSDuration = 300,
+		colors = {
+			soon = {1, 0, 0},
+			seconds = {1, 1, 0},
+			minutes = {1, 1, 1},
+			hours = {0.5, 0.5, 0.5}
+		}
 	}
 	return self.defaults
 end
@@ -384,7 +424,6 @@ end
 function OmniCC:UpgradeDB()
 	local oldMajor, oldMinor = self:GetDBVersion():match('(%w+)%.(%w+)')
 	self:GetDB().version = self:GetAddOnVersion()
-	self:Print(L.Updated:format(self:GetDBVersion()))
 end
 
 function OmniCC:IsDBOutOfDate()
@@ -527,7 +566,7 @@ end
 
 --minimum font size to display text
 function OmniCC:SetMinFontSize(size)
-	self:GetDB().minFontSize = size
+	self:GetDB().minFontSize = size or 0
 	self:UpdateTimerFonts()
 end
 
@@ -535,6 +574,35 @@ function OmniCC:GetMinFontSize()
 	return self:GetDB().minFontSize
 end
 
+--minumum duration to show tenths of seconds
+function OmniCC:SetTenthsDuration(value)
+	self:GetDB().tenthsDuration = value or 0
+end
+
+function OmniCC:GetTenthsDuration()
+	return self:GetDB().tenthsDuration
+end
+
+--minimum duration to display text as MM:SS
+function OmniCC:SetMMSSDuration(value)
+	self:GetDB().mmSSDuration = value or 0
+end
+
+function OmniCC:GetMMSSDuration()
+	return self:GetDB().mmSSDuration
+end
+
+--text colors
+function OmniCC:SetColor(timePeriod, ...)
+	local color = self:GetDB().colors[timePeriod]
+	for i = 1, select('#', ...) do
+		color[i] = select(i, ...)
+	end
+end
+
+function OmniCC:GetColor(timePeriod)
+	return unpack(self:GetDB().colors[timePeriod])
+end
 
 --[[---------------------------------------------------------------------------
 	Blacklisting/Whitelisting
@@ -709,10 +777,42 @@ do
 end
 
 
---[[---------------------------------------------------------------------------
-	Utility
---]]---------------------------------------------------------------------------
+--[[
+	formatted color function retrieval
+		when viewing the options menu, set the Timer.GetFormattedColor function to one that pulls values directly from the database
+			this is so that the user can see color changes in real time
+		when not viewing the options menu, use a static version of the getformattedcololor function
+			this is done so that we remove all table lookups.  By doing so, we can reduce cpu usage by a good bit
+--]]
+do
+	local function genGetFormattedColor()
+		local nR, nG, nB = OmniCC:GetColor('soon')
+		local sR, sG, sB = OmniCC:GetColor('seconds')
+		local mR, mG, mB = OmniCC:GetColor('minutes')
+		local hR, hG, hB = OmniCC:GetColor('hours')
 
-function OmniCC:Print(...)
-	return print('|cff33aa33OmniCC|r:', ...)
+		return loadstring(format([[
+			return function(self, s)
+				if s < %.1f then
+					return %.2f, %.2f, %.2f
+				elseif s < %.1f then
+					return %.2f, %.2f, %.2f
+				elseif s <  %.1f then
+					return %.2f, %.2f, %.2f
+				else
+					return %.2f, %.2f, %.2f
+				end
+			end
+		]], SOONISH, nR, nG, nB, MINUTEISH, sR, sG, sB, HOURISH, mR, mG, mB, hR, hG, hB))()
+	end
+
+	local getFormattedColor = Timer.GetFormattedColor
+
+	function OmniCC:SetUseDynamicColor(enable)
+		if enable then
+			Timer.GetFormattedColor = getFormattedColor
+		else
+			Timer.GetFormattedColor = genGetFormattedColor()
+		end
+	end
 end

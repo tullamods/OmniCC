@@ -5,6 +5,10 @@
 local OmniCC = OmniCC
 local L = OMNICC_LOCALS
 
+--fun constants!
+local BUTTON_SPACING = 6
+local SLIDER_SPACING = 24
+
 --a hack panel, this is designed to force open to the general options panel when clicked
 local OmniCCOptions = OmniCC.OptionsPanel:New('OmniCC', nil, 'OmniCC')
 OmniCCOptions:SetScript('OnShow', function(self)
@@ -14,8 +18,6 @@ end)
 
 local GeneralOptions = OmniCC.OptionsPanel:New('OmniCCOptions_General', 'OmniCC', L.GeneralSettings, L.GeneralSettingsTitle)
 OmniCC.GeneralOptions = GeneralOptions
-
-local SPACING = 6
 
 
 --[[
@@ -35,25 +37,33 @@ function GeneralOptions:AddWidgets()
 	--checkboxes
 	local useWhitelist = self:CreateUseWhitelistCheckbox()
 	useWhitelist:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
-	
+
 	local scaleText = self:CreateScaleTextCheckbox()
-	scaleText:SetPoint('TOPLEFT', useWhitelist, 'BOTTOMLEFT', 0, -SPACING)
-	
+	scaleText:SetPoint('TOPLEFT', useWhitelist, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
+
 	local finishEffect = self:CreateFinishEffectPicker()
-	finishEffect:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', -16, -(SPACING + 12))
-	
+	finishEffect:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 12))
+
 	--sliders
 	local minEffectDuration = self:CreateMinEffectDurationSlider()
 	minEffectDuration:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
 	minEffectDuration:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
-	
+
+	local mmSSDuration = self:CreateMMSSSlider()
+	mmSSDuration:SetPoint('BOTTOMLEFT', minEffectDuration, 'TOPLEFT', 0, SLIDER_SPACING)
+	mmSSDuration:SetPoint('BOTTOMRIGHT', minEffectDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
+
+	local tenthsDuration = self:CreateTenthsSlider()
+	tenthsDuration:SetPoint('BOTTOMLEFT', mmSSDuration, 'TOPLEFT', 0, SLIDER_SPACING)
+	tenthsDuration:SetPoint('BOTTOMRIGHT', mmSSDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
+
 	local minDuration = self:CreateMinDurationSlider()
-	minDuration:SetPoint('BOTTOMLEFT', minEffectDuration, 'TOPLEFT', 0, 20)
-	minDuration:SetPoint('BOTTOMRIGHT', minEffectDuration, 'TOPRIGHT', 0, 20)
+	minDuration:SetPoint('BOTTOMLEFT', tenthsDuration, 'TOPLEFT', 0, SLIDER_SPACING)
+	minDuration:SetPoint('BOTTOMRIGHT', tenthsDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
 
 	local minFontSize = self:CreateMinFontSizeSlider()
-	minFontSize:SetPoint('BOTTOMLEFT', minDuration, 'TOPLEFT', 0, 20)
-	minFontSize:SetPoint('BOTTOMRIGHT', minDuration, 'TOPRIGHT', 0, 20)
+	minFontSize:SetPoint('BOTTOMLEFT', minDuration, 'TOPLEFT', 0, SLIDER_SPACING)
+	minFontSize:SetPoint('BOTTOMRIGHT', minDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
 end
 
 
@@ -84,6 +94,7 @@ end
 
 function GeneralOptions:NewSlider(name, low, high, step)
 	local s = OmniCC.OptionsSlider:New(name, self, low, high, step)
+	s:SetHeight(s:GetHeight() + 4)
 	return s
 end
 
@@ -106,34 +117,72 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	local s = self:NewSlider(L.MinEffectDuration, 0, 60, 1)
 	s.SetSavedValue = function(self, value) OmniCC:SetMinEffectDuration(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinEffectDuration() end
+	s.GetFormattedText = function(self, value) return SECONDS_ABBR:format(value) end
 	return s
 end
+
+function GeneralOptions:CreateMMSSSlider()
+	local s = self:NewSlider(L.MMSSDuration, 1, 30, 1)
+	s.SetSavedValue = function(self, value)
+		OmniCC:SetMMSSDuration(value * 60)
+	end
+	s.GetSavedValue = function(self)
+		return OmniCC:GetMMSSDuration() / 60
+	end
+	s.GetFormattedText = function(self, value)
+		if value == 1 then
+			return NEVER
+		else
+			return MINUTES_ABBR:format(value)
+		end
+	end
+	return s
+end
+
+function GeneralOptions:CreateTenthsSlider()
+	local s = self:NewSlider(L.TenthsDuration, 0, 10, 1)
+	s.SetSavedValue = function(self, value)
+		OmniCC:SetTenthsDuration(value)
+	end
+	s.GetSavedValue = function(self)
+		return OmniCC:GetTenthsDuration()
+	end
+	s.GetFormattedText = function(self, value)
+		if value == 0 then
+			return NEVER
+		else
+			return SECONDS_ABBR:format(value)
+		end
+	end
+	return s
+end
+
 
 
 --[[ Dropdown ]]--
 
 function GeneralOptions:CreateFinishEffectPicker()
 	local dd = OmniCC.OptionsDropdown:New(L.FinishEffect, self, 120)
-	
+
 	dd.Initialize = function()
 		dd:AddItem(NONE, 'none')
-	
+
 		local effects = OmniCC:ForEachEffect(function(effect) return {effect.name, effect.id} end)
 		table.sort(effects, function(e1, e2) return e1[1] < e2[1] end)
-	
+
 		for n, v in ipairs(effects) do
 			dd:AddItem(unpack(v))
 		end
 	end
-	
+
 	dd.SetSavedValue = function(self, value)
 		OmniCC:SetEffect(value)
 	end
-	
+
 	dd.GetSavedValue = function(self)
 		return OmniCC:GetSelectedEffectID()
 	end
-	
+
 	return dd
 end
 

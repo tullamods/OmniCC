@@ -6,8 +6,10 @@ local L = OMNICC_LOCALS
 
 L.GeneralSettings = "General"
 L.GeneralSettingsTitle = "The common stuff"
+
 L.FontSettings = "Text Style"
-L.FontSettingsTitle = "You know the difference between you and me? I make this look good"
+L.FontSettingsTitle = "Liven up your cooldowns"
+
 L.BlacklistSettings = "Blacklist"
 L.BlacklistSettingsTitle = "Hey, don't display text there!"
 
@@ -30,5 +32,14 @@ L.ScaleText = "Automatically scale text to fit within frames"
 L.Add = "Add"
 L.Remove = "Remove"
 
-L.FinishEffect = 'Finish Effect'
-L.MinEffectDuration = 'Minimum duration to display finish effect'
+L.FinishEffect = "Finish Effect"
+L.MinEffectDuration = "Minimum duration to display finish effect"
+
+L.MMSSDuration = "Minimum duration to display text as MM:SS"
+L.TenthsDuration = "Minimum duration to display tenths of seconds"
+
+L.Color = "Color"
+L.Color_soon = "Soon to expire"
+L.Color_seconds = "Under a minute"
+L.Color_minutes = "Under an hour"
+L.Color_hours = "One hour or more"

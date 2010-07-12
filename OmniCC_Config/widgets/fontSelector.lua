@@ -9,7 +9,7 @@ local Classy = LibStub('Classy-1.0')
 local LSM_FONT = LSM.MediaType.FONT
 local PADDING = 2
 local FONT_HEIGHT = 18
-local BUTTON_HEIGHT = 48
+local BUTTON_HEIGHT = 36
 local SCROLL_STEP = BUTTON_HEIGHT + PADDING
 
 local function getFontIDs()
@@ -49,8 +49,8 @@ function FontButton:New(parent, useAltColor)
 	b:SetHighlightFontObject('GameFontHighlightSmall')
 
 	local fontText = b:CreateFontString(nil, 'ARTWORK')
-	fontText:SetPoint('TOPLEFT', 4, -4)
-	fontText:SetPoint('TOPRIGHT', -4, -4)
+	fontText:SetPoint('TOPLEFT', 4, -2)
+	fontText:SetPoint('TOPRIGHT', -4, -2)
 	fontText:SetPoint('BOTTOM', text, 'TOP', 0, 4)
 	b.fontText = fontText
 
@@ -82,6 +82,9 @@ end
 function FontButton:UpdateFont()
 	local fontID = self:GetFontID()
 	self.fontText:SetFont(fetchFont(fontID), FONT_HEIGHT, 'OUTLINE')
+	if not self.fontText:GetFont() then
+		self:Hide()
+	end
 	self.fontText:SetText('1234567890')
 	self:SetText(fontID)
 end
@@ -217,7 +220,7 @@ function FontSelector:Load()
 	scrollBar:SetWidth(16)
 	self.scrollBar = scrollBar
 
-	scrollFrame:SetSize(346, 244)
+	scrollFrame:SetSize(346, 150)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:OnShow()

@@ -104,7 +104,10 @@ do
 		id = 'shine',
 		name = L.Shine,
 		Run = function(self, cooldown)
-			shines[cooldown:GetParent()]:Start()
+			local p = cooldown:GetParent()
+			if p then
+				shines[p]:Start()
+			end
 		end
 	}
 end

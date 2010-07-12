@@ -109,10 +109,10 @@ do
 		id = 'pulse',
 		name = L.Pulse,
 		Run = function(self, cooldown)
-			local parent = cooldown:GetParent()
-			local texture = getTexture(parent)
+			local p = cooldown:GetParent()
+			local texture = getTexture(p)
 			if texture then
-				pulses[parent]:Start(texture)
+				pulses[p]:Start(texture)
 			end
 		end
 	}
