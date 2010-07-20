@@ -95,13 +95,16 @@ do
 		end
 
 		local icon = frame.icon
-		if icon then
+		if icon and icon.GetTexture then
 			return icon
 		end
 
 		local name = frame:GetName()
 		if name then
-		 	return _G[name .. 'Icon'] or _G[name .. 'IconTexture']
+			local icon = _G[name .. 'Icon'] or _G[name .. 'IconTexture']
+			if icon and icon.GetTexture then
+				return icon
+			end
 		end
 	end
 
