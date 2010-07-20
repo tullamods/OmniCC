@@ -1,2 +1,0 @@
-Tenths of seconds configuration slider
-Color configuration
