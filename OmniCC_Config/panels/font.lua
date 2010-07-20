@@ -8,8 +8,8 @@ local LSM = LibStub('LibSharedMedia-3.0')
 local BUTTON_SPACING = 6
 
 local FontOptions = OmniCC.OptionsPanel:New('OmniCCOptions_Font', 'OmniCC', L.FontSettings, L.FontSettingsTitle)
-FontOptions:SetScript('OnShow', function(self) OmniCC:SetUseDynamicColor(true) end)
-FontOptions:SetScript('OnHide', function(self) OmniCC:SetUseDynamicColor(false) end)
+FontOptions:SetScript('OnShow', function(self) OmniCC:SetUseDynamicStyle(true) end)
+FontOptions:SetScript('OnHide', function(self) OmniCC:SetUseDynamicStyle(false) end)
 OmniCC.FontOptions = FontOptions
 
 
@@ -52,6 +52,7 @@ function FontOptions:CreateFontSelector(name)
 	return f
 end
 
+
 --[[ Color Picker ]]--
 
 function FontOptions:CreateColorPickerFrame(name)
@@ -74,6 +75,7 @@ function FontOptions:CreateColorPickerFrame(name)
 	
 	return f
 end
+
 
 --[[ Sliders ]]--
 
@@ -112,22 +114,23 @@ do
 	end
 end
 
+
 --[[ color picker ]]--
 
 function FontOptions:CreateColorPicker(timePeriod, parent)
-	local picker = OmniCC.OptionsColorSelector:New(L['Color_' .. timePeriod], parent, false)
+	local picker = OmniCC.OptionsColorSelector:New(L['Color_' .. timePeriod], parent, true)
 
 	picker.OnSetColor = function(self, r, g, b, a)
-		OmniCC:SetColor(timePeriod, r, g, b)
+		OmniCC:SetPeriodColor(timePeriod, r, g, b, a)
 	end
 
 	picker.GetColor = function(self)
-		local r, g, b = OmniCC:GetColor(timePeriod)
-		return r, g, b, 1
+		return OmniCC:GetPeriodColor(timePeriod)
 	end
 
 	return picker
 end
+
 
 --[[ Load the thing ]]--
 
