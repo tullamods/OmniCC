@@ -49,7 +49,7 @@ do
 		t:SetToplevel(true)
 		t:SetScript('OnShow', t.OnShow)
 		t:SetScript('OnHide', t.OnHide)
-		t:SetScript('OnSizeChanged', t.OnSizeChanged)
+--	t:SetScript('OnSizeChanged', t.OnSizeChanged)
 
 		local text = t:CreateFontString(nil, 'OVERLAY')
 		text:SetPoint('CENTER', 0, 0)
@@ -103,6 +103,7 @@ end
 function Timer:Stop()
 	self.start = 0
 	self.duration = 0
+	self.style = nil
 	self:Hide()
 end
 
@@ -123,10 +124,14 @@ function Timer:UpdateDisplay(remain)
 	if text:IsShown() then
 		text:SetText(self:GetFormattedTime(remain))
 
-		local r, g, b, alpha, scale = self:GetPeriodStyle(remain)
-		text:SetVertexColor(r, g, b)
-		self:SetAlpha(alpha)
-		self:SetScale(scale)
+		local style = self:GetPeriodStyle(remain)
+		if style ~= self.style then
+			local r, g, b, alpha, scale = OmniCC:GetPeriodStyle(style)
+			text:SetVertexColor(r, g, b)
+			self:SetAlpha(alpha)
+			self:SetScale(scale)
+			self.style = style
+		end
 	end
 end
 
@@ -177,13 +182,13 @@ end
 
 function Timer:GetPeriodStyle(s)
 	if s < SOONISH then
-		return OmniCC:GetPeriodStyle('soon')
+		return 'soon'
 	elseif s < MINUTEISH then
-		return OmniCC:GetPeriodStyle('seconds')
+		return 'seconds'
 	elseif s <  HOURISH then
-		return OmniCC:GetPeriodStyle('minutes')
+		return 'minutes'
 	else
-		return OmniCC:GetPeriodStyle('hours')
+		return 'hours'
 	end
 end
 
@@ -232,7 +237,7 @@ end
 function OmniCC:PLAYER_LOGIN()
 	self:CreateOptionsLoader()
 	self:AddSlashCommands()
-	self:SetUseDynamicStyle(false)
+--self:SetUseDynamicStyle(false)
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -400,17 +405,17 @@ function OmniCC:GetDefaults()
 		mmSSDuration = 300,
 		styles = {
 			soon = {
-				r = 1, 
-				g = 0, 
-				b= 0, 
-				a = 1, 
+				r = 1,
+				g = 0,
+				b= 0,
+				a = 1,
 				scale = 1.5,
 			},
 			seconds = {
-				r = 1, 
-				g = 0.82, 
-				b= 0, 
-				a = 1, 
+				r = 1,
+				g = 0.82,
+				b= 0,
+				a = 1,
 				scale = 1,
 			},
 			minutes = {
@@ -816,51 +821,5 @@ do
 
 		local db = self:GetDB()
 		return font, db.fontSize, db.fontOutline
-	end
-end
-
-
---[[
-	formatted color function retrieval
-		when viewing the options menu, set the Timer.GetPeriodStyle function to one that pulls values directly from the database
-			this is so that the user can see changes in real time
-		when not viewing the options menu, use a static version of the function
-			this is done so that we remove all table lookups.  
-			By doing so, we can reduce cpu usage by a good bit
---]]
-do
-	local function genGetPeriodStyle()
-		local nR, nG, nB, nA, nS = OmniCC:GetPeriodStyle('soon')
-		local sR, sG, sB, sA, sS = OmniCC:GetPeriodStyle('seconds')
-		local mR, mG, mB, mA, mS = OmniCC:GetPeriodStyle('minutes')
-		local hR, hG, hB, hA, hS = OmniCC:GetPeriodStyle('hours')
-
-		return loadstring(format([[
-			return function(self, s)
-				if s < %.1f then
-					return %.2f, %.2f, %.2f, %.2f, %.2f
-				elseif s < %.1f then
-					return %.2f, %.2f, %.2f, %.2f, %.2f
-				elseif s <  %.1f then
-					return %.2f, %.2f, %.2f, %.2f, %.2f
-				else
-					return %.2f, %.2f, %.2f, %.2f, %.2f
-				end
-			end]], 
-			SOONISH, nR, nG, nB, nA, nS,
-			MINUTEISH, sR, sG, sB, sA, sS,
-			HOURISH, mR, mG, mB, mA, mS,
-			hR, hG, hB, hA, hS
-		))()
-	end
-
-	local getPeriodStyle = Timer.GetPeriodStyle
-
-	function OmniCC:SetUseDynamicStyle(enable)
-		if enable then
-			Timer.GetPeriodStyle = getPeriodStyle
-		else
-			Timer.GetPeriodStyle = genGetPeriodStyle()
-		end
 	end
 end

@@ -4,14 +4,14 @@
 
 local L = OMNICC_LOCALS
 
-L.GeneralSettings = "General"
+L.GeneralSettings = "Display"
 L.GeneralSettingsTitle = "The common stuff"
 
 L.FontSettings = "Text Style"
 L.FontSettingsTitle = "Liven up your cooldowns"
 
-L.BlacklistSettings = "Blacklist"
-L.BlacklistSettingsTitle = "Hey, don't display text there!"
+L.FilterSettings = "Filtering"
+L.FilterSettingsTitle = "Hey, don't display text there!"
 
 L.UseWhitelist = "Only display text on registered frames"
 L.UseBlacklist = "Only display text on frames not on the blacklist"
@@ -38,7 +38,7 @@ L.MinEffectDuration = "Minimum duration to display finish effect"
 L.MMSSDuration = "Minimum duration to display text as MM:SS"
 L.TenthsDuration = "Minimum duration to display tenths of seconds"
 
-L.Color = "Color"
+L.ColorAndScale = "Color & Scale"
 L.Color_soon = "Soon to expire"
 L.Color_seconds = "Under a minute"
 L.Color_minutes = "Under an hour"

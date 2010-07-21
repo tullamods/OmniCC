@@ -5,11 +5,9 @@
 local OmniCC = OmniCC
 local L = OMNICC_LOCALS
 local LSM = LibStub('LibSharedMedia-3.0')
-local BUTTON_SPACING = 6
+local BUTTON_SPACING = 24
 
 local FontOptions = OmniCC.OptionsPanel:New('OmniCCOptions_Font', 'OmniCC', L.FontSettings, L.FontSettingsTitle)
-FontOptions:SetScript('OnShow', function(self) OmniCC:SetUseDynamicStyle(true) end)
-FontOptions:SetScript('OnHide', function(self) OmniCC:SetUseDynamicStyle(false) end)
 OmniCC.FontOptions = FontOptions
 
 
@@ -26,10 +24,10 @@ function FontOptions:AddWidgets()
 	fontSelector:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 96*2)
 
 	--add color picker
-	local colorPicker = self:CreateColorPickerFrame(L.Color)
-	colorPicker:SetPoint('TOPLEFT', fontSelector, 'BOTTOMLEFT', 0, -20)
-	colorPicker:SetPoint('TOPRIGHT', fontSelector, 'BOTTOMRIGHT', 0, -20)
-	colorPicker:SetHeight(60)
+	local colorPicker = self:CreateColorPickerFrame(L.ColorAndScale)
+	colorPicker:SetPoint('TOPLEFT', fontSelector, 'BOTTOMLEFT', 0, -16)
+	colorPicker:SetPoint('TOPRIGHT', fontSelector, 'BOTTOMRIGHT', 0, -16)
+	colorPicker:SetHeight(20 + BUTTON_SPACING*3)
 
 	--add font outline picker
 	local outlinePicker = self:CreateFontOutlinePicker()
@@ -61,18 +59,22 @@ function FontOptions:CreateColorPickerFrame(name)
 	f:SetBackdropColor(0.15, 0.15, 0.15, 0.5)
 	_G[f:GetName() .. 'Title']:SetText(name)
 
-	local soon = self:CreateColorPicker('soon', f)
-	soon:SetPoint('TOPLEFT', 8, -8)
+	local soon = self:CreateStylePicker('soon', f)
+	soon:SetPoint('TOPLEFT', 8, -(BUTTON_SPACING + 4))
+	soon:SetPoint('TOPRIGHT', f, 'TOP', -4, -(BUTTON_SPACING + 4))
 
-	local seconds = self:CreateColorPicker('seconds', f)
-	seconds:SetPoint('TOPLEFT', f, 'TOP', 0, -8)
+	local seconds = self:CreateStylePicker('seconds', f)
+	seconds:SetPoint('TOPLEFT', f, 'TOP', 4,  -(BUTTON_SPACING + 4))
+	seconds:SetPoint('TOPRIGHT', -8, -(BUTTON_SPACING + 4))
 
-	local minutes = self:CreateColorPicker('minutes', f)
+	local minutes = self:CreateStylePicker('minutes', f)
 	minutes:SetPoint('TOPLEFT', soon, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
+	minutes:SetPoint('TOPRIGHT', soon, 'BOTTOMRIGHT', 0, -BUTTON_SPACING)
 
-	local hours = self:CreateColorPicker('hours', f)
+	local hours = self:CreateStylePicker('hours', f)
 	hours:SetPoint('TOPLEFT', seconds, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
-	
+	hours:SetPoint('TOPRIGHT', seconds, 'BOTTOMRIGHT', 0, -BUTTON_SPACING)
+
 	return f
 end
 
@@ -117,8 +119,27 @@ end
 
 --[[ color picker ]]--
 
-function FontOptions:CreateColorPicker(timePeriod, parent)
-	local picker = OmniCC.OptionsColorSelector:New(L['Color_' .. timePeriod], parent, true)
+
+function FontOptions:CreateStylePicker(timePeriod, parent)
+	--scale slider
+	local slider = OmniCC.OptionsSlider:New(L['Color_' .. timePeriod], parent, 0.5, 2, 0.05)
+	 _G[slider:GetName() .. 'Text']:Hide()
+
+	slider.SetSavedValue = function(self, value)
+		OmniCC:SetPeriodScale(timePeriod, value)
+	end
+
+	slider.GetSavedValue = function(self)
+		return OmniCC:GetPeriodScale(timePeriod)
+	end
+
+	slider.GetFormattedText = function(self, value)
+		return floor(value * 100 + 0.5) .. '%'
+	end
+
+	--color picker
+	local picker = OmniCC.OptionsColorSelector:New(L['Color_' .. timePeriod], slider, true)
+	picker:SetPoint('BOTTOMLEFT', slider, 'TOPLEFT')
 
 	picker.OnSetColor = function(self, r, g, b, a)
 		OmniCC:SetPeriodColor(timePeriod, r, g, b, a)
@@ -128,7 +149,10 @@ function FontOptions:CreateColorPicker(timePeriod, parent)
 		return OmniCC:GetPeriodColor(timePeriod)
 	end
 
-	return picker
+	picker.text:ClearAllPoints()
+	picker.text:SetPoint('BOTTOMLEFT', picker, 'BOTTOMRIGHT', 4, 0)
+
+	return slider
 end
 
 

@@ -34,12 +34,8 @@ end
 --]]
 
 function GeneralOptions:AddWidgets()
-	--checkboxes
-	local useWhitelist = self:CreateUseWhitelistCheckbox()
-	useWhitelist:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
-
 	local scaleText = self:CreateScaleTextCheckbox()
-	scaleText:SetPoint('TOPLEFT', useWhitelist, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
+	scaleText:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
 
 	local finishEffect = self:CreateFinishEffectPicker()
 	finishEffect:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 12))
@@ -71,14 +67,6 @@ end
 
 function GeneralOptions:NewCheckbox(name)
 	local b = OmniCC.OptionsCheckButton:New(name, self)
-	return b
-end
-
---use whitelist
-function GeneralOptions:CreateUseWhitelistCheckbox()
-	local b = self:NewCheckbox(L.UseWhitelist)
-	b.OnEnableSetting = function(self, enable) OmniCC:SetUseWhitelist(enable) end
-	b.IsSettingEnabled = function(self) return OmniCC:UsingWhitelist() end
 	return b
 end
 
