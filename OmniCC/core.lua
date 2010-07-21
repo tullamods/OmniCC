@@ -46,12 +46,13 @@ do
 	function Timer:New(cooldown)
 		local t = self:Bind(CreateFrame('Frame', nil, cooldown)); t:Hide()
 		t:SetAllPoints(cooldown)
+		t:SetToplevel(true)
 		t:SetScript('OnShow', t.OnShow)
 		t:SetScript('OnHide', t.OnHide)
 		t:SetScript('OnSizeChanged', t.OnSizeChanged)
 
 		local text = t:CreateFontString(nil, 'OVERLAY')
-		text:SetPoint('CENTER', 0, 1)
+		text:SetPoint('CENTER', 0, 0)
 		t.text = text
 
 		timers[cooldown] = t
@@ -124,8 +125,8 @@ function Timer:UpdateDisplay(remain)
 
 		local r, g, b, alpha, scale = self:GetPeriodStyle(remain)
 		text:SetVertexColor(r, g, b)
-		text:SetAlpha(alpha)
-		text:SetScale(scale)
+		self:SetAlpha(alpha)
+		self:SetScale(scale)
 	end
 end
 
@@ -153,7 +154,7 @@ end
 
 function Timer:GetFontScale()
 	if OmniCC:ScalingText() then
-		return round(self:GetWidth() - PADDING) / ICON_SIZE
+		return (round(self:GetWidth() - PADDING)  * self:GetScale()) / ICON_SIZE
 	end
 	return 1
 end
@@ -231,7 +232,7 @@ end
 function OmniCC:PLAYER_LOGIN()
 	self:CreateOptionsLoader()
 	self:AddSlashCommands()
-	self:SetUseDynamicColor(false)
+	self:SetUseDynamicStyle(false)
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -403,19 +404,12 @@ function OmniCC:GetDefaults()
 				g = 0, 
 				b= 0, 
 				a = 1, 
-				scale = 1.25,
+				scale = 1.5,
 			},
 			seconds = {
 				r = 1, 
-				g = 1, 
+				g = 0.82, 
 				b= 0, 
-				a = 1, 
-				scale = 1,
-			},
-			seconds = {
-				r = 1, 
-				g = 1, 
-				b= 1, 
 				a = 1, 
 				scale = 1,
 			},
@@ -423,13 +417,14 @@ function OmniCC:GetDefaults()
 				r = 1,
 				g = 1,
 				b = 1,
+				a = 1,
 				scale = 1,
 			},
 			hours = {
 				r = 0.7,
 				g = 0.7,
 				b = 0.7,
-				a = 0.7,
+				a = 0.5,
 				scale = 0.75,
 			}
 		}
@@ -626,7 +621,7 @@ end
 
 --text colors
 function OmniCC:SetPeriodColor(timePeriod, r, g, b, a)
-	local style = self:GetDB().style[timePeriod]
+	local style = self:GetDB().styles[timePeriod]
 	style.r = r or 1
 	style.g = g or 1
 	style.b = b or 1
@@ -634,17 +629,22 @@ function OmniCC:SetPeriodColor(timePeriod, r, g, b, a)
 end
 
 function OmniCC:GetPeriodColor(timePeriod)
-	local style = self:GetDB().style[timePeriod]
+	local style = self:GetDB().styles[timePeriod]
 	return style.r, style.g, style.b, style.a
 end
 
 function OmniCC:SetPeriodScale(timePeriod, scale)
-	local style = self:GetDB().style[timePeriod]
-	style.s = scale or 1
+	local style = self:GetDB().styles[timePeriod]
+	style.scale = scale or 1
 end
 
 function OmniCC:GetPeriodScale(timePeriod)
-	return self:GetDB().style[timePeriod].s
+	return self:GetDB().styles[timePeriod].scale
+end
+
+function OmniCC:GetPeriodStyle(timePeriod)
+	local style = self:GetDB().styles[timePeriod]
+	return style.r, style.g, style.b, style.a, style.scale
 end
 
 --[[---------------------------------------------------------------------------
