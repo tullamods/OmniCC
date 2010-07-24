@@ -36,9 +36,12 @@ end
 function GeneralOptions:AddWidgets()
 	local scaleText = self:CreateScaleTextCheckbox()
 	scaleText:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
+	
+	local showModels = self:CreateShowCooldownModelsCheckbox()
+	showModels:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 
 	local finishEffect = self:CreateFinishEffectPicker()
-	finishEffect:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 12))
+	finishEffect:SetPoint('TOPLEFT', showModels, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 16))
 
 	--sliders
 	local minEffectDuration = self:CreateMinEffectDurationSlider()
@@ -75,6 +78,14 @@ function GeneralOptions:CreateScaleTextCheckbox()
 	local b = self:NewCheckbox(L.ScaleText)
 	b.OnEnableSetting = function(self, enable) OmniCC:SetScaleText(enable) end
 	b.IsSettingEnabled = function(self) return OmniCC:ScalingText() end
+	return b
+end
+
+--show cooldown models
+function GeneralOptions:CreateShowCooldownModelsCheckbox()
+	local b = self:NewCheckbox(L.ShowCooldownModels)
+	b.OnEnableSetting = function(self, enable) OmniCC:SetShowCooldownModels(enable) end
+	b.IsSettingEnabled = function(self) return OmniCC:ShowingCooldownModels() end
 	return b
 end
 

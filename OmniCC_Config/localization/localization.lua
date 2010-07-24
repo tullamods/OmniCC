@@ -43,3 +43,5 @@ L.Color_soon = "Soon to expire"
 L.Color_seconds = "Under a minute"
 L.Color_minutes = "Under an hour"
 L.Color_hours = "One hour or more"
+
+L.ShowCooldownModels = "Show cooldown models"
