@@ -35,7 +35,7 @@ end
 
 function GeneralOptions:AddWidgets()
 	local scaleText = self:CreateScaleTextCheckbox()
-	scaleText:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
+	scaleText:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -60)
 	
 	local showModels = self:CreateShowCooldownModelsCheckbox()
 	showModels:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)

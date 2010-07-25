@@ -1,10 +1,9 @@
 --[[
-	font.lua: the OmniCC font styles panel
+	Filter.lua, the OmniCC blacklist panel
 --]]
 
 local OmniCC = OmniCC
 local L = OMNICC_LOCALS
-local BUTTON_SPACING = 6
 
 local FilterOptions = OmniCC.OptionsPanel:New('OmniCCOptions_Filter', 'OmniCC', L.FilterSettings, L.FilterSettingsTitle)
 OmniCC.FilterOptions = FilterOptions
@@ -16,12 +15,16 @@ end
 function FilterOptions:AddWidgets()
 	--checkboxes
 	local useBlacklist = self:CreateUseBlacklistCheckbox()
-	useBlacklist:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -72)
+	useBlacklist:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -60)
 
 	--add blacklist editor
 	local blacklistEditor = self:CreateBlacklistEditor()
-	blacklistEditor:SetPoint('TOPLEFT', useBlacklist, 'BOTTOMLEFT', 2, -16)
+	blacklistEditor:SetPoint('TOPLEFT', useBlacklist, 'BOTTOMLEFT', 2, -18)
 	blacklistEditor:SetSize(360, 284)
+	
+	--add framestack toggle
+	local frameStack = self:CreateFrameStackButton()
+	frameStack:SetPoint('TOPLEFT', blacklistEditor, 'BOTTOMLEFT', 0, -6)
 end
 
 
@@ -73,5 +76,20 @@ function FilterOptions:CreateBlacklistEditor()
 
 	return f
 end
+
+--framestack toggle
+function FilterOptions:CreateFrameStackButton()
+	local b = CreateFrame('Button', self:GetName() .. 'FrameStack', self, 'UIPanelButtonTemplate')
+	b:SetSize(140, 21)
+	b:SetText(DEBUG_FRAMESTACK)
+	b:SetScript('OnClick', function(self)
+		UIParentLoadAddOn("Blizzard_DebugTools")
+		FrameStackTooltip_Toggle()
+	end)
+
+	return b
+end
+
+
 
 FilterOptions:Load()

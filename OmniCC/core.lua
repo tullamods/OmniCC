@@ -5,7 +5,6 @@
 
 --libraries!
 local Classy = LibStub('Classy-1.0')
-local LSM = LibStub('LibSharedMedia-3.0')
 
 --constants!
 local PADDING = 4
@@ -18,15 +17,12 @@ local MINUTEHALFISH = 90.5
 local MINUTEISH = 59.5
 local SOONISH = 5.5
 
-local DEFAULT_FONT = 'Friz Quadrata TT' --the default font id to use
-local NO_OUTLINE = 'none'
-
 --local bindings!
 local format = string.format
 local floor = math.floor
 local min = math.min
 local abs = math.abs
-local LSM_FONT = LSM.MediaType.FONT
+
 local GetDate = GetDate
 
 --local functions!
@@ -191,10 +187,19 @@ end
 
 --retrieves what text to display, as well as the time until the next time text should change
 function Timer:GetDisplayText(s)
-	if s < OmniCC:GetTenthsDuration() then
+	local tenths = OmniCC:GetTenthsDuration()
+	if s < tenths then
 		return format('%.1f', s), (s*100 - floor(s*100)) / 100
 	elseif s < MINUTEHALFISH then --format text as seconds when at 90 seconds or below
-		return round(s), s - (round(s) - 0.5)
+		--update more frequently when we near the 0.x threshold.
+		--this is done to make sure that we do not go from say, 1 to 0.5 due to update delays
+		local nextUpdate
+		if s < tenths + 0.5 then
+			nextUpdate = (s*10 - floor(s*10)) / 10
+		else
+			nextUpdate = s - (round(s) - 0.5)
+		end
+		return round(s), nextUpdate
 	elseif s < OmniCC:GetMMSSDuration() then --format text as MM:SS when below the MM:SS threshold
 		return format('%d:%02d', s/MINUTE, s%MINUTE), s - floor(s)
 	elseif s < HOURISH then --format text as minutes when below an hour
@@ -219,35 +224,37 @@ function Timer:GetPeriodStyle(s)
 end
 
 --shower: a frame used to properly show and hide timer text without forcing the timer to be parented to the cooldown frame (needed for hiding the cooldown frame)
-local showers = {}
+do
+	local showers = {}
 
-local function Shower_OnShow(self)
-	local parent = self:GetParent()
-	local timer = Timer:Get(parent)
-	if timer.wasShown and not parent.noCooldownCount then
-		timer:Show()
+	local function Shower_OnShow(self)
+		local parent = self:GetParent()
+		local timer = Timer:Get(parent)
+		if timer.wasShown and not parent.noCooldownCount then
+			timer:Show()
+		end
 	end
-end
 
-local function Shower_OnHide(self)
-	local timer = Timer:Get(self:GetParent())
-	if timer:IsShown() then
-		timer.wasShown = true
-		timer:Hide()
+	local function Shower_OnHide(self)
+		local timer = Timer:Get(self:GetParent())
+		if timer:IsShown() then
+			timer.wasShown = true
+			timer:Hide()
+		end
 	end
-end
 
-function Timer:CreateShower(cooldown)
-	local shower = CreateFrame('Frame', nil, cooldown)
-	shower:SetScript('OnShow', Shower_OnShow)
-	shower:SetScript('OnHide', Shower_OnHide)
+	function Timer:CreateShower(cooldown)
+		local shower = CreateFrame('Frame', nil, cooldown)
+		shower:SetScript('OnShow', Shower_OnShow)
+		shower:SetScript('OnHide', Shower_OnHide)
 
-	showers[cooldown] = shower
-	return shower
-end
+		showers[cooldown] = shower
+		return shower
+	end
 
-function Timer:GetShower(cooldown)
-	return showers[cooldown]
+	function Timer:GetShower(cooldown)
+		return showers[cooldown]
+	end
 end
 
 
@@ -394,7 +401,7 @@ function OmniCC:GetDefaults()
 		showCooldownModels = true,
 		useBlacklist = false,
 		blacklist = {},
-		font = DEFAULT_FONT,
+		font = 'Friz Quadrata TT',
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
 		scaleText = true,
@@ -414,7 +421,7 @@ function OmniCC:GetDefaults()
 			},
 			seconds = {
 				r = 1,
-				g = 0.82,
+				g = 1,
 				b= 0,
 				a = 1,
 				scale = 1,
@@ -430,7 +437,7 @@ function OmniCC:GetDefaults()
 				r = 0.7,
 				g = 0.7,
 				b = 0.7,
-				a = 0.5,
+				a = 1,
 				scale = 0.75,
 			}
 		}
@@ -765,10 +772,13 @@ end
 do
 	--these functions are here to minimize calls to SharedMedia
 	local function fetchFont(fontId)
-		if fontId and LSM:IsValid(LSM_FONT, fontId) then
-			return LSM:Fetch(LSM_FONT, fontId)
+		local LSM = LibStub('LibSharedMedia-3.0')
+		local mediaType = LSM.MediaType.FONT
+
+		if fontId and LSM:IsValid(mediaType, fontId) then
+			return LSM:Fetch(mediaType, fontId)
 		end
-		return LSM:Fetch(LSM_FONT, DEFAULT_FONT)
+		return LSM:GetDefault(mediaType)
 	end
 
 	function OmniCC:GetFontInfo(force)
