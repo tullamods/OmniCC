@@ -1,6 +1,7 @@
 ## Interface: 30300
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
+## Notes-koKR: 모든 것을 위한 쿨다운 카운트
 ## Author: Tuller
 ## Version: 3.0
 ## SavedVariables: OmniCCGlobalSettings

@@ -6,7 +6,7 @@ if GetLocale() ~= 'koKR' then return end
 
 local L = OMNICC_LOCALS
 
-L.Updated = "업데이트 v%s"
+L.Updated = "v%s로 업데이트되었습니다."
 L.None = NONE
-L.Pulse = "고동"
+L.Pulse = "맥박"
 L.Shine = "반짝임"
