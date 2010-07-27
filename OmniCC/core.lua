@@ -9,26 +9,17 @@ local Classy = LibStub('Classy-1.0')
 --constants!
 local PADDING = 4
 local ICON_SIZE = 36 --the normal size for an icon
-local DAY, HOUR, MINUTE = 86400, 3600, 60 --value in seconds for days, hours, and minutes
-
-local DAYISH = 3600 * 23.5 --used for transition points when rounding (http://www.gammon.com.au/forum/?id=7805)
-local HOURISH = 60 * 59.5
-local MINUTEHALFISH = 90.5
-local MINUTEISH = 59.5
-local SOONISH = 5.5
+local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
+local DAYISH, HOURISH, MINUTEHALFISH = 3600 * 23.5, 60 * 59.5, 89.5, --used for formatting text at transition points
+local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY/2 + 0.5, HOUR/2 + 0.5, MINUTE/2 + 0.5 --used for calculating next update times
 
 --local bindings!
 local format = string.format
 local floor = math.floor
+local round = function(x) return floor(x + 0.5) end
 local min = math.min
 local abs = math.abs
-
 local GetDate = GetDate
-
---local functions!
-local function round(x)
-	return floor(x + 0.5)
-end
 
 
 --[[---------------------------------------------------------------------------
@@ -43,6 +34,7 @@ do
 
 	function Timer:New(cooldown)
 		local t = self:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); t:Hide()
+		t.cooldown = cooldown
 		t:SetAllPoints(cooldown)
 		t:SetToplevel(true)
 		t:SetScript('OnShow', t.OnShow)
@@ -62,7 +54,7 @@ do
 	end
 
 	function Timer:ForAllShown(f, ...)
-		for _, timer in pairs(timers) do
+		for cooldown, timer in pairs(timers) do
 			if timer:IsShown() then
 				f(timer, ...)
 			end
@@ -70,7 +62,7 @@ do
 	end
 
 	function Timer:ForAllShownCooldowns(f, ...)
-		for cooldown, timer in pairs(timers) do
+		for cooldown in pairs(timers) do
 			if cooldown:IsShown() then
 				f(cooldown, ...)
 			end
@@ -125,12 +117,11 @@ end
 
 function Timer:Update()
 	local remain = self:GetRemainingTime()
-
 	if remain > 0 then
 		self:UpdateDisplay(remain)
 	else
 		if self.duration >= OmniCC:GetMinEffectDuration() then
-			OmniCC:TriggerEffect(self:GetParent())
+			OmniCC:TriggerEffect(self.cooldown)
 		end
 		self:Stop()
 	end
@@ -187,27 +178,33 @@ end
 
 --retrieves what text to display, as well as the time until the next time text should change
 function Timer:GetDisplayText(s)
+	--show tenths of seconds below tenths threshold
 	local tenths = OmniCC:GetTenthsDuration()
 	if s < tenths then
 		return format('%.1f', s), (s*100 - floor(s*100)) / 100
-	elseif s < MINUTEHALFISH then --format text as seconds when at 90 seconds or below
-		--update more frequently when we near the 0.x threshold.
-		--this is done to make sure that we do not go from say, 1 to 0.5 due to update delays
-		local nextUpdate
-		if s < tenths + 0.5 then
-			nextUpdate = (s*10 - floor(s*10)) / 10
-		else
-			nextUpdate = s - (round(s) - 0.5)
+	--format text as seconds when at 90 seconds or below
+	elseif s < MINUTEHALFISH then 
+		local seconds = round(s)
+		--update more frequently when near the tenths threshold
+		if s < (tenths + 0.5) then
+			return seconds, (s*10 - floor(s*10)) / 10
 		end
-		return round(s), nextUpdate
-	elseif s < OmniCC:GetMMSSDuration() then --format text as MM:SS when below the MM:SS threshold
+		return seconds, s - (seconds - 0.51)
+	--format text as MM:SS when below the MM:SS threshold
+	elseif s < OmniCC:GetMMSSDuration() then
 		return format('%d:%02d', s/MINUTE, s%MINUTE), s - floor(s)
-	elseif s < HOURISH then --format text as minutes when below an hour
-		return round(s/MINUTE) .. 'm', s % (MINUTE/2)
-	elseif s < DAYISH then --format text as hours when below a day
-		return round(s/HOUR) .. 'h', s % (HOUR/2)
-	else --format text as days
-		return round(s/DAY) .. 'd', s % (DAY/2)
+	--format text as minutes when below an hour
+	elseif s < HOURISH then
+		local minutes = round(s/MINUTE)
+		return minutes .. 'm', minutes > 1 and (s - (minutes*MINUTE - HALFMINUTEISH)) or (s - MINUTEISH)
+	--format text as hours when below a day
+	elseif s < DAYISH then
+		local hours = round(s/HOUR)
+		return hours .. 'h', hours > 1 and (s - (hours*HOUR - HALFHOURISH)) or (s - HOURISH)
+	--format text as days
+	else 
+		local days = round(s/DAY)
+		return days .. 'd', days > 1 and (s - (days*DAY - HALFDAYISH)) or (s - DAYISH)
 	end
 end
 
@@ -327,7 +324,6 @@ function OmniCC:StopTimer(cooldown)
 		timer:Hide()
 	end
 end
-
 
 --[[---------------------------------------------------------------------------
 	Cooldown Model Hook
@@ -625,12 +621,9 @@ function OmniCC:GetMMSSDuration()
 end
 
 --text colors
-function OmniCC:SetPeriodColor(timePeriod, r, g, b, a)
+function OmniCC:SetPeriodColor(timePeriod, ...)
 	local style = self:GetDB().styles[timePeriod]
-	style.r = r or 1
-	style.g = g or 1
-	style.b = b or 1
-	style.a = a or 1
+	style.r, style.g, style.b, style.a = ...
 end
 
 function OmniCC:GetPeriodColor(timePeriod)
