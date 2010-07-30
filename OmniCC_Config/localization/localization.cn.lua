@@ -1,8 +1,6 @@
 --[[
-	OmniCC configuration interface localization - zhCN
+	OmniCC configuration interface localization - English
 --]]
-
-if GetLocale() ~= 'zhCN' then return end
 
 local L = OMNICC_LOCALS
 
@@ -32,5 +30,14 @@ L.ScaleText = "使用自动缩放令文字保持在框格之内"
 L.Add = "新增"
 L.Remove = "移除"
 
-L.FinishEffect = '完成的效果'
-L.MinEffectDuration = '完成的效果最少时间的时值'
+L.FinishEffect = "完成的效果"
+L.MinEffectDuration = "完成的效果最少时间的时值"
+
+L.MMSSDuration = "最少时间的时值以 MM:SS 格式来显示"
+L.TenthsDuration = "以十分之一秒为单位显示"
+
+L.Color = "颜色"
+L.Color_soon = "即将到期"
+L.Color_seconds = "少于1分钟"
+L.Color_minutes = "少于1小时"
+L.Color_hours = "1小时或以上"

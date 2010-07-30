@@ -2,36 +2,23 @@ OmniCC is an addon that adds text to items/spells/abilities that are on cooldown
 
 A configuration interface is included, and can be shown via /omnicc or /occ
 
-
 Changes since OmniCC 2:
-* Reduced overall CPU usage
-* Added whitelisting support
 * Added blacklisting support
 * Merged Pulse and Shine into the core addon.
 * Redesigned the options menu
 * Moved development over to GitHub
 
-
 Whitelisting frames:
 
-OmniCC 3 comes with a new option "Only show text on register frames." When enabled, OmniCC will only display text on frames listed in the CooldownTextFrames table, or any children of those frames. To add a frame to the list, addon authors can add the following bit of code:
-	CooldownTextFrames = CooldownTextFrames or {} 
-	CooldownTextFrames[frame] = true
+I've nixed this in the latest beta.  However, OmniCC now obeys the CooldownModel.noCooldownCount flag once again.
 
 Blacklisting frames:
 
 OmniCC 3 comes with another new option "Only display text on frames not on the blacklist" When enabled, OmniCC looks for frames that have names that match items on the blacklist. If a frame matches, then OmniCC will not display text on a frame. For example, adding "ActionButton" to the blacklist will cause both ActionButton1 and ActionButton2 to not show cooldown text.
 
-
-Missing features:
-
-Currently, OmniCC 3 does not include every feature that was in OmniCC 2. This was done for two reasons: Laziness, and to see what features people were using.
-
-
 GitHub:
 
 OmniCC development has moved from GogleCode to GitHub. The intention is to make it easier for people to fork/contribute to OmniCC development (and also for me to learn about git). Writing code for me typically gets your request implemented faster than asking me to write it myself :P
-
 
 Submitting bugs & feature requests:
 
