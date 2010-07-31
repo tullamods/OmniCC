@@ -1,6 +1,8 @@
 --[[
-	OmniCC configuration interface localization - English
+	OmniCC configuration interface localization - zhCN
 --]]
+
+if GetLocale() ~= 'zhCN' then return end
 
 local L = OMNICC_LOCALS
 
