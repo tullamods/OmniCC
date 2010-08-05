@@ -89,6 +89,19 @@ function FontButton:UpdateFont()
 	self:SetText(fontID)
 end
 
+function FontButton:TestFont(fontID)
+	local tester = FontButton.tester
+	if not tester then
+		tester = CreateFrame('Frame') tester:Hide()
+		tester.fontText = tester:CreateFontString()
+		FontButton.tester = tester
+	end
+	if tester.fontText:SetFont(fetchFont(fontID), FONT_HEIGHT, 'OUTLINE') then
+		return true
+	end
+	return false
+end
+
 
 --[[
 	The Font Selector
@@ -174,23 +187,27 @@ function FontSelector:CreateScrollChild()
 	local f_OnClick = function(f) self:Select(f:GetFontID()) end
 	local buttons = {}
 
-	for i, fontID in ipairs(getFontIDs()) do
-		local f = FontButton:New(scrollChild, i % 4 == 0 or (i + 1) % 4 == 0)
-		f:SetFontID(fontID)
-		f:SetScript('OnClick', f_OnClick)
+	local i = 0
+	for _, fontID in ipairs(getFontIDs()) do
+		if FontButton:TestFont(fontID) then
+			i = i + 1
+			local f = FontButton:New(scrollChild, i % 4 == 0 or (i + 1) % 4 == 0)
+			f:SetFontID(fontID)
+			f:SetScript('OnClick', f_OnClick)
 
-		if i == 1 then
-			f:SetPoint('TOPLEFT')
-			f:SetPoint('TOPRIGHT', scrollChild, 'TOP', -PADDING/2, 0)
-		elseif i == 2 then
-			f:SetPoint('TOPLEFT', scrollChild, 'TOP', PADDING/2, 0)
-			f:SetPoint('TOPRIGHT')
-		else
-			f:SetPoint('TOPLEFT', buttons[i-2], 'BOTTOMLEFT', 0, -PADDING)
-			f:SetPoint('TOPRIGHT', buttons[i-2], 'BOTTOMRIGHT', 0, -PADDING)
+			if i == 1 then
+				f:SetPoint('TOPLEFT')
+				f:SetPoint('TOPRIGHT', scrollChild, 'TOP', -PADDING/2, 0)
+			elseif i == 2 then
+				f:SetPoint('TOPLEFT', scrollChild, 'TOP', PADDING/2, 0)
+				f:SetPoint('TOPRIGHT')
+			else
+				f:SetPoint('TOPLEFT', buttons[i-2], 'BOTTOMLEFT', 0, -PADDING)
+				f:SetPoint('TOPRIGHT', buttons[i-2], 'BOTTOMRIGHT', 0, -PADDING)
+			end
+
+			table.insert(buttons, f)
 		end
-
-		table.insert(buttons, f)
 	end
 
 	scrollChild:SetWidth(self.scrollFrame:GetWidth())
