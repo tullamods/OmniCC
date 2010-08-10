@@ -1,6 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<!-- basic widgets -->
-	<Script file="widgets\button.lua"/>
 	<Script file="widgets\checkButton.lua"/>
 	<Script file="widgets\optionsPanel.lua"/>
 	<Script file="widgets\slider.lua"/>
