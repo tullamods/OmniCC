@@ -7,5 +7,6 @@
 ## SavedVariables: OmniCCGlobalSettings
 embeds.xml
 localization.xml
-core.lua
+config.lua
+cc.lua
 effects.xml

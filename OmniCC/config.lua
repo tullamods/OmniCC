@@ -1,263 +1,7 @@
 --[[
-	OmniCC
-		Displays text for cooldowns
+	config.lua
+		OmniCC configuration settings
 --]]
-
---libraries!
-local Classy = LibStub('Classy-1.0')
-
---constants!
-local PADDING = 4
-local ICON_SIZE = 36 --the normal size for an icon
-local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
-local DAYISH, HOURISH, MINUTEHALFISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 89.5, 59.5, 5.5 --used for formatting text at transition points
-local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY/2 + 0.5, HOUR/2 + 0.5, MINUTE/2 + 0.5 --used for calculating next update times
-
---local bindings!
-local format = string.format
-local floor = math.floor
-local round = function(x) return floor(x + 0.5) end
-local min = math.min
-local abs = math.abs
-local GetDate = GetDate
-
-
---[[---------------------------------------------------------------------------
-	Timer Code
---]]---------------------------------------------------------------------------
-
-local Timer = Classy:New('Frame'); Timer:Hide()
-
---constructor
-do
-	local timers = {}
-
-	function Timer:New(cooldown)
-		local t = self:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); t:Hide()
-		t.cooldown = cooldown
-		t:SetAllPoints(cooldown)
-		t:SetToplevel(true)
-		t:SetScript('OnShow', t.OnShow)
-		t:SetScript('OnSizeChanged', t.OnSizeChanged)
-		t:SetScript('OnUpdate', t.OnUpdate)
-
-		local text = t:CreateFontString(nil, 'OVERLAY')
-		text:SetPoint('CENTER', 0, 0)
-		t.text = text
-
-		timers[cooldown] = t
-		return t
-	end
-
-	function Timer:Get(cooldown)
-		return timers[cooldown]
-	end
-
-	function Timer:ForAllShown(f, ...)
-		for cooldown, timer in pairs(timers) do
-			if timer:IsShown() then
-				f(timer, ...)
-			end
-		end
-	end
-
-	function Timer:ForAllShownCooldowns(f, ...)
-		for cooldown in pairs(timers) do
-			if cooldown:IsShown() then
-				f(cooldown, ...)
-			end
-		end
-	end
-end
-
---frame events
-function Timer:OnShow()
-	if self:GetRemainingTime() <= 0 then
-		self:Stop()
-	else
-		self:UpdateFont()
-	end
-end
-
-function Timer:OnUpdate(elapsed)
-	local nextUpdate = self.toNextUpdate
-	if nextUpdate > 0 then
-		self.toNextUpdate = nextUpdate - elapsed
-	else
-		self:Update()
-	end
-end
-
-function Timer:OnSizeChanged()
-	if self:IsVisible() and OmniCC:ScalingText() then
-		self:UpdateFont()
-	end
-end
-
---actions
-function Timer:Start(cooldown, start, duration)
-	local timer = self:Get(cooldown) or self:New(cooldown)
-	if not self:GetShower(cooldown) then
-		self:CreateShower(cooldown)
-	end
-
-	timer.start = start
-	timer.duration = duration
-	timer.toNextUpdate = 0
-	timer:UpdateFont()
-	timer:Show()
-end
-
-function Timer:Stop()
-	self.start = 0
-	self.duration = 0
-	self.style = nil
-	self:Hide()
-end
-
-function Timer:Update()
-	local remain = self:GetRemainingTime()
-	if remain > 0 then
-		self:UpdateDisplay(remain)
-	else
-		if self.duration >= OmniCC:GetMinEffectDuration() then
-			OmniCC:TriggerEffect(self.cooldown)
-		end
-		self:Stop()
-	end
-end
-
-function Timer:UpdateDisplay(remain)
-	local text = self.text
-	local displayText, toNextUpdate = self:GetDisplayText(remain)
-
-	self.toNextUpdate = toNextUpdate
-
-	if text:IsShown() and text:GetFont() then
-		text:SetText(displayText)
-
-		local style = self:GetPeriodStyle(remain)
-		if style ~= self.style then
-			local r, g, b, alpha, scale = OmniCC:GetPeriodStyle(style)
-			text:SetVertexColor(r, g, b)
-			self:SetAlpha(alpha)
-			self:SetScale(scale)
-			self.style = style
-		end
-	end
-end
-
-function Timer:GetRemainingTime()
-	return self.duration - (GetTime() - self.start)
-end
-
-function Timer:UpdateFont()
-	local font, size, outline = self:GetFont()
-	local text = self.text
-
-	if size < OmniCC:GetMinFontSize() then
-		text:Hide()
-	else
-		text:SetFont(font, size, outline)
-		text:Show()
-	end
-end
-
---settings
-function Timer:GetFont()
-	local font, size, outline = OmniCC:GetFontInfo()
-	return font, size * self:GetFontScale(), outline
-end
-
-function Timer:GetFontScale()
-	if OmniCC:ScalingText() then
-		return (round(self:GetWidth() - PADDING)  * self:GetScale()) / ICON_SIZE
-	end
-	return 1
-end
-
---retrieves what text to display, as well as the time until the next time text should change
-function Timer:GetDisplayText(s)
-	--show tenths of seconds below tenths threshold
-	local tenths = OmniCC:GetTenthsDuration()
-	if s < tenths then
-		return format('%.1f', s), (s*100 - floor(s*100)) / 100
-	--format text as seconds when at 90 seconds or below
-	elseif s < MINUTEHALFISH then 
-		local seconds = round(s)
-		--update more frequently when near the tenths threshold
-		if s < (tenths + 0.5) then
-			return seconds, (s*10 - floor(s*10)) / 10
-		end
-		return seconds, s - (seconds - 0.51)
-	--format text as MM:SS when below the MM:SS threshold
-	elseif s < OmniCC:GetMMSSDuration() then
-		return format('%d:%02d', s/MINUTE, s%MINUTE), s - floor(s)
-	--format text as minutes when below an hour
-	elseif s < HOURISH then
-		local minutes = round(s/MINUTE)
-		return minutes .. 'm', minutes > 1 and (s - (minutes*MINUTE - HALFMINUTEISH)) or (s - MINUTEISH)
-	--format text as hours when below a day
-	elseif s < DAYISH then
-		local hours = round(s/HOUR)
-		return hours .. 'h', hours > 1 and (s - (hours*HOUR - HALFHOURISH)) or (s - HOURISH)
-	--format text as days
-	else 
-		local days = round(s/DAY)
-		return days .. 'd', days > 1 and (s - (days*DAY - HALFDAYISH)) or (s - DAYISH)
-	end
-end
-
-function Timer:GetPeriodStyle(s)
-	if s < SOONISH then
-		return 'soon'
-	elseif s < MINUTEISH then
-		return 'seconds'
-	elseif s <  HOURISH then
-		return 'minutes'
-	else
-		return 'hours'
-	end
-end
-
---shower: a frame used to properly show and hide timer text without forcing the timer to be parented to the cooldown frame (needed for hiding the cooldown frame)
-do
-	local showers = {}
-
-	local function Shower_OnShow(self)
-		local parent = self:GetParent()
-		local timer = Timer:Get(parent)
-		if timer.wasShown and not parent.noCooldownCount then
-			timer:Show()
-		end
-	end
-
-	local function Shower_OnHide(self)
-		local timer = Timer:Get(self:GetParent())
-		if timer:IsShown() then
-			timer.wasShown = true
-			timer:Hide()
-		end
-	end
-
-	function Timer:CreateShower(cooldown)
-		local shower = CreateFrame('Frame', nil, cooldown)
-		shower:SetScript('OnShow', Shower_OnShow)
-		shower:SetScript('OnHide', Shower_OnHide)
-
-		showers[cooldown] = shower
-		return shower
-	end
-
-	function Timer:GetShower(cooldown)
-		return showers[cooldown]
-	end
-end
-
-
---[[---------------------------------------------------------------------------
-	Global Updater/Event Handler
---]]---------------------------------------------------------------------------
 
 local OmniCC = CreateFrame('Frame', 'OmniCC'); OmniCC:Hide()
 
@@ -270,12 +14,8 @@ OmniCC:SetScript('OnEvent', function(self, event, ...)
 	end
 end)
 
---[[ Events ]]--
 
---force update on entering world to handle things like arena resets
-function OmniCC:PLAYER_ENTERING_WORLD()
-	self:UpdateTimers()
-end
+--[[ Events ]]--
 
 function OmniCC:PLAYER_LOGIN()
 	--create options loader
@@ -299,54 +39,19 @@ function OmniCC:PLAYER_LOGOUT()
 	self:RemoveDefaults()
 end
 
-OmniCC:RegisterEvent('PLAYER_ENTERING_WORLD')
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
 OmniCC:RegisterEvent('PLAYER_LOGIN')
 
+
 --[[ Actions ]]--
 
-
 function OmniCC:UpdateTimers()
-	Timer:ForAllShown(Timer.Update)
+	self.Timer:ForAllShown('UpdateText', true)
 end
 
 function OmniCC:UpdateTimerFonts()
-	Timer:ForAllShown(Timer.UpdateFont)
+	self.Timer:ForAllShown('UpdateFont', true)
 end
-
-function OmniCC:StartTimer(cooldown, start, duration)
-	Timer:Start(cooldown, start, duration)
-end
-
-function OmniCC:StopTimer(cooldown)
-	local timer = Timer:Get(cooldown)
-	if timer then
-		timer:Hide()
-	end
-end
-
---[[---------------------------------------------------------------------------
-	Cooldown Model Hook
---]]---------------------------------------------------------------------------
-
-local function shouldShowTimer(cooldown)
-	if OmniCC:UsingBlacklist() and OmniCC:IsBlacklisted(cooldown) then
-		return false
-	end
-	return not cooldown.noCooldownCount
-end
-
---ActionButton1Cooldown here, is something we think will always exist
-hooksecurefunc(getmetatable(_G['ActionButton1Cooldown']).__index, 'SetCooldown', function(self, start, duration)
-	if shouldShowTimer(self) then
-		self:SetAlpha(OmniCC:ShowingCooldownModels() and 1 or 0)
-		if start > 0 and duration > OmniCC:GetMinDuration() then
-			OmniCC:StartTimer(self, start, duration)
-			return
-		end
-	end
-	OmniCC:StopTimer(self)
-end)
 
 
 --[[---------------------------------------------------------------------------
@@ -624,6 +329,7 @@ end
 function OmniCC:SetPeriodColor(timePeriod, ...)
 	local style = self:GetDB().styles[timePeriod]
 	style.r, style.g, style.b, style.a = ...
+	self:UpdateTimers()
 end
 
 function OmniCC:GetPeriodColor(timePeriod)
@@ -634,6 +340,7 @@ end
 function OmniCC:SetPeriodScale(timePeriod, scale)
 	local style = self:GetDB().styles[timePeriod]
 	style.scale = scale or 1
+	self:UpdateTimers()
 end
 
 function OmniCC:GetPeriodScale(timePeriod)
