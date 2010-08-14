@@ -355,7 +355,7 @@ end
 --cooldown model showing/hiding
 function OmniCC:SetShowCooldownModels(enable)
 	self:GetDB().showCooldownModels = enable and true or false
-	Timer:ForAllShownCooldowns(function(cooldown) cooldown:SetAlpha(enable and 1 or 0) end)
+	self.Timer:ForAllShownCooldowns(function(cd) cd:SetAlpha(enable and 1 or 0) end)
 end
 
 function OmniCC:ShowingCooldownModels()
