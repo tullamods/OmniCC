@@ -295,7 +295,7 @@ do
 		hider:SetScript('OnHide', Hider_OnHide)
 		hider:SetScript('OnSizeChanged', Hider_OnSizeChanged)
 
-		hiders[hider] = hider
+		hiders[cooldown] = hider
 		return hider
 	end
 
