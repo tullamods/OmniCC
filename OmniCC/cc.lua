@@ -1,6 +1,13 @@
 --[[
 	cc.lua
 		Displays text for cooldowns on widgets
+		
+	cases when font size should be updated:
+		frame is resized
+		font is changed
+		
+	cases when text should be hidden:
+		scale * fontSize < MIN_FONT_SIE
 --]]
 
 --globals!
@@ -36,7 +43,6 @@ function Timer:New(cooldown)
 
 	--current theory: if I use toplevel, then people get FPS issues
 	timer:SetFrameLevel(cooldown:GetFrameLevel() + 3)
---	timer:SetToplevel(true)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
 	text:SetPoint('CENTER', 0, 0)
@@ -48,6 +54,7 @@ function Timer:New(cooldown)
 	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
 	--if we do set all points instead, then timer text tends to move around when the timer itself is scaled
 	timer:SetPoint('CENTER', cooldown)
+	
 	timer:Size(cooldown:GetSize())
 
 	timers[cooldown] = timer
@@ -101,42 +108,32 @@ end
 function Timer:Size(width, height)
 	self:SetSize(width, height)
 	self:UpdateFont()
-	
 	return self
 end
 
-function Timer:Scale(newEffScale)
-	local newEffScale = newEffScale or self:GetEffectiveScale()
-	if self.effScale ~= newEffScale then
-		self.effScale = newEffScale
-		self:UpdateShown()
-	end
-	
-	return self
-end
-
-function Timer:UpdateFont(forceFontUpdate)
-	--retrieve font info and font size settings
-	local font, fontSize, outline = OmniCC:GetFontInfo()
-	if OmniCC:ScalingText() then
-		fontSize = fontSize * (round(self:GetWidth() - PADDING) / ICON_SIZE)
-	end
-
-	--update only if we've changed font or size
-	if fontSize ~= self.fontSize or forceFontUpdate then
-		self.fontSize = fontSize
-
-		if fontSize > 0 then
-			local fontSet = self.text:SetFont(font, fontSize, outline)
-			--fallback to the standard font if the font we tried to set happens to be invalid
-			if not fontSet then
-				self.text:SetFont(STANDARD_TEXT_FONT, fontSize, outline)
-			end
+--set font to the given settings
+--fallback to the standard font if the font we tried to set happens to be invalid
+function Timer:SetFont(font, size, outline)
+	if size > 0 then
+		local fontSet = self.text:SetFont(font, size, outline)
+		if not fontSet then
+			self.text:SetFont(STANDARD_TEXT_FONT, size, outline)
 		end
-
-		self:UpdateShown()
 	end
 
+	self.fontSize = size
+	self:UpdateShown()
+
+	return self
+end
+
+function Timer:UpdateFont()
+	local font, size, outline = OmniCC:GetFontFace(), OmniCC:GetFontSize() * OmniCC:GetTextScale(), OmniCC:GetFontOutline()
+	if OmniCC:ScalingText() then
+		size = size * (self:GetWidth() / ICON_SIZE)
+	end
+	
+	self:SetFont(font, size, outline)
 	return self
 end
 
@@ -147,27 +144,37 @@ function Timer:UpdateText(forceStyleUpdate)
 	--otherwise stop the timer
 	local remain = self.duration - (GetTime() - self.start)
 	if remain > 0 then
-		local time, nextUpdate = self:GetTimeText(remain)
-		self.text:SetText(time)
+		--hide text if it's too small to display
+		--check again in one second
+		if (self:GetEffectiveScale() * self.fontSize) < OmniCC:GetMinFontSize() then
+			self.text:Hide()
+			self.nextUpdate = 1
+		else
+			--update font text
+			local time, nextUpdate = self:GetTimeText(remain)
+			self.text:SetText(time)
+			self.text:Show()
+			
+			--update text scale/color info if the time period has changed
+			--of we're forcing an update (used for config live updates)
+			local textStyle = self:GetPeriodStyle(remain)
+			if (textStyle ~= self.textStyle) or forceStyleUpdate then
+				local r, g, b, a, s = OmniCC:GetPeriodStyle(textStyle)
+				self.text:SetTextColor(r, g, b, a)
+				self:SetScale(s)
+				self.textStyle = textStyle
+			end
 
-		--update text scale/color info if the time period has changed
-		--of we're forcing an update (used for config live updates)
-		local textStyle = self:GetPeriodStyle(remain)
-		if (textStyle ~= self.textStyle) or forceStyleUpdate then
-			local r, g, b, a, s = OmniCC:GetPeriodStyle(textStyle)
-			self.text:SetTextColor(r, g, b, a)
-			self:SetScale(s)
-			self.textStyle = textStyle
+			self.nextUpdate = nextUpdate
 		end
-		self.nextUpdate = nextUpdate
 	else
-		--if the timer was long enough to trigger a finish effect, then display the effect
-		if self.duration >= OmniCC:GetMinEffectDuration() then
+		--if the timer was long enough to, and text is still visible
+		--then trigger a finish effect
+		if self.duration >= OmniCC:GetMinEffectDuration() and self.text:IsShown() then
 			OmniCC:TriggerEffect(self.cooldown, self.duration)
 		end
 		self:Stop()
 	end
-
 	return self
 end
 
@@ -177,11 +184,25 @@ function Timer:UpdateShown()
 	else
 		self:Hide()
 	end
-
 	return self
 end
 
+
 --[[ Accessors ]]--
+
+--retrieves the period style id associated with the given time frame
+--necessary to retrieve text coloring information from omnicc
+function Timer:GetPeriodStyle(s)
+	if s < SOONISH then
+		return 'soon'
+	elseif s < MINUTEISH then
+		return 'seconds'
+	elseif s <  HOURISH then
+		return 'minutes'
+	else
+		return 'hours'
+	end
+end
 
 --returns both what text to display, and how long until the next update
 function Timer:GetTimeText(s)
@@ -215,20 +236,6 @@ function Timer:GetTimeText(s)
 	end
 end
 
---retrieves the period style id associated with the given time frame
---necessary to retrieve text coloring information from omnicc
-function Timer:GetPeriodStyle(s)
-	if s < SOONISH then
-		return 'soon'
-	elseif s < MINUTEISH then
-		return 'seconds'
-	elseif s <  HOURISH then
-		return 'minutes'
-	else
-		return 'hours'
-	end
-end
-
 --returns true if the timer should be shown
 --and false otherwise
 function Timer:ShouldShow()
@@ -238,7 +245,11 @@ function Timer:ShouldShow()
 	end
 
 	--the timer should have text that's large enough to display
-	if (self.fontSize * self:GetEffectiveScale()) < OmniCC:GetMinFontSize() then
+	if self.fontSize < OmniCC:GetMinFontSize() then
+		return false
+	end
+	
+	if self.duration < OmniCC:GetMinDuration() then
 		return false
 	end
 
@@ -252,6 +263,16 @@ end
 
 
 --[[ Meta Functions ]]--
+
+function Timer:ForAll(f, ...)
+	if type(f) == 'string' then
+		f = self[f]
+	end
+
+	for _, timer in pairs(timers) do
+		f(timer, ...)
+	end
+end
 
 function Timer:ForAllShown(f, ...)
 	if type(f) == 'string' then

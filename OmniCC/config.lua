@@ -33,6 +33,9 @@ function OmniCC:PLAYER_LOGIN()
 			InterfaceOptionsFrame_OpenToCategory(self.GeneralOptions)
 		end
 	end
+	
+	self:UpdateTextScale()
+	self.Timer:ForAllShown('UpdateFont')
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -41,17 +44,6 @@ end
 
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
 OmniCC:RegisterEvent('PLAYER_LOGIN')
-
-
---[[ Actions ]]--
-
-function OmniCC:UpdateTimers()
-	self.Timer:ForAllShown('UpdateText', true)
-end
-
-function OmniCC:UpdateTimerFonts()
-	self.Timer:ForAllShown('UpdateFont', true)
-end
 
 
 --[[---------------------------------------------------------------------------
@@ -187,6 +179,7 @@ end
 --blacklist settings
 function OmniCC:SetUseBlacklist(enable)
 	self:GetDB().useBlacklist = enable and true or false
+	self.Timer:ForAll('UpdateShown')
 end
 
 function OmniCC:UsingBlacklist()
@@ -249,7 +242,7 @@ end
 --how many seconds, in length, must a cooldown be to show text
 function OmniCC:SetMinDuration(duration)
 	self:GetDB().minDuration = duration or 0
-	self:UpdateTimers()
+	self.Timer:ForAll('UpdateShown')
 end
 
 function OmniCC:GetMinDuration()
@@ -259,18 +252,30 @@ end
 --font id
 function OmniCC:SetFontID(font)
 	self:GetDB().font = font
-	self:GetFontInfo(true)
-	self:UpdateTimerFonts()
+	self:UpdateTextScale()
+	self.Timer:ForAll('UpdateFont')
 end
 
 function OmniCC:GetFontID()
 	return self:GetDB().font
 end
 
+function OmniCC:GetFontFace()
+	local LSM = LibStub('LibSharedMedia-3.0')
+	local media = LSM.MediaType.FONT
+	local fontId = self:GetFontID()
+
+	if fontId and LSM:IsValid(media, fontId) then
+		return LSM:Fetch(media, fontId)
+	end
+	return LSM:GetDefault(media)
+end
+
 --font size
 function OmniCC:SetFontSize(size)
 	self:GetDB().fontSize = size
-	self:UpdateTimerFonts()
+	self:UpdateTextScale()
+	self.Timer:ForAll('UpdateFont')
 end
 
 function OmniCC:GetFontSize()
@@ -280,7 +285,8 @@ end
 --font outline
 function OmniCC:SetFontOutline(outline)
 	self:GetDB().fontOutline = outline
-	self:UpdateTimerFonts()
+	self:UpdateTextScale()
+	self.Timer:ForAll('UpdateFont')
 end
 
 function OmniCC:GetFontOutline()
@@ -290,7 +296,7 @@ end
 --font scaling
 function OmniCC:SetScaleText(enable)
 	self:GetDB().scaleText = enable and true or false
-	self:UpdateTimerFonts()
+	self.Timer:ForAll('UpdateFont')
 end
 
 function OmniCC:ScalingText()
@@ -300,16 +306,40 @@ end
 --minimum font size to display text
 function OmniCC:SetMinFontSize(size)
 	self:GetDB().minFontSize = size or 0
-	self:UpdateTimerFonts()
+	self.Timer:ForAll('UpdateShown')
 end
 
 function OmniCC:GetMinFontSize()
 	return self:GetDB().minFontSize
 end
 
+--create an object to track font size changes
+do
+	local fontSizer = CreateFrame('Frame'); fontSizer:Hide()
+	fontSizer:SetSize(36, 36)
+
+	local text = fontSizer:CreateFontString()
+	text:SetFont(STANDARD_TEXT_FONT, 18, 'OUTLINE')
+	text:SetText('0:00') --text that maps to whatever the longest possible string for cooldown text is
+	text:SetPoint('CENTER', f)
+	fontSizer.text = text
+
+	local textScale = 1
+	
+	function OmniCC:UpdateTextScale()
+		fontSizer.text:SetFont(self:GetFontFace(), self:GetFontSize(), self:GetFontOutline())
+		textScale = min(fontSizer:GetWidth() / fontSizer.text:GetStringWidth(), 1)
+	end
+
+	function OmniCC:GetTextScale()
+		return (self:ScalingText() and textScale) or 1
+	end
+end
+
 --minumum duration to show tenths of seconds
 function OmniCC:SetTenthsDuration(value)
 	self:GetDB().tenthsDuration = value or 0
+	self.Timer:ForAllShown('UpdateText')
 end
 
 function OmniCC:GetTenthsDuration()
@@ -319,6 +349,7 @@ end
 --minimum duration to display text as MM:SS
 function OmniCC:SetMMSSDuration(value)
 	self:GetDB().mmSSDuration = value or 0
+	self.Timer:ForAllShown('UpdateText')
 end
 
 function OmniCC:GetMMSSDuration()
@@ -329,7 +360,7 @@ end
 function OmniCC:SetPeriodColor(timePeriod, ...)
 	local style = self:GetDB().styles[timePeriod]
 	style.r, style.g, style.b, style.a = ...
-	self:UpdateTimers()
+	self.Timer:ForAllShown('UpdateText', true)
 end
 
 function OmniCC:GetPeriodColor(timePeriod)
@@ -340,7 +371,7 @@ end
 function OmniCC:SetPeriodScale(timePeriod, scale)
 	local style = self:GetDB().styles[timePeriod]
 	style.scale = scale or 1
-	self:UpdateTimers()
+	self.Timer:ForAllShown('UpdateText', true)
 end
 
 function OmniCC:GetPeriodScale(timePeriod)
@@ -462,33 +493,4 @@ end
 
 function OmniCC:GetMinEffectDuration()
 	return self:GetDB().minEffectDuration
-end
-
-
---[[---------------------------------------------------------------------------
-	Font Retrieval - Really here to just minimize calls to SharedMedia/saved settings access
---]]---------------------------------------------------------------------------
-
-do
-	--these functions are here to minimize calls to SharedMedia
-	local function fetchFont(fontId)
-		local LSM = LibStub('LibSharedMedia-3.0')
-		local mediaType = LSM.MediaType.FONT
-
-		if fontId and LSM:IsValid(mediaType, fontId) then
-			return LSM:Fetch(mediaType, fontId)
-		end
-		return LSM:GetDefault(mediaType)
-	end
-
-	function OmniCC:GetFontInfo(force)
-		local font = self.font
-		if (not font) or force then
-			font = fetchFont(self:GetFontID())
-			self.font = font
-		end
-
-		local db = self:GetDB()
-		return font, db.fontSize, db.fontOutline
-	end
 end
