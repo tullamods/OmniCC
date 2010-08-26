@@ -42,14 +42,15 @@ function Timer:New(cooldown)
 	timer.cooldown = cooldown
 
 	--current theory: if I use toplevel, then people get FPS issues
-	timer:SetFrameLevel(cooldown:GetFrameLevel() + 3)
+--	timer:SetToplevel(true)
+	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
 	text:SetPoint('CENTER', 0, 0)
 	text:SetJustifyH('CENTER')
 	timer.text = text
 
-	timer:SetScript('OnUpdate', Timer.OnUpdate)
+	timer:SetScript('OnUpdate', timer.OnUpdate)
 
 	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
 	--if we do set all points instead, then timer text tends to move around when the timer itself is scaled
@@ -108,12 +109,18 @@ end
 function Timer:Size(width, height)
 	self:SetSize(width, height)
 	self:UpdateFont()
+
 	return self
 end
 
 --set font to the given settings
---fallback to the standard font if the font we tried to set happens to be invalid
-function Timer:SetFont(font, size, outline)
+function Timer:UpdateFont()
+	local font, size, outline = OmniCC:GetFontInfo()
+	if OmniCC:ScalingText() then
+		size = size * (self:GetWidth() / ICON_SIZE)
+	end
+	
+	--fallback to the standard font if the font we tried to set happens to be invalid
 	if size > 0 then
 		local fontSet = self.text:SetFont(font, size, outline)
 		if not fontSet then
@@ -124,16 +131,6 @@ function Timer:SetFont(font, size, outline)
 	self.fontSize = size
 	self:UpdateShown()
 
-	return self
-end
-
-function Timer:UpdateFont()
-	local font, size, outline = OmniCC:GetFontFace(), OmniCC:GetFontSize() * OmniCC:GetTextScale(), OmniCC:GetFontOutline()
-	if OmniCC:ScalingText() then
-		size = size * (self:GetWidth() / ICON_SIZE)
-	end
-	
-	self:SetFont(font, size, outline)
 	return self
 end
 
@@ -157,11 +154,11 @@ function Timer:UpdateText(forceStyleUpdate)
 			
 			--update text scale/color info if the time period has changed
 			--of we're forcing an update (used for config live updates)
-			local textStyle = self:GetPeriodStyle(remain)
-			if (textStyle ~= self.textStyle) or forceStyleUpdate then
-				local r, g, b, a, s = OmniCC:GetPeriodStyle(textStyle)
-				self.text:SetTextColor(r, g, b, a)
-				self:SetScale(s)
+			local period = self:GetPeriodStyle(remain)
+			if (period ~= self.textStyle) or forceStyleUpdate then
+				self.textStyle = period
+				self.text:SetTextColor(OmniCC:GetPeriodColor(period))
+				self:SetScale(OmniCC:GetPeriodScale(period))
 				self.textStyle = textStyle
 			end
 
@@ -175,6 +172,7 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 		self:Stop()
 	end
+	
 	return self
 end
 
@@ -184,6 +182,7 @@ function Timer:UpdateShown()
 	else
 		self:Hide()
 	end
+	
 	return self
 end
 
@@ -254,7 +253,7 @@ function Timer:ShouldShow()
 	end
 
 	--the cooldown of the timer shouldn't be blacklisted
-	if self.cooldown.noCooldownCount then
+	if OmniCC:IsBlacklisted(self.cooldown) then
 		return false
 	end
 
@@ -296,17 +295,13 @@ end
 
 
 --[[
-	the cooldown hook to display the timer
+	cooldown display
 --]]
-
---returns true if the cooldown is blacklisted, and false otherwise
-local function cooldown_IsBlacklisted(self)
-	return (OmniCC:UsingBlacklist() and OmniCC:IsBlacklisted(self)) or self.noCooldownCount
-end
 
 --show the timer if the cooldown is shown
 local function cooldown_OnShow(self)
 --	print('onshow', self:GetName())
+
 	local timer = Timer:Get(self)
 	if timer then
 		timer.visible = true
@@ -317,6 +312,7 @@ end
 --hide the timer if the cooldown is hidden
 local function cooldown_OnHide(self)
 --	print('onhide', self:GetName())
+
 	local timer = Timer:Get(self)
 	if timer then
 		timer.visible = nil
@@ -327,6 +323,7 @@ end
 --adjust the size of the timer when the cooldown's size changes
 local function cooldown_OnSizeChanged(self, ...)
 --	print('onsizechanged', self:GetName(), ...)
+
 	local timer = Timer:Get(self)
 	if timer then
 		timer:Size(...)
@@ -336,6 +333,7 @@ end
 --apply some extra functionality to the cooldown 
 local function cooldown_Init(self)
 --	print('init', self:GetName())
+
 	self:HookScript('OnShow', cooldown_OnShow)
 	self:HookScript('OnHide', cooldown_OnHide)
 	self:HookScript('OnSizeChanged', cooldown_OnSizeChanged)
@@ -346,6 +344,13 @@ end
 
 local function cooldown_OnSetCooldown(self, start, duration)
 --	print('onsetcooldown', self:GetName(), start, duration)
+
+	--don't display cooldown info if the timer is blacklisted
+	if OmniCC:IsBlacklisted(self) then
+		return
+	end
+	
+	--create timer if it does not exist yet
 	if(not self.omnicc) then
 		cooldown_Init(self)
 	end
@@ -353,8 +358,8 @@ local function cooldown_OnSetCooldown(self, start, duration)
 	--hide cooldown model as necessary
 	self:SetAlpha(OmniCC:ShowingCooldownModels() and 1 or 0)
 
-	--start timer
-	if start > 0 and duration >= OmniCC:GetMinDuration() and (not cooldown_IsBlacklisted(self)) then
+	--start timer if duration is over the min duration
+	if start > 0 and duration >= OmniCC:GetMinDuration() then
 		(Timer:Get(self) or Timer:New(self)):Start(start, duration)
 	--stop timer
 	else

@@ -45,8 +45,8 @@ end
 
 function FontOptions:CreateFontSelector(name)
 	local f = OmniCC.FontSelector:New(name, self)
-	f.SetSavedValue = function(self, value) OmniCC:SetFontID(value) end
-	f.GetSavedValue = function(self) return OmniCC:GetFontID() end
+	f.SetSavedValue = function(self, value) OmniCC:SetFontFace(value) end
+	f.GetSavedValue = function(self) return OmniCC:GetFontFace() end
 	return f
 end
 

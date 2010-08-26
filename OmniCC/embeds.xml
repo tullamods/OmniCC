@@ -1,7 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="libs\LibStub\LibStub.lua"/>
 	<Script file="libs\Classy-1.0\Classy-1.0.lua"/>
-
-	<Include file="libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
-	<Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 </Ui>

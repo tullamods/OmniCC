@@ -23,6 +23,14 @@ local function fetchFont(fontId)
 	return LSM:GetDefault(LSM_FONT)
 end
 
+local fontTester = nil
+local function isValidFont(font)
+	if not fontTester then
+		fontTester = CreateFont('OmniCCConfig_FontTester')
+	end
+	return fontTester:SetFont(font, FONT_HEIGHT, 'OUTLINE')
+end
+
 --[[
 	The Font Button
 --]]
@@ -70,36 +78,15 @@ function FontButton:New(parent, useAltColor)
 	return b
 end
 
-function FontButton:SetFontID(fontID)
-	self.fontID = fontID
-	self:UpdateFont()
-end
-
-function FontButton:GetFontID()
-	return self.fontID
-end
-
-function FontButton:UpdateFont()
-	local fontID = self:GetFontID()
-	self.fontText:SetFont(fetchFont(fontID), FONT_HEIGHT, 'OUTLINE')
-	if not self.fontText:GetFont() then
-		self:Hide()
-	end
+function FontButton:SetFontFace(font)
+	self.fontText:SetFont(font, FONT_HEIGHT, 'OUTLINE')
 	self.fontText:SetText('1234567890')
-	self:SetText(fontID)
+	
+	return self
 end
 
-function FontButton:TestFont(fontID)
-	local tester = FontButton.tester
-	if not tester then
-		tester = CreateFrame('Frame') tester:Hide()
-		tester.fontText = tester:CreateFontString()
-		FontButton.tester = tester
-	end
-	if tester.fontText:SetFont(fetchFont(fontID), FONT_HEIGHT, 'OUTLINE') then
-		return true
-	end
-	return false
+function FontButton:GetFontFace()
+	return (self.fontText:GetFont())
 end
 
 
@@ -159,12 +146,13 @@ end
 
 do
 	local function scrollBar_OnValueChanged(self, value)
-		local scrollFrame = self:GetParent().scrollFrame
-		scrollFrame:SetVerticalScroll(value)
+		self:GetParent().scrollFrame:SetVerticalScroll(value)
 	end
 
 	function FontSelector:CreateScrollBar()
 		local scrollBar = CreateFrame('Slider', nil, self)
+		scrollBar:SetOrientation('VERTICAL')
+		scrollBar:SetScript('OnValueChanged', scrollBar_OnValueChanged)
 
 		local bg = scrollBar:CreateTexture(nil, 'BACKGROUND')
 		bg:SetAllPoints(true)
@@ -175,24 +163,22 @@ do
 		thumb:SetSize(25, 25)
 		scrollBar:SetThumbTexture(thumb)
 
-		scrollBar:SetOrientation('VERTICAL')
-
-		scrollBar:SetScript('OnValueChanged', scrollBar_OnValueChanged)
 		return scrollBar
 	end
 end
 
 function FontSelector:CreateScrollChild()
 	local scrollChild = CreateFrame('Frame')
-	local f_OnClick = function(f) self:Select(f:GetFontID()) end
+	local f_OnClick = function(f) self:Select(f:GetFontFace()) end
 	local buttons = {}
 
 	local i = 0
-	for _, fontID in ipairs(getFontIDs()) do
-		if FontButton:TestFont(fontID) then
+	for _, fontId in ipairs(getFontIDs()) do
+		local font = fetchFont(fontId)
+		if isValidFont(font) then
 			i = i + 1
 			local f = FontButton:New(scrollChild, i % 4 == 0 or (i + 1) % 4 == 0)
-			f:SetFontID(fontID)
+			f:SetFontFace(font):SetText(fontId)
 			f:SetScript('OnClick', f_OnClick)
 
 			if i == 1 then
@@ -259,6 +245,6 @@ end
 function FontSelector:UpdateSelected()
 	local selectedValue = self:GetSavedValue()
 	for i, button in pairs(self.buttons) do
-		button:SetChecked(button:GetFontID() == selectedValue)
+		button:SetChecked(button:GetFontFace() == selectedValue)
 	end
 end

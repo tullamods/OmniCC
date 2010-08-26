@@ -5,6 +5,7 @@
 ## Author: Tuller
 ## Dependencies: OmniCC
 ## LoadOnDemand: 1
+embeds.xml
 localization.xml
 widgets.xml
 panels.xml

@@ -3,9 +3,14 @@
 		OmniCC configuration settings
 --]]
 
+local round = function(x) return math.floor(x + 0.5) end
+
 local OmniCC = CreateFrame('Frame', 'OmniCC'); OmniCC:Hide()
 
---[[ Frame Events ]]--
+
+--[[---------------------------------------------------------------------------
+	Events
+--]]---------------------------------------------------------------------------
 
 OmniCC:SetScript('OnEvent', function(self, event, ...)
 	local a = self[event]
@@ -13,9 +18,6 @@ OmniCC:SetScript('OnEvent', function(self, event, ...)
 		a(self, event, ...)
 	end
 end)
-
-
---[[ Events ]]--
 
 function OmniCC:PLAYER_LOGIN()
 	--create options loader
@@ -34,8 +36,7 @@ function OmniCC:PLAYER_LOGIN()
 		end
 	end
 	
-	self:UpdateTextScale()
-	self.Timer:ForAllShown('UpdateFont')
+	self:UpdateFont()
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -61,6 +62,7 @@ local function removeDefaults(tbl, defaults)
 			tbl[k] = nil
 		end
 	end
+	return tbl
 end
 
 local function copyDefaults(tbl, defaults)
@@ -75,26 +77,27 @@ local function copyDefaults(tbl, defaults)
 end
 
 function OmniCC:GetDB()
-	if not self.db then
-		self.db = _G['OmniCCGlobalSettings']
-		if self.db then
-			if self:IsDBOutOfDate() then
-				self:UpgradeDB()
-			end
-		else
-			self.db = self:CreateNewDB()
+	return self.db or self:InitDB()
+end
+
+function OmniCC:InitDB()
+	self.db = _G['OmniCCGlobalSettings']
+	if self.db then
+		if self.db.version ~= self:GetAddOnVersion() then
+			self:UpgradeDB()
 		end
-		copyDefaults(self.db, self:GetDefaults())
+	else
+		self.db = self:CreateNewDB()
 	end
-	return self.db
+	return copyDefaults(self.db, self:GetDefaults())
 end
 
 function OmniCC:GetDefaults()
-	self.defaults = self.defaults or {
+	return {
 		showCooldownModels = true,
 		useBlacklist = false,
 		blacklist = {},
-		font = 'Friz Quadrata TT',
+		fontFace = STANDARD_TEXT_FONT,
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
 		scaleText = true,
@@ -135,7 +138,6 @@ function OmniCC:GetDefaults()
 			}
 		}
 	}
-	return self.defaults
 end
 
 function OmniCC:RemoveDefaults()
@@ -146,25 +148,13 @@ function OmniCC:RemoveDefaults()
 end
 
 function OmniCC:CreateNewDB()
-	local db = {
-		version = self:GetAddOnVersion()
-	}
-
+	local db = {version = self:GetAddOnVersion()}
 	_G['OmniCCGlobalSettings'] = db
 	return db
 end
 
 function OmniCC:UpgradeDB()
-	local oldMajor, oldMinor = self:GetDBVersion():match('(%w+)%.(%w+)')
 	self:GetDB().version = self:GetAddOnVersion()
-end
-
-function OmniCC:IsDBOutOfDate()
-	return self:GetDBVersion() ~= self:GetAddOnVersion()
-end
-
-function OmniCC:GetDBVersion()
-	return self:GetDB().version
 end
 
 function OmniCC:GetAddOnVersion()
@@ -176,7 +166,9 @@ end
 	Configuration
 --]]---------------------------------------------------------------------------
 
---blacklist settings
+--[[ Blacklist ]]--
+
+--enable/disable blacklist
 function OmniCC:SetUseBlacklist(enable)
 	self:GetDB().useBlacklist = enable and true or false
 	self.Timer:ForAll('UpdateShown')
@@ -186,223 +178,72 @@ function OmniCC:UsingBlacklist()
 	return self:GetDB().useBlacklist
 end
 
+--backlist item editing
 function OmniCC:GetBlacklist()
 	return self:GetDB().blacklist
 end
 
 --adding/removing items to the blacklist
-do
-	local function isValidBlacklistPattern(pattern)
-		return pattern and not pattern:match('^%s*$')
+local function isValidBlacklistPattern(pattern)
+	return pattern and not pattern:match('^%s*$')
+end
+
+function OmniCC:AddToBlacklist(patternToAdd)
+	if not isValidBlacklistPattern(patternToAdd) then
+		return false
 	end
 
-	function OmniCC:AddToBlacklist(patternToAdd)
-		if not isValidBlacklistPattern(patternToAdd) then
-			return false
-		end
+	if not self:GetBlacklistIndex(patternToAdd) then
+		self:ClearBlacklistCache()
+			
+		local blacklist = self:GetBlacklist()
+		table.insert(blacklist, patternToAdd)
+		table.sort(blacklist)
 
-		if not self:GetBlacklistIndex(patternToAdd) then
-			local blacklist = self:GetBlacklist()
-			table.insert(blacklist, patternToAdd)
-			table.sort(blacklist)
-
-			for i, pattern in pairs(blacklist) do
-				if pattern == patternToAdd then
-					return true
-				end
+		for i, pattern in pairs(blacklist) do
+			if pattern == patternToAdd then
+				return true
 			end
 		end
 	end
+end
 
-	function OmniCC:RemoveFromBlacklist(patternToRemove)
-		if not isValidBlacklistPattern(patternToRemove) then
-			return false
+function OmniCC:RemoveFromBlacklist(patternToRemove)
+	if not isValidBlacklistPattern(patternToRemove) then
+		return false
+	end
+
+	local index = self:GetBlacklistIndex(patternToRemove)
+	if index then
+		self:ClearBlacklistCache()
+
+		table.remove(self:GetBlacklist(), index)
+		return true
+	end
+end
+
+function OmniCC:GetBlacklistIndex(patternToFind)
+	if not isValidBlacklistPattern(patternToFind) then
+		return false
+	end
+
+	for i, pattern in pairs(self:GetBlacklist()) do
+		if pattern == patternToFind then
+			return i
 		end
+	end
+end
 
-		local index = self:GetBlacklistIndex(patternToRemove)
-		if index then
-			table.remove(self:GetBlacklist(), index)
+do
+	--blacklist cache
+	--returns true if the name of the given frame matches a pattern on the blacklist
+	--and false otherwise
+	--frames with no name are considered NOT on the blacklist
+	local blacklistCache = setmetatable({}, {__index = function(t, frame)
+		if frame.noCooldownCount then
 			return true
 		end
-	end
-
-	function OmniCC:GetBlacklistIndex(patternToFind)
-		if not isValidBlacklistPattern(patternToFind) then
-			return false
-		end
-
-		for i, pattern in pairs(self:GetBlacklist()) do
-			if pattern == patternToFind then
-				return i
-			end
-		end
-	end
-end
-
---how many seconds, in length, must a cooldown be to show text
-function OmniCC:SetMinDuration(duration)
-	self:GetDB().minDuration = duration or 0
-	self.Timer:ForAll('UpdateShown')
-end
-
-function OmniCC:GetMinDuration()
-	return self:GetDB().minDuration
-end
-
---font id
-function OmniCC:SetFontID(font)
-	self:GetDB().font = font
-	self:UpdateTextScale()
-	self.Timer:ForAll('UpdateFont')
-end
-
-function OmniCC:GetFontID()
-	return self:GetDB().font
-end
-
-function OmniCC:GetFontFace()
-	local LSM = LibStub('LibSharedMedia-3.0')
-	local media = LSM.MediaType.FONT
-	local fontId = self:GetFontID()
-
-	if fontId and LSM:IsValid(media, fontId) then
-		return LSM:Fetch(media, fontId)
-	end
-	return LSM:GetDefault(media)
-end
-
---font size
-function OmniCC:SetFontSize(size)
-	self:GetDB().fontSize = size
-	self:UpdateTextScale()
-	self.Timer:ForAll('UpdateFont')
-end
-
-function OmniCC:GetFontSize()
-	return self:GetDB().fontSize
-end
-
---font outline
-function OmniCC:SetFontOutline(outline)
-	self:GetDB().fontOutline = outline
-	self:UpdateTextScale()
-	self.Timer:ForAll('UpdateFont')
-end
-
-function OmniCC:GetFontOutline()
-	return self:GetDB().fontOutline
-end
-
---font scaling
-function OmniCC:SetScaleText(enable)
-	self:GetDB().scaleText = enable and true or false
-	self.Timer:ForAll('UpdateFont')
-end
-
-function OmniCC:ScalingText()
-	return self:GetDB().scaleText
-end
-
---minimum font size to display text
-function OmniCC:SetMinFontSize(size)
-	self:GetDB().minFontSize = size or 0
-	self.Timer:ForAll('UpdateShown')
-end
-
-function OmniCC:GetMinFontSize()
-	return self:GetDB().minFontSize
-end
-
---create an object to track font size changes
-do
-	local fontSizer = CreateFrame('Frame'); fontSizer:Hide()
-	fontSizer:SetSize(36, 36)
-
-	local text = fontSizer:CreateFontString()
-	text:SetFont(STANDARD_TEXT_FONT, 18, 'OUTLINE')
-	text:SetText('0:00') --text that maps to whatever the longest possible string for cooldown text is
-	text:SetPoint('CENTER', f)
-	fontSizer.text = text
-
-	local textScale = 1
 	
-	function OmniCC:UpdateTextScale()
-		fontSizer.text:SetFont(self:GetFontFace(), self:GetFontSize(), self:GetFontOutline())
-		textScale = min(fontSizer:GetWidth() / fontSizer.text:GetStringWidth(), 1)
-	end
-
-	function OmniCC:GetTextScale()
-		return (self:ScalingText() and textScale) or 1
-	end
-end
-
---minumum duration to show tenths of seconds
-function OmniCC:SetTenthsDuration(value)
-	self:GetDB().tenthsDuration = value or 0
-	self.Timer:ForAllShown('UpdateText')
-end
-
-function OmniCC:GetTenthsDuration()
-	return self:GetDB().tenthsDuration
-end
-
---minimum duration to display text as MM:SS
-function OmniCC:SetMMSSDuration(value)
-	self:GetDB().mmSSDuration = value or 0
-	self.Timer:ForAllShown('UpdateText')
-end
-
-function OmniCC:GetMMSSDuration()
-	return self:GetDB().mmSSDuration
-end
-
---text colors
-function OmniCC:SetPeriodColor(timePeriod, ...)
-	local style = self:GetDB().styles[timePeriod]
-	style.r, style.g, style.b, style.a = ...
-	self.Timer:ForAllShown('UpdateText', true)
-end
-
-function OmniCC:GetPeriodColor(timePeriod)
-	local style = self:GetDB().styles[timePeriod]
-	return style.r, style.g, style.b, style.a
-end
-
-function OmniCC:SetPeriodScale(timePeriod, scale)
-	local style = self:GetDB().styles[timePeriod]
-	style.scale = scale or 1
-	self.Timer:ForAllShown('UpdateText', true)
-end
-
-function OmniCC:GetPeriodScale(timePeriod)
-	return self:GetDB().styles[timePeriod].scale
-end
-
-function OmniCC:GetPeriodStyle(timePeriod)
-	local style = self:GetDB().styles[timePeriod]
-	return style.r, style.g, style.b, style.a, style.scale
-end
-
---cooldown model showing/hiding
-function OmniCC:SetShowCooldownModels(enable)
-	self:GetDB().showCooldownModels = enable and true or false
-	self.Timer:ForAllShownCooldowns(function(cd) cd:SetAlpha(enable and 1 or 0) end)
-end
-
-function OmniCC:ShowingCooldownModels()
-	return self:GetDB().showCooldownModels
-end
-
---[[---------------------------------------------------------------------------
-	Blacklisting
---]]---------------------------------------------------------------------------
-
---blacklisting
---returns true if the name of the given frame matches a pattern on the blacklist
---and false otherwise
---frames with no name are considered NOT on the blacklist
-do
-	local blacklistedFrames = setmetatable({}, {__index = function(t, frame)
 		local frameName = frame:GetName()
 		local blacklisted = false
 
@@ -419,15 +260,179 @@ do
 		return blacklisted
 	end})
 
-	function OmniCC:ClearBlacklistCache()
-		for k, v in pairs(blacklistedFrames) do
-			blacklistedFrames[k] = nil
-		end
+	--returns true if the given frame is blacklisted, and false otherwise
+	function OmniCC:IsBlacklisted(frame)
+		return (self:UsingBlacklist() and blacklistCache[frame]) or frame.noCooldownCount
 	end
 
-	function OmniCC:IsBlacklisted(frame)
-		return blacklistedFrames[frame]
+	--purges the blacklist cache
+	function OmniCC:ClearBlacklistCache()
+		for k, v in pairs(blacklist) do
+			blacklistCache[k] = nil
+		end
 	end
+end
+
+--[[ Font ]]--
+
+--font id
+function OmniCC:SetFontFace(fontFace)
+	self:GetDB().fontFace = fontFace
+	self:UpdateFont()
+end
+
+function OmniCC:GetFontFace()
+	return self:GetDB().fontFace
+end
+
+--font size
+function OmniCC:SetFontSize(fontSize)
+	self:GetDB().fontSize = fontSize
+	self:UpdateFont()
+end
+
+function OmniCC:GetFontSize()
+	return self:GetDB().fontSize
+end
+
+--font outline
+function OmniCC:SetFontOutline(fontOutline)
+	self:GetDB().fontOutline = fontOutline
+	self:UpdateFont()
+end
+
+function OmniCC:GetFontOutline()
+	return self:GetDB().fontOutline
+end
+
+--font scaling
+function OmniCC:SetScaleText(enable)
+	self:GetDB().scaleText = enable and true or false
+	self:UpdateFont()
+end
+
+function OmniCC:ScalingText()
+	return self:GetDB().scaleText
+end
+
+--create an object to track font size changes
+do
+	local fontFace, fontSize, fontOutline, fontScale = STANDARD_TEXT_FONT, 18, 'OUTINE', 1
+
+	--create a basic frame for testing font size changes
+	local tester = CreateFrame('Frame', nil, UIParent)
+	tester:Hide()
+	tester:SetSize(36, 36)
+
+	local text = tester:CreateFontString()
+	text:SetFont(fontFace, fontSize, fontOutline)
+	text:SetText('0:00') --text that maps to whatever the longest possible string for cooldown text is
+	text:SetPoint('CENTER', f)
+	tester.text = text
+
+	--recalculate font info
+	function OmniCC:UpdateFont()
+		--confirm that the font is valid
+		fontFace, fontSize, fontOutline = self:GetFontFace(), self:GetFontSize(), self:GetFontOutline()
+		if not tester.text:SetFont(fontFace, fontSize, fontOutline) then
+			fontFace = STANDARD_TEXT_FONT
+			tester.text:SetFont(fontFace, fontSize, fontOutline)
+		end
+		
+		--calculate font scale
+		if self:ScalingText() then
+			fontScale = round(tester:GetWidth()) / round(tester.text:GetStringWidth())
+		else
+			fontScale = 1
+		end
+
+		self.Timer:ForAll('UpdateFont')
+		return self
+	end
+
+	function OmniCC:GetFontInfo()
+		return fontFace, fontSize * fontScale, fontOutline
+	end
+end
+
+--[[ Display Restrictions ]]--
+
+--minimum font size to display text
+function OmniCC:SetMinFontSize(size)
+	self:GetDB().minFontSize = size or 0
+	self.Timer:ForAll('UpdateShown')
+end
+
+function OmniCC:GetMinFontSize()
+	return self:GetDB().minFontSize
+end
+
+--how many seconds, in length, must a cooldown be to show text
+function OmniCC:SetMinDuration(duration)
+	self:GetDB().minDuration = duration or 0
+end
+
+function OmniCC:GetMinDuration()
+	return self:GetDB().minDuration
+end
+
+--minumum duration to show tenths of seconds
+function OmniCC:SetTenthsDuration(value)
+	self:GetDB().tenthsDuration = value or 0
+	self.Timer:ForAllShown('UpdateText')
+end
+
+function OmniCC:GetTenthsDuration()
+	return self:GetDB().tenthsDuration
+end
+
+--[[ Timer Style ]]--
+
+--color
+function OmniCC:SetPeriodColor(timePeriod, ...)
+	local style = self:GetDB().styles[timePeriod]
+	style.r, style.g, style.b, style.a = ...
+	self.Timer:ForAllShown('UpdateText', true)
+end
+
+function OmniCC:GetPeriodColor(timePeriod)
+	local style = self:GetDB().styles[timePeriod]
+	return style.r, style.g, style.b, style.a
+end
+
+--scale
+function OmniCC:SetPeriodScale(timePeriod, scale)
+	local style = self:GetDB().styles[timePeriod]
+	style.scale = scale or 1
+	self.Timer:ForAllShown('UpdateText', true)
+end
+
+function OmniCC:GetPeriodScale(timePeriod)
+	return self:GetDB().styles[timePeriod].scale
+end
+
+--minimum duration to display text as MM:SS
+function OmniCC:SetMMSSDuration(value)
+	self:GetDB().mmSSDuration = value or 0
+	self.Timer:ForAllShown('UpdateText')
+end
+
+function OmniCC:GetMMSSDuration()
+	return self:GetDB().mmSSDuration
+end
+
+--cooldown model showing/hiding
+local function cooldown_Hide(self, enable)
+	self:SetAlpha(enable and 1 or 0)
+end
+
+function OmniCC:SetShowCooldownModels(enable)
+	self:GetDB().showCooldownModels = enable and true or false
+	self.Timer:ForAllShownCooldowns(cooldown_Hide)
+end
+
+function OmniCC:ShowingCooldownModels()
+	return self:GetDB().showCooldownModels
 end
 
 
