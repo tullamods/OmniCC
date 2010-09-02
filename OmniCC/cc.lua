@@ -143,7 +143,7 @@ function Timer:UpdateText(forceStyleUpdate)
 	if remain > 0 then
 		--hide text if it's too small to display
 		--check again in one second
-		if (self:GetEffectiveScale() * self.fontSize) < OmniCC:GetMinFontSize() then
+		if (self:GetEffectiveScale() * self.fontSize / UIParent:GetScale()) < OmniCC:GetMinFontSize() then
 			self.text:Hide()
 			self.nextUpdate = 1
 		else
