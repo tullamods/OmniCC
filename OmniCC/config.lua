@@ -267,7 +267,7 @@ do
 
 	--purges the blacklist cache
 	function OmniCC:ClearBlacklistCache()
-		for k, v in pairs(blacklist) do
+		for k, v in pairs(blacklistCache) do
 			blacklistCache[k] = nil
 		end
 	end
