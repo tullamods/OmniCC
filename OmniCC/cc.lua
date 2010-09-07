@@ -1,11 +1,11 @@
 --[[
 	cc.lua
 		Displays text for cooldowns on widgets
-		
+
 	cases when font size should be updated:
 		frame is resized
 		font is changed
-		
+
 	cases when text should be hidden:
 		scale * fontSize < MIN_FONT_SIE
 --]]
@@ -55,7 +55,7 @@ function Timer:New(cooldown)
 	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
 	--if we do set all points instead, then timer text tends to move around when the timer itself is scaled
 	timer:SetPoint('CENTER', cooldown)
-	
+
 	timer:Size(cooldown:GetSize())
 
 	timers[cooldown] = timer
@@ -86,7 +86,7 @@ function Timer:Start(start, duration)
 	self.visible = true
 	self.textStyle = nil
 	self.nextUpdate = 0
-	
+
 	self:UpdateShown()
 	return self
 end
@@ -99,7 +99,7 @@ function Timer:Stop()
 	self.visible = nil
 	self.textStyle = nil
 	self.nextUpdate = nil
-	
+
 	self:Hide()
 	return self
 end
@@ -119,7 +119,7 @@ function Timer:UpdateFont()
 	if OmniCC:ScalingText() then
 		size = size * (self:GetWidth() / ICON_SIZE)
 	end
-	
+
 	--fallback to the standard font if the font we tried to set happens to be invalid
 	if size > 0 then
 		local fontSet = self.text:SetFont(font, size, outline)
@@ -143,7 +143,7 @@ function Timer:UpdateText(forceStyleUpdate)
 	if remain > 0 then
 		--hide text if it's too small to display
 		--check again in one second
-		if (self:GetEffectiveScale() * self.fontSize) < OmniCC:GetMinFontSize() then
+		if (self:GetEffectiveScale() * self.fontSize / UIParent:GetScale()) < OmniCC:GetMinFontSize() then
 			self.text:Hide()
 			self.nextUpdate = 1
 		else
@@ -151,7 +151,7 @@ function Timer:UpdateText(forceStyleUpdate)
 			local time, nextUpdate = self:GetTimeText(remain)
 			self.text:SetText(time)
 			self.text:Show()
-			
+
 			--update text scale/color info if the time period has changed
 			--of we're forcing an update (used for config live updates)
 			local period = self:GetPeriodStyle(remain)
@@ -172,7 +172,7 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 		self:Stop()
 	end
-	
+
 	return self
 end
 
@@ -182,7 +182,7 @@ function Timer:UpdateShown()
 	else
 		self:Hide()
 	end
-	
+
 	return self
 end
 
@@ -247,7 +247,7 @@ function Timer:ShouldShow()
 	if self.fontSize < OmniCC:GetMinFontSize() then
 		return false
 	end
-	
+
 	if self.duration < OmniCC:GetMinDuration() then
 		return false
 	end
@@ -330,7 +330,7 @@ local function cooldown_OnSizeChanged(self, ...)
 	end
 end
 
---apply some extra functionality to the cooldown 
+--apply some extra functionality to the cooldown
 local function cooldown_Init(self)
 --	print('init', self:GetName())
 
@@ -349,7 +349,7 @@ local function cooldown_OnSetCooldown(self, start, duration)
 	if OmniCC:IsBlacklisted(self) then
 		return
 	end
-	
+
 	--create timer if it does not exist yet
 	if(not self.omnicc) then
 		cooldown_Init(self)
