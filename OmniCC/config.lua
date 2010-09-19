@@ -499,13 +499,3 @@ end
 function OmniCC:GetMinEffectDuration()
 	return self:GetDB().minEffectDuration
 end
-
---[[ Compatibility Hacks ]]--
-
---turn off OmniCC_Pulse + OmniCC_Shine
---and also provide something valid to return from CreateClass to prevent user errors
-function OmniCC:CreateClass(...)
-	DisableAddOn('OmniCC_Pulse')
-	DisableAddOn('OmniCC_Shine')
-	return LibStub('Classy-1.0'):New(...)
-end
