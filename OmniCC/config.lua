@@ -35,7 +35,7 @@ function OmniCC:PLAYER_LOGIN()
 			InterfaceOptionsFrame_OpenToCategory(self.GeneralOptions)
 		end
 	end
-	
+
 	self:UpdateFont()
 end
 
@@ -102,7 +102,7 @@ function OmniCC:GetDefaults()
 		fontOutline = 'OUTLINE',
 		scaleText = true,
 		minDuration = 3,
-		minFontSize = 8,
+		minFontSize = 9,
 		effect = 'pulse',
 		minEffectDuration = 30,
 		tenthsDuration = 0,
@@ -195,7 +195,7 @@ function OmniCC:AddToBlacklist(patternToAdd)
 
 	if not self:GetBlacklistIndex(patternToAdd) then
 		self:ClearBlacklistCache()
-			
+
 		local blacklist = self:GetBlacklist()
 		table.insert(blacklist, patternToAdd)
 		table.sort(blacklist)
@@ -243,7 +243,7 @@ do
 		if frame.noCooldownCount then
 			return true
 		end
-	
+
 		local frameName = frame:GetName()
 		local blacklisted = false
 
@@ -338,7 +338,7 @@ do
 			fontFace = STANDARD_TEXT_FONT
 			tester.text:SetFont(fontFace, fontSize, fontOutline)
 		end
-		
+
 		--calculate font scale
 		if self:ScalingText() then
 			fontScale = round(tester:GetWidth()) / round(tester.text:GetStringWidth())
@@ -498,4 +498,14 @@ end
 
 function OmniCC:GetMinEffectDuration()
 	return self:GetDB().minEffectDuration
+end
+
+--[[ Compatibility Hacks ]]--
+
+--turn off OmniCC_Pulse + OmniCC_Shine
+--and also provide something valid to return from CreateClass to prevent user errors
+function OmniCC:CreateClass(...)
+	DisableAddOn('OmniCC_Pulse')
+	DisableAddOn('OmniCC_Shine')
+	return LibStub('Classy-1.0'):New(...)
 end
