@@ -36,7 +36,7 @@ end
 function GeneralOptions:AddWidgets()
 	local scaleText = self:CreateScaleTextCheckbox()
 	scaleText:SetPoint('TOPLEFT', self, 'TOPLEFT', 14, -60)
-	
+
 	local showModels = self:CreateShowCooldownModelsCheckbox()
 	showModels:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 
@@ -78,6 +78,9 @@ function GeneralOptions:CreateScaleTextCheckbox()
 	local b = self:NewCheckbox(L.ScaleText)
 	b.OnEnableSetting = function(self, enable) OmniCC:SetScaleText(enable) end
 	b.IsSettingEnabled = function(self) return OmniCC:ScalingText() end
+
+	b.tooltip = L.ScaleTextTip
+
 	return b
 end
 
@@ -86,6 +89,9 @@ function GeneralOptions:CreateShowCooldownModelsCheckbox()
 	local b = self:NewCheckbox(L.ShowCooldownModels)
 	b.OnEnableSetting = function(self, enable) OmniCC:SetShowCooldownModels(enable) end
 	b.IsSettingEnabled = function(self) return OmniCC:ShowingCooldownModels() end
+
+	b.tooltip = L.ShowCooldownModelsTip
+
 	return b
 end
 
@@ -102,6 +108,9 @@ function GeneralOptions:CreateMinDurationSlider()
 	s.SetSavedValue = function(self, value) OmniCC:SetMinDuration(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinDuration() end
 	s.GetFormattedText = function(self, value) return ('%.1f'..L.Sec):format(value) end
+
+	s.tooltip = L.MinDurationTip
+
 	return s
 end
 
@@ -109,6 +118,9 @@ function GeneralOptions:CreateMinFontSizeSlider()
 	local s = self:NewSlider(L.MinFontSize, 2, 64, 1)
 	s.SetSavedValue = function(self, value) OmniCC:SetMinFontSize(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinFontSize() end
+
+	s.tooltip = L.MinFontSizeTip
+
 	return s
 end
 
@@ -117,6 +129,9 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	s.SetSavedValue = function(self, value) OmniCC:SetMinEffectDuration(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetMinEffectDuration() end
 	s.GetFormattedText = function(self, value) return SECONDS_ABBR:format(value) end
+
+	s.tooltip = L.MinEffectDurationTip
+
 	return s
 end
 
@@ -135,6 +150,9 @@ function GeneralOptions:CreateMMSSSlider()
 			return MINUTES_ABBR:format(value)
 		end
 	end
+
+	s.tooltip = L.MMSSDurationTip
+
 	return s
 end
 
@@ -153,6 +171,9 @@ function GeneralOptions:CreateTenthsSlider()
 			return SECONDS_ABBR:format(value)
 		end
 	end
+
+	s.tooltip = L.TenthsDurationTip
+
 	return s
 end
 

@@ -12,6 +12,8 @@ function OptionsCheckButton:New(name, parent)
 
 	b:SetScript('OnClick', b.OnClick)
 	b:SetScript('OnShow', b.OnShow)
+	b:SetScript('OnEnter', b.OnEnter)
+	b:SetScript('OnLeave', b.OnLeave)
 
 	return b
 end
@@ -32,6 +34,19 @@ end
 
 function OptionsCheckButton:OnShow()
 	self:UpdateChecked()
+end
+
+function OptionsCheckButton:OnEnter()
+	if not GameTooltip:IsOwned(self) and self.tooltip then
+		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+		GameTooltip:SetText(self.tooltip)
+	end
+end
+
+function OptionsCheckButton:OnLeave()
+	if GameTooltip:IsOwned(self) then
+		GameTooltip:Hide()
+	end
 end
 
 function OptionsCheckButton:UpdateChecked()

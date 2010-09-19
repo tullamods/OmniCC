@@ -21,7 +21,7 @@ function FilterOptions:AddWidgets()
 	local blacklistEditor = self:CreateBlacklistEditor()
 	blacklistEditor:SetPoint('TOPLEFT', useBlacklist, 'BOTTOMLEFT', 2, -18)
 	blacklistEditor:SetSize(360, 284)
-	
+
 	--add framestack toggle
 	local frameStack = self:CreateFrameStackButton()
 	frameStack:SetPoint('TOPLEFT', blacklistEditor, 'BOTTOMLEFT', 0, -6)
@@ -39,6 +39,7 @@ function FilterOptions:CreateUseBlacklistCheckbox()
 	local b = self:NewCheckbox(L.UseBlacklist)
 	b.OnEnableSetting = function(self, enable) OmniCC:SetUseBlacklist(enable) end
 	b.IsSettingEnabled = function(self) return OmniCC:UsingBlacklist() end
+	b.tooltip = L.UseBlacklistTip
 
 	return b
 end
@@ -85,6 +86,21 @@ function FilterOptions:CreateFrameStackButton()
 	b:SetScript('OnClick', function(self)
 		UIParentLoadAddOn("Blizzard_DebugTools")
 		FrameStackTooltip_Toggle()
+	end)
+
+	b.tooltip = L.FrameStackTip
+
+	b:SetScript('OnEnter', function(self)
+		if not GameTooltip:IsOwned(self)  and self.tooltip then
+			GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+			GameTooltip:SetText(self.tooltip)
+		end
+	end)
+
+	b:SetScript('OnLeave', function(self)
+		if GameTooltip:IsOwned(self) then
+			GameTooltip:Hide()
+		end
 	end)
 
 	return b
