@@ -90,6 +90,7 @@ function FontOptions:CreateFontSizeSlider()
 	local s = self:NewSlider(L.FontSize, 2, 48, 1)
 	s.SetSavedValue = function(self, value) OmniCC:SetFontSize(value) end
 	s.GetSavedValue = function(self) return OmniCC:GetFontSize() end
+	s.tooltip = L.FontSizeTip
 	return s
 end
 
@@ -112,6 +113,8 @@ do
 		s.SetSavedValue = function(self, value) OmniCC:SetFontOutline(toOutline(value)) end
 		s.GetSavedValue = function(self) return toIndex(OmniCC:GetFontOutline()) end
 		s.GetFormattedText = function(self, value) return L['Outline_' .. toOutline(value or 1)] end
+		s.tooltip = L.FontOutlineTip
+
 		return s
 	end
 end

@@ -31,6 +31,8 @@ function OptionsSlider:New(name, parent, low, high, step)
 	f:SetScript('OnMouseWheel', f.OnMouseWheel)
 	f:SetScript('OnValueChanged', f.OnValueChanged)
 	f:SetScript('OnMouseWheel', f.OnMouseWheel)
+	f:SetScript('OnEnter', f.OnEnter)
+	f:SetScript('OnLeave', f.OnLeave)
 
 	return f
 end
@@ -56,6 +58,19 @@ function OptionsSlider:OnMouseWheel(direction)
 		self:SetValue(math.min(value+step, maxVal))
 	else
 		self:SetValue(math.max(value+step, minVal))
+	end
+end
+
+function OptionsSlider:OnEnter()
+	if not GameTooltip:IsOwned(self) and self.tooltip then
+		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+		GameTooltip:SetText(self.tooltip)
+	end
+end
+
+function OptionsSlider:OnLeave()
+	if GameTooltip:IsOwned(self) then
+		GameTooltip:Hide()
 	end
 end
 
