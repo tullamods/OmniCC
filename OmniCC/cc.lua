@@ -210,7 +210,7 @@ function Timer:GetTimeText(s)
 	if s < tenths then
 		return format('%.1f', s), (s*10 - floor(s*10)) / 10
 	--format text as seconds when at 90 seconds or below
-	elseif s < MINUTEHALFISH then
+	elseif s < MINUTEISH then
 		local seconds = round(s)
 		
 		--prevent 0 seconds from displaying
