@@ -135,8 +135,9 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	return s
 end
 
+local MINUTES_ABBR = '%.1f' .. (MINUTES_ABBR:match('%%d(.+)'))
 function GeneralOptions:CreateMMSSSlider()
-	local s = self:NewSlider(L.MMSSDuration, 1, 30, 1)
+	local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.5)
 	s.SetSavedValue = function(self, value)
 		OmniCC:SetMMSSDuration(value * 60)
 	end
