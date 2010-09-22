@@ -326,7 +326,7 @@ do
 
 	local text = tester:CreateFontString()
 	text:SetFont(fontFace, fontSize, fontOutline)
-	text:SetText('0:00') --text that maps to whatever the longest possible string for cooldown text is
+	text:SetText('10s') --text that maps to whatever the longest possible string for cooldown text is
 	text:SetPoint('CENTER', f)
 	tester.text = text
 
