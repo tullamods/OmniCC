@@ -103,15 +103,18 @@ function GeneralOptions:NewSlider(name, low, high, step)
 	return s
 end
 
-function GeneralOptions:CreateMinDurationSlider()
-	local s = self:NewSlider(L.MinDuration, 0, 30, 0.5)
-	s.SetSavedValue = function(self, value) OmniCC:SetMinDuration(value) end
-	s.GetSavedValue = function(self) return OmniCC:GetMinDuration() end
-	s.GetFormattedText = function(self, value) return ('%.1f'..L.Sec):format(value) end
+do
+	local SECONDS_ABBR = '%.1f' .. (SECONDS_ABBR:match('%%d(.+)'))
+	function GeneralOptions:CreateMinDurationSlider()
+		local s = self:NewSlider(L.MinDuration, 0, 30, 0.5)
+		s.SetSavedValue = function(self, value) OmniCC:SetMinDuration(value) end
+		s.GetSavedValue = function(self) return OmniCC:GetMinDuration() end
+		s.GetFormattedText = function(self, value) return SECONDS_ABBR:format(value) end
 
-	s.tooltip = L.MinDurationTip
+		s.tooltip = L.MinDurationTip
 
-	return s
+		return s
+	end
 end
 
 function GeneralOptions:CreateMinFontSizeSlider()
@@ -135,26 +138,28 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	return s
 end
 
-local MINUTES_ABBR = '%.1f' .. (MINUTES_ABBR:match('%%d(.+)'))
-function GeneralOptions:CreateMMSSSlider()
-	local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.5)
-	s.SetSavedValue = function(self, value)
-		OmniCC:SetMMSSDuration(value * 60)
-	end
-	s.GetSavedValue = function(self)
-		return OmniCC:GetMMSSDuration() / 60
-	end
-	s.GetFormattedText = function(self, value)
-		if value == 1 then
-			return NEVER
-		else
-			return MINUTES_ABBR:format(value)
+do
+	local MINUTES_ABBR = '%.1f' .. (MINUTES_ABBR:match('%%d(.+)'))
+	function GeneralOptions:CreateMMSSSlider()
+		local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.5)
+		s.SetSavedValue = function(self, value)
+			OmniCC:SetMMSSDuration(value * 60)
 		end
+		s.GetSavedValue = function(self)
+			return OmniCC:GetMMSSDuration() / 60
+		end
+		s.GetFormattedText = function(self, value)
+			if value == 1 then
+				return NEVER
+			else
+				return MINUTES_ABBR:format(value)
+			end
+		end
+
+		s.tooltip = L.MMSSDurationTip
+
+		return s
 	end
-
-	s.tooltip = L.MMSSDurationTip
-
-	return s
 end
 
 function GeneralOptions:CreateTenthsSlider()
