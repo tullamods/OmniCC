@@ -225,7 +225,8 @@ function Timer:GetTimeText(s)
 		return seconds, s - (seconds - 0.51)
 	--format text as MM:SS when below the MM:SS threshold
 	elseif s < OmniCC:GetMMSSDuration() then
-		return format('%d:%02d', s/MINUTE, s%MINUTE), s - floor(s)
+		local seconds = round(s)
+		return format('%d:%02d', seconds/MINUTE, seconds%MINUTE), s - floor(s)
 	--format text as minutes when below an hour
 	elseif s < HOURISH then
 		local minutes = round(s/MINUTE)
