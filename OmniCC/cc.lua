@@ -115,8 +115,9 @@ end
 
 --set font to the given settings
 function Timer:UpdateFont()
-	local font, size, outline = OmniCC:GetFontInfo()
-	if OmniCC:ScalingText() then
+	local sets = self:GetSettings()
+	local font, size, outline = sets.font, sets.fontSize, sets.fontOutline
+	if sets.scaleText then
 		size = size * (self:GetWidth() / ICON_SIZE)
 	end
 
@@ -143,7 +144,7 @@ function Timer:UpdateText(forceStyleUpdate)
 	if remain > 0 then
 		--hide text if it's too small to display
 		--check again in one second
-		if (self:GetEffectiveScale() * self.fontSize / UIParent:GetScale()) < OmniCC:GetMinFontSize() then
+		if (self:GetEffectiveScale() * self.fontSize / UIParent:GetScale()) < self:GetSettings().minFontSize then
 			self.text:Hide()
 			self.nextUpdate = 1
 		else
@@ -157,9 +158,11 @@ function Timer:UpdateText(forceStyleUpdate)
 			local period = self:GetPeriodStyle(remain)
 			if (period ~= self.textStyle) or forceStyleUpdate then
 				self.textStyle = period
-				self.text:SetTextColor(OmniCC:GetPeriodColor(period))
-				self:SetScale(OmniCC:GetPeriodScale(period))
-				self.textStyle = textStyle
+				
+				local sets = self:GetSettings().styles[period]
+				local r, g, b, a, s = sets.r, sets.g, sets.b, sets.a, sets.scale
+				self.text:SetTextColor(r, g, b, a)
+				self:SetScale(s)
 			end
 
 			self.nextUpdate = nextUpdate
@@ -167,8 +170,8 @@ function Timer:UpdateText(forceStyleUpdate)
 	else
 		--if the timer was long enough to, and text is still visible
 		--then trigger a finish effect
-		if self.duration >= OmniCC:GetMinEffectDuration() and self.text:IsShown() then
-			OmniCC:TriggerEffect(self.cooldown, self.duration)
+		if self.duration >= self:GetSettings().minEffectDuration and self.text:IsShown() then
+			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown, self.duration)
 		end
 		self:Stop()
 	end
@@ -206,7 +209,7 @@ end
 --returns both what text to display, and how long until the next update
 function Timer:GetTimeText(s)
 	--show tenths of seconds below tenths threshold
-	local tenths = OmniCC:GetTenthsDuration()
+	local tenths = self:GetSettings().tenthsDuration
 	if s < tenths then
 		return format('%.1f', s), (s*10 - floor(s*10)) / 10
 	--format text as seconds when at 90 seconds or below
@@ -224,7 +227,7 @@ function Timer:GetTimeText(s)
 		
 		return seconds, s - (seconds - 0.51)
 	--format text as MM:SS when below the MM:SS threshold
-	elseif s < OmniCC:GetMMSSDuration() then
+	elseif s < self:GetSettings().mmSSDuration then
 		local seconds = round(s)
 		return format('%d:%02d', seconds/MINUTE, seconds%MINUTE), s - floor(s)
 	--format text as minutes when below an hour
@@ -249,22 +252,24 @@ function Timer:ShouldShow()
 	if not (self.enabled and self.visible) then
 		return false
 	end
+	
+	local sets = self:GetSettings()
 
 	--the timer should have text that's large enough to display
-	if self.fontSize < OmniCC:GetMinFontSize() then
+	if self.fontSize < sets.minFontSize then
 		return false
 	end
 
-	if self.duration < OmniCC:GetMinDuration() then
+	if self.duration < sets.minDuration then
 		return false
 	end
 
 	--the cooldown of the timer shouldn't be blacklisted
-	if OmniCC:IsBlacklisted(self.cooldown) then
-		return false
-	end
+	return sets.enabled
+end
 
-	return true
+function Timer:GetSettings()
+	return OmniCC:GetGroupSettings(OmniCC:CDToGroup(self.cooldown))
 end
 
 
@@ -353,7 +358,8 @@ local function cooldown_OnSetCooldown(self, start, duration)
 --	print('onsetcooldown', self:GetName(), start, duration)
 
 	--don't display cooldown info if the timer is blacklisted
-	if OmniCC:IsBlacklisted(self) then
+	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(cooldown))
+	if not sets.enabled then
 		return
 	end
 
@@ -363,10 +369,10 @@ local function cooldown_OnSetCooldown(self, start, duration)
 	end
 
 	--hide cooldown model as necessary
-	self:SetAlpha(OmniCC:ShowingCooldownModels() and 1 or 0)
+	self:SetAlpha(sets.showCooldownModels and 1 or 0)
 
 	--start timer if duration is over the min duration
-	if start > 0 and duration >= OmniCC:GetMinDuration() then
+	if start > 0 and duration >= sets.minDuration then
 		(Timer:Get(self) or Timer:New(self)):Start(start, duration)
 	--stop timer
 	else
