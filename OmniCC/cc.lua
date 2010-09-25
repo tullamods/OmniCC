@@ -116,7 +116,7 @@ end
 --set font to the given settings
 function Timer:UpdateFont()
 	local sets = self:GetSettings()
-	local font, size, outline = sets.font, sets.fontSize, sets.fontOutline
+	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
 	if sets.scaleText then
 		size = size * (self:GetWidth() / ICON_SIZE)
 	end
@@ -358,7 +358,7 @@ local function cooldown_OnSetCooldown(self, start, duration)
 --	print('onsetcooldown', self:GetName(), start, duration)
 
 	--don't display cooldown info if the timer is blacklisted
-	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(cooldown))
+	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self))
 	if not sets.enabled then
 		return
 	end

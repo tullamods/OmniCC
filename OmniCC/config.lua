@@ -51,7 +51,9 @@ OmniCC:SetScript('OnEvent', function(self, event, ...)
 	end
 end)
 
-function OmniCC:PLAYER_LOGIN()
+function OmniCC:VARIABLES_LOADED()
+	self:InitDB()
+
 	--create options loader
 	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
 	f:SetScript('OnShow', function(self)
@@ -67,8 +69,6 @@ function OmniCC:PLAYER_LOGIN()
 			InterfaceOptionsFrame_OpenToCategory(self.GeneralOptions)
 		end
 	end
-
-	self:UpdateFont()
 end
 
 function OmniCC:PLAYER_LOGOUT()
@@ -76,7 +76,7 @@ function OmniCC:PLAYER_LOGOUT()
 end
 
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
-OmniCC:RegisterEvent('PLAYER_LOGIN')
+OmniCC:RegisterEvent('VARIABLES_LOADED')
 
 
 --[[---------------------------------------------------------------------------
@@ -115,22 +115,17 @@ function OmniCC:CreateNewDB()
 		groups = {
 			{
 				id = 'action', 
-				rules = {
-					'Action',
-				},
+				rules = {'Action'},
 			},
 			{
 				id = 'aura', 
-				rules = {
-					'Aura',
-					'PitBull',
-				},
+				rules = {'Aura', 'Buff', 'Debuff', 'PitBull'},
 			},
 		},
 		groupSettings = {
-			'base' = {
+			base = {
 				enabled = true,
-				scaleText = true,
+				scaleText = false,
 				showCooldownModels = true,
 				fontFace = STANDARD_TEXT_FONT,
 				fontSize = 18,
@@ -143,60 +138,41 @@ function OmniCC:CreateNewDB()
 				mmSSDuration = 0,
 				styles = {
 					soon = {
-						r = 1,
-						g = 0,
-						b= 0,
-						a = 1,
+						r = 1, g = 0, b= 0, a = 1,
 						scale = 1.5,
 					},
 					seconds = {
-						r = 1,
-						g = 1,
-						b= 0,
-						a = 1,
+						r = 1, g = 1, b= 0, a = 1,
 						scale = 1,
 					},
 					minutes = {
-						r = 1,
-						g = 1,
-						b = 1,
-						a = 1,
+						r = 1, g = 1, b = 1, a = 1,
 						scale = 1,
 					},
 					hours = {
-						r = 0.7,
-						g = 0.7,
-						b = 0.7,
-						a = 1,
+						r = 0.7, g = 0.7, b = 0.7, a = 1,
 						scale = 0.75,
-					}
-				}
+					},
+				},
 			},
-			'action' = {
-				
-			},
-			'pet' = {
-				fontSize = 16,
-			}
-			'aura' = {
-				enabled = false,
-				fontSize = 8,
-			},
+			action = {},
+			pet = {fontSize = 16},
+			aura = {fontSize = 10, showCooldownModels = false},
 		}
 	}
 end
 
 function OmniCC:UpgradeDB()
-	local pMajor, pMinor, pBugfix = self:GetDB().version:match('(%d+)\.(%d+)\.(%w+)')
+	local pMajor, pMinor, pBugfix = self.db.version:match('(%d+)\.(%d+)\.(%w+)')
 	
 	--upgrade db if the major verson changes
 	if tonumber(pMajor) < 4 then
-		_G['OmniCCGlobalSettings'] = nil
-		self:InitDB()
+		self.db = OmniCC:CreateNewDB()
+		_G['OmniCCGlobalSettings'] = self.db
 		return
 	end
 	
-	self:GetDB().version = self:GetAddOnVersion()
+	self.db.version = self:GetAddOnVersion()
 end
 
 function OmniCC:GetAddOnVersion()
@@ -211,11 +187,11 @@ end
 local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
 	local name = cooldown:GetName()
 	if name then
-		for groupId, groupInfo in ipairs(OmniCC.db.groups) do
-			for _, pattern in pairs(groupInfo) do
+		for i, group in ipairs(OmniCC.db.groups) do
+			for k, pattern in pairs(group.rules) do
 				if name:match(pattern) then
-					t[cooldown] = groupId
-					return groupId
+					t[cooldown] = group.id
+					return group.id
 				end
 			end
 		end
@@ -231,15 +207,17 @@ end
 
 local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
 	local groupSettings = OmniCC.db.groupSettings
-	local f = function(k)
+	
+	local sets = setmetatable({}, {__index = function(_, k)
 		local v = groupSettings[groupId][k]
 		if v == nil then
 			v = groupSettings['base'][k]
 		end
 		return v
-	end
-	t[groupId] = f
-	return f
+	end})
+	
+	t[groupId] = sets
+	return sets
 end})
 
 function OmniCC:GetGroupSettings(groupId)
