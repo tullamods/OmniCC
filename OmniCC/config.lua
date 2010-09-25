@@ -421,6 +421,10 @@ function OmniCC:GetMMSSDuration()
 	return self:GetDB().mmSSDuration
 end
 
+function OmniCC:UsingMMSS()
+	return self:GetDB().mmSSDuration > 60
+end
+
 --cooldown model showing/hiding
 local function cooldown_Hide(self, enable)
 	self:SetAlpha(enable and 1 or 0)
