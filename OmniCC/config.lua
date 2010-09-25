@@ -35,10 +35,6 @@ local function copyDefaults(tbl, defaults)
 	return tbl
 end
 
-local function round(x)
-	return math.floor(x + 0.5)
-end
-
 
 --[[---------------------------------------------------------------------------
 	Events

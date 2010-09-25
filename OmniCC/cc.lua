@@ -17,7 +17,7 @@ local OmniCC = OmniCC
 --constants!
 local ICON_SIZE = 36 --the normal size for an icon (don't change this)
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
-local DAYISH, HOURISH, MINUTEHALFISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 89.5, 59.5, 5.5 --used for formatting text at transition points
+local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5 --used for formatting text at transition points
 local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY/2 + 0.5, HOUR/2 + 0.5, MINUTE/2 + 0.5 --used for calculating next update times
 local PADDING = 0 --amount of spacing between the timer text and the rest of the cooldown
 
@@ -42,7 +42,6 @@ function Timer:New(cooldown)
 	timer.cooldown = cooldown
 
 	--current theory: if I use toplevel, then people get FPS issues
---	timer:SetToplevel(true)
 	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
@@ -209,7 +208,8 @@ end
 --returns both what text to display, and how long until the next update
 function Timer:GetTimeText(s)
 	--show tenths of seconds below tenths threshold
-	local tenths = self:GetSettings().tenthsDuration
+	local sets = self:GetSettings()
+	local tenths = sets.tenthsDuration
 	if s < tenths then
 		return format('%.1f', s), (s*10 - floor(s*10)) / 10
 	--format text as seconds when at 90 seconds or below
@@ -227,7 +227,7 @@ function Timer:GetTimeText(s)
 		
 		return seconds, s - (seconds - 0.51)
 	--format text as MM:SS when below the MM:SS threshold
-	elseif s < self:GetSettings().mmSSDuration then
+	elseif s < sets.mmSSDuration then
 		local seconds = round(s)
 		return format('%d:%02d', seconds/MINUTE, seconds%MINUTE), s - floor(s)
 	--format text as minutes when below an hour
@@ -293,14 +293,6 @@ function Timer:ForAllShown(f, ...)
 	for _, timer in pairs(timers) do
 		if timer:IsShown() then
 			f(timer, ...)
-		end
-	end
-end
-
-function Timer:ForAllShownCooldowns(f, ...)
-	for cooldown, timer in pairs(timers) do
-		if cooldown:IsShown() then
-			f(cooldown, ...)
 		end
 	end
 end
