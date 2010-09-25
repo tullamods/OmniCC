@@ -139,21 +139,30 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 end
 
 do
+	--now featuring a lot of hacks to get around me wanting to just use a slider to control this setting
+	--but also not wanting to have an actual 0 value on the slider
 	local MINUTES_ABBR = '%.1f' .. (MINUTES_ABBR:match('%%d(.+)'))
 	function GeneralOptions:CreateMMSSSlider()
 		local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.5)
 		s.SetSavedValue = function(self, value)
-			OmniCC:SetMMSSDuration(value * 60)
+			if value > 1 then
+				OmniCC:SetMMSSDuration(value * 60)
+			else
+				OmniCC:SetMMSSDuration(0)
+			end
 		end
 		s.GetSavedValue = function(self)
-			return OmniCC:GetMMSSDuration() / 60
+			local v = OmniCC:GetMMSSDuration()
+			if v > 0 then
+				return v / 60
+			end
+			return 1
 		end
 		s.GetFormattedText = function(self, value)
-			if value == 1 then
-				return NEVER
-			else
+			if value > 1 then
 				return MINUTES_ABBR:format(value)
 			end
+			return NEVER
 		end
 
 		s.tooltip = L.MMSSDurationTip
@@ -171,11 +180,10 @@ function GeneralOptions:CreateTenthsSlider()
 		return OmniCC:GetTenthsDuration()
 	end
 	s.GetFormattedText = function(self, value)
-		if value == 0 then
-			return NEVER
-		else
+		if value > 1 then
 			return SECONDS_ABBR:format(value)
 		end
+		return NEVER
 	end
 
 	s.tooltip = L.TenthsDurationTip

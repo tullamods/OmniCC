@@ -212,7 +212,7 @@ function Timer:GetTimeText(s)
 	--format text as seconds when at 90 seconds or below
 	elseif s < MINUTEISH then
 		local seconds = round(s)
-		
+
 		--prevent 0 seconds from displaying
 		if seconds == 0 then
 			return '', s
@@ -221,12 +221,12 @@ function Timer:GetTimeText(s)
 		if s < (tenths + 0.5) then
 			return seconds, (s*10 - floor(s*10)) / 10
 		end
-		
+
 		return seconds, s - (seconds - 0.51)
 	--format text as MM:SS when below the MM:SS threshold
 	elseif s < OmniCC:GetMMSSDuration() then
 		local seconds = round(s)
-		return format('%d:%02d', seconds/MINUTE, seconds%MINUTE), s - floor(s)
+		return format('%d:%02d', seconds/MINUTE, seconds%MINUTE), s - (seconds - 0.51)
 	--format text as minutes when below an hour
 	elseif s < HOURISH then
 		local minutes = round(s/MINUTE)
