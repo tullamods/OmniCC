@@ -134,7 +134,7 @@ end
 --]]
 
 local ListEditor = Classy:New('Frame')
-OmniCC.ListEditor = ListEditor
+OmniCCOptions.ListEditor = ListEditor
 
 function ListEditor:New(title, parent)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. title, parent, 'OptionsBoxTemplate'))

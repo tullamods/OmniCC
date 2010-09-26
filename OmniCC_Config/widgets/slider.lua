@@ -4,7 +4,7 @@
 --]]
 
 local OptionsSlider = LibStub('Classy-1.0'):New('Slider')
-OmniCC.OptionsSlider = OptionsSlider
+OmniCCOptions.OptionsSlider = OptionsSlider
 
 
 --[[ Constructor ]]--

@@ -62,7 +62,7 @@ function OmniCC:VARIABLES_LOADED()
 	SLASH_OmniCC2 = '/occ'
 	SlashCmdList['OmniCC'] = function(msg)
 		if LoadAddOn('OmniCC_Config') then
-			InterfaceOptionsFrame_OpenToCategory(self.GeneralOptions)
+			InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end
 	end
 end
@@ -111,10 +111,12 @@ function OmniCC:CreateNewDB()
 		groups = {
 			{
 				id = 'action', 
+				name = 'Actions',
 				rules = {'Action'},
 			},
 			{
 				id = 'aura', 
+				name = 'Auras',
 				rules = {'Aura', 'Buff', 'Debuff', 'PitBull'},
 			},
 		},

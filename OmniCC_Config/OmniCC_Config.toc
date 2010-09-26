@@ -7,5 +7,5 @@
 ## LoadOnDemand: 1
 embeds.xml
 localization.xml
+mainPanel.lua
 widgets.xml
-panels.xml

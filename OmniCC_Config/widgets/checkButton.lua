@@ -4,7 +4,7 @@
 --]]
 
 local OptionsCheckButton = LibStub('Classy-1.0'):New('CheckButton')
-OmniCC.OptionsCheckButton = OptionsCheckButton
+OmniCCOptions.OptionsCheckButton = OptionsCheckButton
 
 function OptionsCheckButton:New(name, parent)
 	local b = self:Bind(CreateFrame('CheckButton', parent:GetName() .. name, parent, 'InterfaceOptionsCheckButtonTemplate'))

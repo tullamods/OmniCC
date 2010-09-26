@@ -4,7 +4,7 @@
 --]]
 
 local OptionsDropdown = LibStub('Classy-1.0'):New('Frame')
-OmniCC.OptionsDropdown = OptionsDropdown
+OmniCCOptions.OptionsDropdown = OptionsDropdown
 
 function OptionsDropdown:New(name, parent, width)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. name, parent, 'UIDropDownMenuTemplate'))

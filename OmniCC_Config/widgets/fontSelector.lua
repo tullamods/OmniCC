@@ -26,7 +26,7 @@ end
 local fontTester = nil
 local function isValidFont(font)
 	if not fontTester then
-		fontTester = CreateFont('OmniCCConfig_FontTester')
+		fontTester = CreateFont('OmniCCOptionsConfig_FontTester')
 	end
 	return fontTester:SetFont(font, FONT_HEIGHT, 'OUTLINE')
 end
@@ -95,7 +95,7 @@ end
 --]]
 
 local FontSelector = Classy:New('Frame')
-OmniCC.FontSelector = FontSelector
+OmniCCOptions.FontSelector = FontSelector
 
 function FontSelector:New(title, parent)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. title, parent, 'OptionsBoxTemplate'))

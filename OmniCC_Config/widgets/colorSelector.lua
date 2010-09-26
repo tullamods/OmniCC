@@ -5,7 +5,7 @@
 
 local Classy = LibStub('Classy-1.0')
 local ColorSelector = Classy:New('Button')
-OmniCC.OptionsColorSelector = ColorSelector
+OmniCCOptions.OptionsColorSelector = ColorSelector
 
 
 --[[ Constructor ]]--
