@@ -5,7 +5,7 @@
 
 OmniCCOptions = OmniCCOptions or {}
 
-local Dropdown = LibStub('Classy-1.0'):New('Frame')
+local Dropdown = LibStub('Classy-1.0'):New('Frame'); Dropdown:Hide()
 OmniCCOptions.Dropdown = Dropdown
 
 function Dropdown:New(name, parent, width)
