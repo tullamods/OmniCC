@@ -3,13 +3,15 @@
 		A bagnon options slider
 --]]
 
-local OptionsSlider = LibStub('Classy-1.0'):New('Slider')
-OmniCCOptions.OptionsSlider = OptionsSlider
+OmniCCOptions = OmniCCOptions or {}
+
+local Slider = LibStub('Classy-1.0'):New('Slider')
+OmniCCOptions.Slider = Slider
 
 
 --[[ Constructor ]]--
 
-function OptionsSlider:New(name, parent, low, high, step)
+function Slider:New(name, parent, low, high, step)
 	local f = self:Bind(CreateFrame('Slider', parent:GetName() .. name, parent, 'OptionsSliderTemplate'))
 	f:SetMinMaxValues(low, high)
 	f:SetValueStep(step)
@@ -40,16 +42,16 @@ end
 
 --[[ Frame Events ]]--
 
-function OptionsSlider:OnShow()
+function Slider:OnShow()
 	self:UpdateValue()
 end
 
-function OptionsSlider:OnValueChanged(value)
+function Slider:OnValueChanged(value)
 	self:SetSavedValue(value)
 	self:UpdateText(self:GetSavedValue())
 end
 
-function OptionsSlider:OnMouseWheel(direction)
+function Slider:OnMouseWheel(direction)
 	local step = self:GetValueStep() *  direction
 	local value = self:GetValue()
 	local minVal, maxVal = self:GetMinMaxValues()
@@ -61,14 +63,14 @@ function OptionsSlider:OnMouseWheel(direction)
 	end
 end
 
-function OptionsSlider:OnEnter()
+function Slider:OnEnter()
 	if not GameTooltip:IsOwned(self) and self.tooltip then
 		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 		GameTooltip:SetText(self.tooltip)
 	end
 end
 
-function OptionsSlider:OnLeave()
+function Slider:OnLeave()
 	if GameTooltip:IsOwned(self) then
 		GameTooltip:Hide()
 	end
@@ -77,20 +79,20 @@ end
 
 --[[ Update Methods ]]--
 
-function OptionsSlider:SetSavedValue(value)
+function Slider:SetSavedValue(value)
 	assert(false, 'Hey, you forgot to set SetSavedValue for ' .. self:GetName())
 end
 
-function OptionsSlider:GetSavedValue()
+function Slider:GetSavedValue()
 	assert(false, 'Hey, you forgot to set GetSavedValue for ' .. self:GetName())
 end
 
-function OptionsSlider:UpdateValue()
+function Slider:UpdateValue()
 	self:SetValue(self:GetSavedValue())
 	self:UpdateText(self:GetSavedValue())
 end
 
-function OptionsSlider:UpdateText(value)
+function Slider:UpdateText(value)
 	if self.GetFormattedText then
 		self.valText:SetText(self:GetFormattedText(value))
 	else

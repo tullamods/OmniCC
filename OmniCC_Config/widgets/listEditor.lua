@@ -3,6 +3,7 @@
 		Displays an editable list
 --]]
 
+OmniCCOptions = OmniCCOptions or {}
 
 local Classy = LibStub('Classy-1.0')
 local PADDING = 2

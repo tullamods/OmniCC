@@ -3,6 +3,7 @@
 		Displays a list of fonts registered with LibSharedMedia for the user to pick from
 --]]
 
+OmniCCOptions = OmniCCOptions or {}
 
 local LSM = LibStub('LibSharedMedia-3.0')
 local Classy = LibStub('Classy-1.0')

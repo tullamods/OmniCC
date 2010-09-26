@@ -1,12 +1,14 @@
 --[[
-	dropdown.lua
-		A bagnon dropdown menu
+	checkButton.lua
+		A checkbutton for OmniCC
 --]]
 
-local OptionsCheckButton = LibStub('Classy-1.0'):New('CheckButton')
-OmniCCOptions.OptionsCheckButton = OptionsCheckButton
+OmniCCOptions = OmniCCOptions or {}
 
-function OptionsCheckButton:New(name, parent)
+local CheckButton = LibStub('Classy-1.0'):New('CheckButton')
+OmniCCOptions.CheckButton = CheckButton
+
+function CheckButton:New(name, parent)
 	local b = self:Bind(CreateFrame('CheckButton', parent:GetName() .. name, parent, 'InterfaceOptionsCheckButtonTemplate'))
 	_G[b:GetName() .. 'Text']:SetText(name)
 
@@ -18,7 +20,7 @@ function OptionsCheckButton:New(name, parent)
 	return b
 end
 
-function OptionsCheckButton:SetDisabled(disable)
+function CheckButton:SetDisabled(disable)
 	if disable then
 		self:Disable()
 		_G[self:GetName() .. 'Text']:SetFontObject('GameFontDisable')
@@ -28,40 +30,40 @@ function OptionsCheckButton:SetDisabled(disable)
 	end
 end
 
-function OptionsCheckButton:OnClick()
+function CheckButton:OnClick()
 	self:EnableSetting(self:GetChecked())
 end
 
-function OptionsCheckButton:OnShow()
+function CheckButton:OnShow()
 	self:UpdateChecked()
 end
 
-function OptionsCheckButton:OnEnter()
+function CheckButton:OnEnter()
 	if not GameTooltip:IsOwned(self) and self.tooltip then
 		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 		GameTooltip:SetText(self.tooltip)
 	end
 end
 
-function OptionsCheckButton:OnLeave()
+function CheckButton:OnLeave()
 	if GameTooltip:IsOwned(self) then
 		GameTooltip:Hide()
 	end
 end
 
-function OptionsCheckButton:UpdateChecked()
+function CheckButton:UpdateChecked()
 	self:SetChecked(self:IsSettingEnabled())
 end
 
-function OptionsCheckButton:EnableSetting(enable)
+function CheckButton:EnableSetting(enable)
 	self:OnEnableSetting(enable and true or false)
 	self:UpdateChecked()
 end
 
-function OptionsCheckButton:OnEnableSetting(enable)
+function CheckButton:OnEnableSetting(enable)
 	assert(false, 'Hey you forgot to implement OnEnableSetting for ' .. self:GetName())
 end
 
-function OptionsCheckButton:IsSettingEnabled()
+function CheckButton:IsSettingEnabled()
 	assert(false, 'Hey you forgot to implement IsSettingEnabled for ' .. self:GetName())
 end

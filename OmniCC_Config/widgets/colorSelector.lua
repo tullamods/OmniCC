@@ -3,6 +3,8 @@
 		A bagnon color selector
 --]]
 
+OmniCCOptions = OmniCCOptions or {}
+
 local Classy = LibStub('Classy-1.0')
 local ColorSelector = Classy:New('Button')
 OmniCCOptions.OptionsColorSelector = ColorSelector

@@ -5,17 +5,9 @@
 local L = OMNICC_LOCALS
 
 L.GeneralSettings = "Display"
-L.GeneralSettingsTitle = "The common stuff"
 
 L.FontSettings = "Text Style"
 L.FontSettingsTitle = "Liven up your cooldowns"
-
-L.FilterSettings = "Filtering"
-L.FilterSettingsTitle = "Hey, don't display text there!"
-
-L.UseWhitelist = "Only display text on registered frames"
-L.UseBlacklist = "Only display text on frames not on the blacklist"
-L.Blacklist = "Blacklist"
 
 L.Font = "Font"
 L.FontSize = "Base Font Size"

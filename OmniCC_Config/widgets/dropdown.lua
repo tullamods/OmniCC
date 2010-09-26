@@ -3,10 +3,12 @@
 		A bagnon dropdown menu
 --]]
 
-local OptionsDropdown = LibStub('Classy-1.0'):New('Frame')
-OmniCCOptions.OptionsDropdown = OptionsDropdown
+OmniCCOptions = OmniCCOptions or {}
 
-function OptionsDropdown:New(name, parent, width)
+local Dropdown = LibStub('Classy-1.0'):New('Frame')
+OmniCCOptions.Dropdown = Dropdown
+
+function Dropdown:New(name, parent, width)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. name, parent, 'UIDropDownMenuTemplate'))
 	f.width = width
 
@@ -22,7 +24,7 @@ end
 
 --[[ Frame Evnets ]]--
 
-function OptionsDropdown:OnShow()
+function Dropdown:OnShow()
 	UIDropDownMenu_SetWidth(self, self.width)
 	UIDropDownMenu_Initialize(self, self.Initialize)
 	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
@@ -31,15 +33,15 @@ end
 
 --[[ Update Methods ]]--
 
-function OptionsDropdown:Initialize()
+function Dropdown:Initialize()
 	assert(false, 'Hey you forgot to implement Initialize for ' .. self:GetName())
 end
 
-function OptionsDropdown:SetSavedValue(value)
+function Dropdown:SetSavedValue(value)
 	assert(false, 'Hey you forgot to implement SetSavedValue for ' .. self:GetName())
 end
 
-function OptionsDropdown:GetSavedValue()
+function Dropdown:GetSavedValue()
 	assert(false, 'Hey you forgot to implement GetSavedValue for ' .. self:GetName())
 end
 
@@ -51,7 +53,7 @@ local function item_OnClick(self, dropdown)
 	UIDropDownMenu_SetSelectedValue(dropdown, self.value)		
 end
 
-function OptionsDropdown:AddItem(name, value)
+function Dropdown:AddItem(name, value)
 	local info = UIDropDownMenu_CreateInfo()
 	info.text = name
 	info.value = value or name
