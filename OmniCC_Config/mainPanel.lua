@@ -76,8 +76,13 @@ local function groupSelector_Create(parent, size)
 	dd.Initialize = function(self)
 		self:AddItem('Base', 'base')
 
-		local groups = map(OmniCC.db.groups, function(g) return {g.name, g.id} end)
-		print(table.sort(groups, function(a, b) return a[1] < b[1] end))
+		local groups = map(OmniCC.db.groups, function(g) 
+			return {g.name, g.id} 
+		end)
+		
+		table.sort(groups, function(a, b) 
+			return a[1] < b[1] 
+		end)
 
 		for i, g in ipairs(groups) do
 			self:AddItem(unpack(g))
@@ -91,8 +96,9 @@ local function groupSelector_Create(parent, size)
 
 		--force the current panel to refresh
 		local panel = parent:GetCurrentPanel()
-		panel:Hide()
-		panel:Show()
+		if panel.UpdateValues then
+			panel:UpdateValues()
+		end
 	end
 
 	dd.GetSavedValue = function(self)
@@ -121,7 +127,7 @@ local function title_Create(parent, text, subtext, icon)
 
 	if subtext then
 		local subTitle = parent:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightSmall')
-		subTitle:SetPoint('LEFT', title, 'RIGHT', 2, 0)
+		subTitle:SetPoint('BOTTOMLEFT', title, 'BOTTOMRIGHT', 4, 0)
 		subTitle:SetTextColor(0.8, 0.8, 0.8)
 		subTitle:SetText(subtext)
 	end
@@ -153,7 +159,7 @@ do
 		t.sr = t:CreateTexture(nil, 'BACKGROUND')
 		t.sr:SetTexture([[Interface\OptionsFrame\UI-OptionsFrame-Spacer]])
 		t.sr:SetPoint('BOTTOMLEFT', t, 'BOTTOMRIGHT', -11, -6)
-		t.sr:SetPoint('BOTTOMRIGHT', parent, 'TOPRIGHT', -16, -(34 + t:GetHeight() + 10))
+		t.sr:SetPoint('BOTTOMRIGHT', parent, 'TOPRIGHT', -16, -(34 + t:GetHeight() + 11))
 
 		--place the new tab
 		--if its the first tab, anchor to the main frame
@@ -262,14 +268,14 @@ do
 	optionsPanel_OnShow = function(self)
 		self:SetScript('OnShow', nil)
 
-		for i, k in ipairs{'Style', 'Rules', 'Groups', 'About'} do
+		for i, k in ipairs{'Groups', 'About'} do
 			local f = CreateFrame('Frame')
 			local t = f:CreateFontString()
 			t:SetFontObject('GameFontNormalLarge')
 			t:SetText(k:upper() .. ' TEST PANEL')
 			t:SetPoint('CENTER')
 
-			OmniCCOptions:AddTab(k, f)
+			tab_Create(self, k, f)
 		end
 	end
 

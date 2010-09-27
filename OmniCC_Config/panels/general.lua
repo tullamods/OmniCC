@@ -11,15 +11,7 @@ local BUTTON_SPACING = 0
 local SLIDER_SPACING = 24
 
 local GeneralOptions = CreateFrame('Frame', 'OmniCCOptions_General')
-GeneralOptions:SetScript('OnShow', function(self)
-	self:AddWidgets()
-	self:SetScript('OnShow', nil)
-end)
-
-
---[[
-	Startup
---]]
+GeneralOptions:SetScript('OnShow', function(self) self:AddWidgets(); self:SetScript('OnShow', nil) end)
 
 function GeneralOptions:GetGroupSets()
 	return OmniCCOptions:GetGroupSets()
@@ -65,11 +57,35 @@ function GeneralOptions:AddWidgets()
 	minFontSize:SetPoint('BOTTOMRIGHT', minDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
 end
 
+function GeneralOptions:UpdateValues()
+	if self.buttons then
+		for i, b in pairs(self.buttons) do
+			b:UpdateChecked()
+		end
+	end
+	
+	if self.sliders then
+		for i, s in pairs(self.sliders) do
+			s:UpdateValue()
+		end
+	end
+	
+	if self.dropdowns then
+		for i, dd in pairs(self.dropdowns) do
+			dd:UpdateValue()
+		end
+	end
+end
+
 
 --[[ Checkboxes ]]--
 
 function GeneralOptions:NewCheckbox(name)
-	return OmniCCOptions.CheckButton:New(name, self)
+	local b = OmniCCOptions.CheckButton:New(name, self)
+	
+	self.buttons = self.buttons or {}
+	table.insert(self.buttons, b)
+	return b
 end
 
 --scale text
@@ -132,6 +148,8 @@ function GeneralOptions:NewSlider(name, low, high, step)
 	local s = OmniCCOptions.Slider:New(name, self, low, high, step)
 	s:SetHeight(s:GetHeight() + 2)
 
+	self.sliders = self.sliders or {}
+	table.insert(self.sliders, s)
 	return s
 end
 
@@ -256,16 +274,16 @@ end
 
 function GeneralOptions:CreateFinishEffectPicker()
 	local parent = self
-	local dd = OmniCCOptions.Dropdown:New(L.FinishEffect, self, 120)
+	local dd = OmniCCOptions.Dropdown:New(L.FinishEffect, parent, 120)
 
-	dd.Initialize = function()
-		dd:AddItem(NONE, 'none')
+	dd.Initialize = function(self)
+		self:AddItem(NONE, 'none')
 
 		local effects = OmniCC:ForEachEffect(function(effect) return {effect.name, effect.id} end)
 		table.sort(effects, function(e1, e2) return e1[1] < e2[1] end)
 
 		for n, v in ipairs(effects) do
-			dd:AddItem(unpack(v))
+			self:AddItem(unpack(v))
 		end
 	end
 
@@ -276,6 +294,9 @@ function GeneralOptions:CreateFinishEffectPicker()
 	dd.GetSavedValue = function(self)
 		return parent:GetGroupSets().effect or 'pulse'
 	end
+
+	self.dropdowns = self.dropdowns or {}
+	table.insert(self.dropdowns, dd)
 
 	return dd
 end

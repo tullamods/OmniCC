@@ -25,6 +25,7 @@ end
 --[[ Frame Evnets ]]--
 
 function Dropdown:OnShow()
+--	print('onshow', self:GetName())
 	UIDropDownMenu_SetWidth(self, self.width)
 	UIDropDownMenu_Initialize(self, self.Initialize)
 	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
@@ -45,21 +46,26 @@ function Dropdown:GetSavedValue()
 	assert(false, 'Hey you forgot to implement GetSavedValue for ' .. self:GetName())
 end
 
+function Dropdown:UpdateValue()
+	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
+end
+
 
 --[[ Item Adding ]]--
 
-local function item_OnClick(self, dropdown)
-	dropdown:SetSavedValue(self.value)
-	UIDropDownMenu_SetSelectedValue(dropdown, self.value)		
-end
-
 function Dropdown:AddItem(name, value)
+	local parent = self
+--	print('add item', parent:GetName(), name, value)
+	
 	local info = UIDropDownMenu_CreateInfo()
 	info.text = name
 	info.value = value or name
 	info.arg1 = self
-	info.func = item_OnClick
 	info.checked = (self:GetSavedValue() == info.value)
+	info.func = function(self, parent) 
+		parent:SetSavedValue(self.value)
+		UIDropDownMenu_SetSelectedValue(parent, self.value)
+	end
 	
 	UIDropDownMenu_AddButton(info)
 end

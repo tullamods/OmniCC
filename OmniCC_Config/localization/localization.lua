@@ -7,7 +7,6 @@ local L = OMNICC_LOCALS
 L.GeneralSettings = "Display"
 
 L.FontSettings = "Text Style"
-L.FontSettingsTitle = "Liven up your cooldowns"
 
 L.Font = "Font"
 L.FontSize = "Base Font Size"
