@@ -40,7 +40,7 @@ do
 		local sets = groupSets[groupId]
 		if not sets then
 			if groupId == 'base' then
-				sets = OmniCC.db.groupSettings[groupId]
+				sets = OmniCC.db.groupSettings['base']
 			else
 				sets = copyDefaults(OmniCC.db.groupSettings[groupId], OmniCC.db.groupSettings['base'])
 			end
@@ -92,7 +92,7 @@ local function groupSelector_Create(parent, size)
 	dd.SetSavedValue = function(self, value)
 		parent.selectedGroup = value or 'base'
 
-		groupSets_ClearCache()
+		groupSets_Cleanup()
 
 		--force the current panel to refresh
 		local panel = parent:GetCurrentPanel()
@@ -181,9 +181,7 @@ do
 		PanelTemplates_SetNumTabs(parent, numTabs)
 
 		--display the first tab, if its not already displayed
-		if numTabs == 1 then
-			PanelTemplates_SetTab(parent, 1)
-		end
+		PanelTemplates_SetTab(parent, 1)
 
 		--place the panel associated with the tab
 		parent.panelArea:Add(panel)
@@ -268,7 +266,7 @@ do
 	optionsPanel_OnShow = function(self)
 		self:SetScript('OnShow', nil)
 
-		for i, k in ipairs{'Groups', 'About'} do
+		for i, k in ipairs{'Layout', 'Groups', 'About'} do
 			local f = CreateFrame('Frame')
 			local t = f:CreateFontString()
 			t:SetFontObject('GameFontNormalLarge')

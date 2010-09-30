@@ -19,6 +19,7 @@ L.Outline_THICKOUTLINE = "Thick"
 L.MinDuration = "Minimum duration to display text"
 L.MinFontSize = "Minimum font size to display text"
 L.ScaleText = "Automatically scale text to fit within frames"
+L.EnableText = "Enable cooldown text"
 
 L.Add = "Add"
 L.Remove = "Remove"
@@ -36,8 +37,6 @@ L.Color_minutes = "Under an hour"
 L.Color_hours = "One hour or more"
 
 L.ShowCooldownModels = "Show cooldown models"
-
-L.Sec = "Sec"
 
 --[[ Tooltips ]]--
 

@@ -11,7 +11,11 @@ local BUTTON_SPACING = 0
 local SLIDER_SPACING = 24
 
 local GeneralOptions = CreateFrame('Frame', 'OmniCCOptions_General')
-GeneralOptions:SetScript('OnShow', function(self) self:AddWidgets(); self:SetScript('OnShow', nil) end)
+GeneralOptions:SetScript('OnShow', function(self)
+	self:AddWidgets()
+	self:UpdateValues()
+	self:SetScript('OnShow', nil)
+end)
 
 function GeneralOptions:GetGroupSets()
 	return OmniCCOptions:GetGroupSets()
@@ -25,7 +29,7 @@ end
 function GeneralOptions:AddWidgets()
 	local enableCDText = self:CreateEnableTextCheckbox()
 	enableCDText:SetPoint('TOPLEFT', self, 'TOPLEFT', 12, -10)
-	
+
 	local scaleText = self:CreateScaleTextCheckbox()
 	scaleText:SetPoint('TOPLEFT', enableCDText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 
@@ -63,13 +67,13 @@ function GeneralOptions:UpdateValues()
 			b:UpdateChecked()
 		end
 	end
-	
+
 	if self.sliders then
 		for i, s in pairs(self.sliders) do
 			s:UpdateValue()
 		end
 	end
-	
+
 	if self.dropdowns then
 		for i, dd in pairs(self.dropdowns) do
 			dd:UpdateValue()
@@ -82,7 +86,7 @@ end
 
 function GeneralOptions:NewCheckbox(name)
 	local b = OmniCCOptions.CheckButton:New(name, self)
-	
+
 	self.buttons = self.buttons or {}
 	table.insert(self.buttons, b)
 	return b
@@ -91,10 +95,10 @@ end
 --scale text
 function GeneralOptions:CreateEnableTextCheckbox()
 	local parent = self
-	local b = self:NewCheckbox('Enable cooldown text')
+	local b = self:NewCheckbox(L.EnableText)
 
 	b.OnEnableSetting = function(self, enable)
-		parent:GetGroupSets().enabled = enable or false
+		parent:GetGroupSets().enabled = enable
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -112,7 +116,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 	local b = self:NewCheckbox(L.ScaleText)
 
 	b.OnEnableSetting = function(self, enable)
-		parent:GetGroupSets().scaleText = enable or false
+		parent:GetGroupSets().scaleText = enable
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -130,7 +134,7 @@ function GeneralOptions:CreateShowCooldownModelsCheckbox()
 	local b = self:NewCheckbox(L.ShowCooldownModels)
 
 	b.OnEnableSetting = function(self, enable)
-		parent:GetGroupSets().showCooldownModels = enable and true or false
+		parent:GetGroupSets().showCooldownModels = enable
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -164,7 +168,7 @@ do
 		end
 
 		s.GetSavedValue = function(self)
-			return parent:GetGroupSets().minDuration or 0
+			return parent:GetGroupSets().minDuration
 		end
 
 		s.GetFormattedText = function(self, value)
@@ -186,7 +190,7 @@ function GeneralOptions:CreateMinFontSizeSlider()
 	end
 
 	s.GetSavedValue = function(self)
-		return parent:GetGroupSets().minFontSize or 2
+		return parent:GetGroupSets().minFontSize
 	end
 
 	s.tooltip = L.MinFontSizeTip
@@ -203,7 +207,7 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	end
 
 	s.GetSavedValue = function(self)
-		return parent:GetGroupSets().minEffectDuraton or 0
+		return parent:GetGroupSets().minEffectDuration
 	end
 
 	s.GetFormattedText = function(self, value)
@@ -222,19 +226,25 @@ do
 		local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.5)
 
 		s.SetSavedValue = function(self, value)
-			parent:GetGroupSets().mmSSDuration = value * 60
+			if value > 1 then
+				parent:GetGroupSets().mmSSDuration = value * 60
+			else
+				parent:GetGroupSets().mmSSDuration = 0
+			end
 		end
 
 		s.GetSavedValue = function(self)
-			return (parent:GetGroupSets().mmSSDuration or 0) / 60
+			if parent:GetGroupSets().mmSSDuration > 60 then
+				return parent:GetGroupSets().mmSSDuration / 60
+			end
+			return 1
 		end
 
 		s.GetFormattedText = function(self, value)
-			if value == 1 then
-				return NEVER
-			else
+			if value > 1 then
 				return MINUTES_ABBR:format(value)
 			end
+			return NEVER
 		end
 
 		s.tooltip = L.MMSSDurationTip
@@ -252,15 +262,14 @@ function GeneralOptions:CreateTenthsSlider()
 	end
 
 	s.GetSavedValue = function(self)
-		return parent:GetGroupSets().tenthsDuration or 0
+		return parent:GetGroupSets().tenthsDuration
 	end
 
 	s.GetFormattedText = function(self, value)
-		if value == 0 then
-			return NEVER
-		else
+		if value > 0 then
 			return SECONDS_ABBR:format(value)
 		end
+		return NEVER
 	end
 
 	s.tooltip = L.TenthsDurationTip
@@ -292,7 +301,7 @@ function GeneralOptions:CreateFinishEffectPicker()
 	end
 
 	dd.GetSavedValue = function(self)
-		return parent:GetGroupSets().effect or 'pulse'
+		return parent:GetGroupSets().effect
 	end
 
 	self.dropdowns = self.dropdowns or {}

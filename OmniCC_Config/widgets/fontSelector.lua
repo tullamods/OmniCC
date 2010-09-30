@@ -10,7 +10,7 @@ local Classy = LibStub('Classy-1.0')
 local LSM_FONT = LSM.MediaType.FONT
 local PADDING = 2
 local FONT_HEIGHT = 18
-local BUTTON_HEIGHT = 36
+local BUTTON_HEIGHT = 34
 local SCROLL_STEP = BUTTON_HEIGHT + PADDING
 
 local function getFontIDs()
@@ -60,7 +60,7 @@ function FontButton:New(parent, useAltColor)
 	local fontText = b:CreateFontString(nil, 'ARTWORK')
 	fontText:SetPoint('TOPLEFT', 4, -2)
 	fontText:SetPoint('TOPRIGHT', -4, -2)
-	fontText:SetPoint('BOTTOM', text, 'TOP', 0, 4)
+	fontText:SetPoint('BOTTOM', text, 'TOP', 0, 2)
 	b.fontText = fontText
 
 	local ht = b:CreateTexture(nil, 'BACKGROUND')
@@ -224,7 +224,7 @@ function FontSelector:Load()
 	scrollBar:SetWidth(16)
 	self.scrollBar = scrollBar
 
-	scrollFrame:SetSize(346, 150)
+	scrollFrame:SetSize(346, 140)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:OnShow()

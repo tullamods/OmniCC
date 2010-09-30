@@ -20,7 +20,7 @@ end
 function FontOptions:AddWidgets()
 	--add font selector
 	local fontSelector = self:CreateFontSelector(L.Font)
-	fontSelector:SetPoint('TOPLEFT', self, 'TOPLEFT', 12, -10)
+	fontSelector:SetPoint('TOPLEFT', self, 'TOPLEFT', 12, -20)
 	fontSelector:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 96*2)
 
 	--add color picker

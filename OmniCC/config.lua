@@ -49,7 +49,8 @@ end)
 
 function OmniCC:VARIABLES_LOADED()
 	self:InitDB()
-
+	copyDefaults(self.db.groupSettings.base, self:GetBaseDefaults())
+		
 	--create options loader
 	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
 	f:SetScript('OnShow', function(self)
@@ -69,6 +70,7 @@ end
 
 function OmniCC:PLAYER_LOGOUT()
 	self:RemoveDefaults()
+	removeDefaults(self.db.groupSettings.base, self:GetBaseDefaults())
 end
 
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
@@ -94,13 +96,13 @@ end
 
 function OmniCC:RemoveDefaults()
 	local db = self.db
-	if not db then return end
-	
-	--remove base style defaults from other Settings
-	local baseStyle = self.db.groupSettings['base']
-	for groupId, styleInfo in pairs(self.db.groupSettings) do
-		if groupId ~= 'base' then
-			removeDefaults(styleInfo, baseStyle)
+	if db then
+		--remove base style defaults from other Settings
+		local baseStyle = db.groupSettings['base']
+		for groupId, styleInfo in pairs(db.groupSettings) do
+			if groupId ~= 'base' then
+				removeDefaults(styleInfo, baseStyle)
+			end
 		end
 	end
 end
@@ -121,42 +123,46 @@ function OmniCC:CreateNewDB()
 			},
 		},
 		groupSettings = {
-			base = {
-				enabled = true,
-				scaleText = false,
-				showCooldownModels = true,
-				fontFace = STANDARD_TEXT_FONT,
-				fontSize = 18,
-				fontOutline = 'OUTLINE',
-				minDuration = 3,
-				minFontSize = 9,
-				effect = 'pulse',
-				minEffectDuration = 30,
-				tenthsDuration = 0,
-				mmSSDuration = 0,
-				styles = {
-					soon = {
-						r = 1, g = 0, b= 0, a = 1,
-						scale = 1.5,
-					},
-					seconds = {
-						r = 1, g = 1, b= 0, a = 1,
-						scale = 1,
-					},
-					minutes = {
-						r = 1, g = 1, b = 1, a = 1,
-						scale = 1,
-					},
-					hours = {
-						r = 0.7, g = 0.7, b = 0.7, a = 1,
-						scale = 0.75,
-					},
-				},
-			},
+			base = {},
 			action = {},
 			pet = {fontSize = 16},
 			aura = {fontSize = 10, showCooldownModels = false},
 		}
+	}
+end
+
+function OmniCC:GetBaseDefaults()
+	return {
+		enabled = true,
+		scaleText = false,
+		showCooldownModels = true,
+		fontFace = STANDARD_TEXT_FONT,
+		fontSize = 18,
+		fontOutline = 'OUTLINE',
+		minDuration = 3,
+		minFontSize = 9,
+		effect = 'pulse',
+		minEffectDuration = 30,
+		tenthsDuration = 0,
+		mmSSDuration = 0,
+		styles = {
+			soon = {
+				r = 1, g = 0, b= 0, a = 1,
+				scale = 1.5,
+			},
+			seconds = {
+				r = 1, g = 1, b= 0, a = 1,
+				scale = 1,
+			},
+			minutes = {
+				r = 1, g = 1, b = 1, a = 1,
+				scale = 1,
+			},
+			hours = {
+				r = 0.7, g = 0.7, b = 0.7, a = 1,
+				scale = 0.75,
+			},
+		},
 	}
 end
 
@@ -179,7 +185,7 @@ end
 
 
 --[[---------------------------------------------------------------------------
-	Group Retrieval
+	Group Mapping
 --]]---------------------------------------------------------------------------
 
 local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
