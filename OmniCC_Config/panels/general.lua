@@ -99,6 +99,7 @@ function GeneralOptions:CreateEnableTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().enabled = enable
+		Timer:ForAllShown('UpdateShown')
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -117,6 +118,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().scaleText = enable
+		Timer:ForAllShown('UpdateFont')
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -135,6 +137,7 @@ function GeneralOptions:CreateShowCooldownModelsCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().showCooldownModels = enable
+		Timer:ForAllShown('UpdateCooldownShown')
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -187,6 +190,7 @@ function GeneralOptions:CreateMinFontSizeSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().minFontSize = value
+		Timer:ForAllShown('UpdateShown')
 	end
 
 	s.GetSavedValue = function(self)
@@ -231,6 +235,7 @@ do
 			else
 				parent:GetGroupSets().mmSSDuration = 0
 			end
+			Timer:ForAllShown('UpdateText')
 		end
 
 		s.GetSavedValue = function(self)
@@ -259,6 +264,7 @@ function GeneralOptions:CreateTenthsSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().tenthsDuration = value
+		Timer:ForAllShown('UpdateText')
 	end
 
 	s.GetSavedValue = function(self)

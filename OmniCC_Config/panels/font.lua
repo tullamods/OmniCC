@@ -103,6 +103,7 @@ function FontOptions:CreateFontSizeSlider()
 	
 	s.SetSavedValue = function(self, value) 
 		parent:GetGroupSets().fontSize = value
+		Timer:ForAllShown('UpdateFont')
 	end
 	
 	s.GetSavedValue = function(self) 
@@ -134,6 +135,7 @@ do
 		
 		s.SetSavedValue = function(self, value)
 			parent:GetGroupSets().fontOutline = toOutline(value)
+			Timer:ForAllShown('UpdateFont')
 		end
 
 		s.GetSavedValue = function(self) 
@@ -161,6 +163,7 @@ function FontOptions:CreateStylePicker(timePeriod, parent)
 
 	slider.SetSavedValue = function(self, value)
 		parent:GetGroupSets().styles[timePeriod].scale = value
+		Timer:ForAllShown('UpdateText', true)
 	end
 
 	slider.GetSavedValue = function(self)
@@ -177,10 +180,8 @@ function FontOptions:CreateStylePicker(timePeriod, parent)
 
 	picker.OnSetColor = function(self, r, g, b, a)
 		local style = parent:GetGroupSets().styles[timePeriod]
-		style.r = r
-		style.g = g
-		style.b = b
-		style.a = a
+		style.r, style.g, style.b, style.a = r, g, b, a
+		Timer:ForAllShown('UpdateText', true)
 	end
 
 	picker.GetColor = function(self)

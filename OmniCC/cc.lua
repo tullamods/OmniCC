@@ -174,7 +174,6 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 		self:Stop()
 	end
-
 	return self
 end
 
@@ -184,10 +183,13 @@ function Timer:UpdateShown()
 	else
 		self:Hide()
 	end
-
 	return self
 end
 
+function Timer:UpdateCooldownShown()
+	self.cooldown:SetAlpha(self:GetSettings().showCooldownModels and 1 or 0)
+	return self
+end
 
 --[[ Accessors ]]--
 
@@ -254,6 +256,10 @@ function Timer:ShouldShow()
 	end
 	
 	local sets = self:GetSettings()
+	
+	if (not self.enabled) or self.cooldown.noCooldownCount then
+		return false
+	end
 
 	--the timer should have text that's large enough to display
 	if self.fontSize < sets.minFontSize then
@@ -351,7 +357,7 @@ local function cooldown_OnSetCooldown(self, start, duration)
 
 	--don't display cooldown info if the timer is blacklisted
 	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self))
-	if not sets.enabled then
+	if (not sets.enabled) or self.noCooldownCount then
 		return
 	end
 
