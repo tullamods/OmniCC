@@ -7,6 +7,7 @@
 	<Script file="widgets\slider.lua"/>
 	<Script file="widgets\dropdown.lua"/>
 	<Script file="widgets\colorSelector.lua"/>
+	<Script file="widgets\radioGroup.lua"/>
 	
 	<!-- custom widgets -->
 	<Script file="widgets\fontSelector.lua"/>

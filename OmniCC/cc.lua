@@ -48,14 +48,12 @@ function Timer:New(cooldown)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
 	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
-	text:SetJustifyH(sets.justifyH)
-	text:SetJustifyV(sets.justifyV)
 	timer.text = text
 
 	timer:SetScript('OnUpdate', timer.OnUpdate)
 
 	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
-	--if we do set all points instead, then timer text tends to move around when the timer itself is scaled
+	--if we do set all points instead, then timer text tends to move around when the timer itself is scale)
 	timer:SetPoint('CENTER', cooldown)
 
 	timer:Size(cooldown:GetSize())
@@ -184,9 +182,8 @@ function Timer:UpdateTextPosition()
 	local sets = self:GetSettings()
 	
 	local text = self.text
+	text:ClearAllPoints()
 	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
-	text:SetJustifyH(sets.justifyH)
-	text:SetJustifyV(sets.justifyV)
 	
 	return self
 end

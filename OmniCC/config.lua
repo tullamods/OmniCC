@@ -167,9 +167,7 @@ function OmniCC:GetBaseDefaults()
 		--text positioning
 		xOff = 0,
 		yOff = 0,
-		anchor = 'CENTER',
-		justifyH = 'CENTER',
-		justifyV = 'MIDDLE',
+		anchor = 'CENTER'
 	}
 end
 
