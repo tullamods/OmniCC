@@ -40,13 +40,16 @@ local timers = {}
 function Timer:New(cooldown)
 	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer:Hide()
 	timer.cooldown = cooldown
+	
+	local sets = timer:GetSettings()
 
 	--current theory: if I use toplevel, then people get FPS issues
 	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
-	text:SetPoint('CENTER', 0, 0)
-	text:SetJustifyH('CENTER')
+	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
+	text:SetJustifyH(sets.justifyH)
+	text:SetJustifyV(sets.justifyV)
 	timer.text = text
 
 	timer:SetScript('OnUpdate', timer.OnUpdate)
@@ -174,6 +177,17 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 		self:Stop()
 	end
+	return self
+end
+
+function Timer:UpdateTextPosition()
+	local sets = self:GetSettings()
+	
+	local text = self.text
+	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
+	text:SetJustifyH(sets.justifyH)
+	text:SetJustifyV(sets.justifyV)
+	
 	return self
 end
 

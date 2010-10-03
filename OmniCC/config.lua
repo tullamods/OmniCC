@@ -145,6 +145,7 @@ function OmniCC:GetBaseDefaults()
 		minEffectDuration = 30,
 		tenthsDuration = 0,
 		mmSSDuration = 0,
+		--text coloring
 		styles = {
 			soon = {
 				r = 1, g = 0, b= 0, a = 1,
@@ -163,6 +164,12 @@ function OmniCC:GetBaseDefaults()
 				scale = 0.75,
 			},
 		},
+		--text positioning
+		xOff = 0,
+		yOff = 0,
+		anchor = 'CENTER',
+		justifyH = 'CENTER',
+		justifyV = 'MIDDLE',
 	}
 end
 
