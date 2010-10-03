@@ -50,11 +50,24 @@ end
 --[[ Widgets ]]--
 
 function PositionOptions:AddWidgets()
-	--add way to adjust anchor
-	--add way to adjust x offset
-	--add way to adjust y offset
-	--add way to adjust justifyH.  Remove if not actually useful :P
-	--add way to adjust justifyV.  Remove if not actually useful :P
+	--dropdowns
+	local anchor = self:CreateAnchorPicker()
+	anchor:SetPoint('TOPLEFT', self, 'TOPLEFT', -4, -26)
+
+	local justifyH = self:CreateJustifyHPicker()
+	justifyH:SetPoint('TOPLEFT', anchor, 'BOTTOMLEFT', 0, -(BUTTON_SPACING + 16))
+	
+	local justifyV = self:CreateJustifyVPicker()
+	justifyV:SetPoint('TOPLEFT', justifyH, 'BOTTOMLEFT', 0, -(BUTTON_SPACING + 16))
+	
+	--sliders
+	local yOff = self:CreateYOffsetSlider()
+	yOff:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
+	yOff:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
+
+	local xOff = self:CreateXOffsetSlider()
+	xOff:SetPoint('BOTTOMLEFT', yOff, 'TOPLEFT', 0, SLIDER_SPACING)
+	xOff:SetPoint('BOTTOMRIGHT', yOff, 'TOPRIGHT', 0, SLIDER_SPACING)
 end
 
 function PositionOptions:UpdateValues()
@@ -149,12 +162,12 @@ function PositionOptions:CreateAnchorPicker()
 	dd.Initialize = function(self)
 		for i, v in ipairs(ANCHOR_POINTS) do
 			self:AddItem(v, L['Anchor_' .. v])
-			Timer:ForAll('UpdateTextPosition')
 		end
 	end
 
 	dd.SetSavedValue = function(self, value)
 		parent:GetGroupSets().anchor = value
+		Timer:ForAll('UpdateTextPosition')
 	end
 
 	dd.GetSavedValue = function(self)

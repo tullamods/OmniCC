@@ -58,6 +58,11 @@ L.JustifyH_LEFT = 'Left'
 L.JustifyH_CENTER = 'Center'
 L.JustifyH_RIGHT = 'Right'
 
+L.JustifyV = 'Vertical Alignment'
+L.JustifyV_TOP = 'Top'
+L.JustifyV_MIDDLE = 'Middle'
+L.JustifyV_BOTTOM = 'Bottom'
+
 
 --[[ Tooltips ]]--
 
