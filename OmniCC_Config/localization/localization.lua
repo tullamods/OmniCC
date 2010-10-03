@@ -5,8 +5,9 @@
 local L = OMNICC_LOCALS
 
 L.GeneralSettings = "Display"
-
 L.FontSettings = "Text Style"
+L.GroupSettings = "Groups"
+L.PositionSettings = "Text Position"
 
 L.Font = "Font"
 L.FontSize = "Base Font Size"

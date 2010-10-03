@@ -4,6 +4,7 @@
 
 local OmniCCOptions = OmniCCOptions
 local OmniCC = OmniCC
+local Timer = OmniCC.Timer
 local L = OMNICC_LOCALS
 
 --fun constants!

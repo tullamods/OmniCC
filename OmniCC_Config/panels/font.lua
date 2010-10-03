@@ -2,10 +2,12 @@
 	font.lua: the OmniCC font styles panel
 --]]
 
-local OmniCC = OmniCC
 local OmniCCOptions = OmniCCOptions
+local OmniCC = OmniCC
+local Timer = OmniCC.Timer
 local L = OMNICC_LOCALS
 local LSM = LibStub('LibSharedMedia-3.0')
+
 local BUTTON_SPACING = 24
 
 local FontOptions = CreateFrame('Frame', 'OmniCCOptions_Font')
@@ -46,15 +48,15 @@ end
 function FontOptions:CreateFontSelector(name)
 	local parent = self
 	local f = OmniCCOptions.FontSelector:New(name, self)
-	
-	f.SetSavedValue = function(self, value) 
+
+	f.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontFace = value
 	end
-	
-	f.GetSavedValue = function(self) 
+
+	f.GetSavedValue = function(self)
 		return parent:GetGroupSets().fontFace
 	end
-	
+
 	return f
 end
 
@@ -100,18 +102,18 @@ end
 function FontOptions:CreateFontSizeSlider()
 	local parent = self
 	local s = self:NewSlider(L.FontSize, 2, 48, 1)
-	
-	s.SetSavedValue = function(self, value) 
+
+	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontSize = value
 		Timer:ForAllShown('UpdateFont')
 	end
-	
-	s.GetSavedValue = function(self) 
+
+	s.GetSavedValue = function(self)
 		return parent:GetGroupSets().fontSize
 	end
-	
+
 	s.tooltip = L.FontSizeTip
-	
+
 	return s
 end
 
@@ -132,20 +134,20 @@ do
 	function FontOptions:CreateFontOutlinePicker()
 		local parent = self
 		local s = self:NewSlider(L.FontOutline, 1, #fontOutlines, 1)
-		
+
 		s.SetSavedValue = function(self, value)
 			parent:GetGroupSets().fontOutline = toOutline(value)
 			Timer:ForAllShown('UpdateFont')
 		end
 
-		s.GetSavedValue = function(self) 
-			return toIndex(parent:GetGroupSets().fontOutline) 
+		s.GetSavedValue = function(self)
+			return toIndex(parent:GetGroupSets().fontOutline)
 		end
 
-		s.GetFormattedText = function(self, value) 
-			return L['Outline_' .. toOutline(value or 1)] 
+		s.GetFormattedText = function(self, value)
+			return L['Outline_' .. toOutline(value or 1)]
 		end
-		
+
 		s.tooltip = L.FontOutlineTip
 
 		return s
@@ -158,7 +160,7 @@ end
 
 function FontOptions:CreateStylePicker(timePeriod, parent)
 	local slider = OmniCCOptions.Slider:New(L['Color_' .. timePeriod], parent, 0.5, 2, 0.05)
-	
+
 	 _G[slider:GetName() .. 'Text']:Hide()
 
 	slider.SetSavedValue = function(self, value)

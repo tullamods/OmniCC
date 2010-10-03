@@ -263,20 +263,6 @@ do
 		return f
 	end
 
-	optionsPanel_OnShow = function(self)
-		self:SetScript('OnShow', nil)
-
-		for i, k in ipairs{'Layout', 'Groups', 'About'} do
-			local f = CreateFrame('Frame')
-			local t = f:CreateFontString()
-			t:SetFontObject('GameFontNormalLarge')
-			t:SetText(k:upper() .. ' TEST PANEL')
-			t:SetPoint('CENTER')
-
-			tab_Create(self, k, f)
-		end
-	end
-
 	optionsPanel_OnHide = function(self)
 		groupSets_Cleanup()
 	end
