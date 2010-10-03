@@ -39,6 +39,26 @@ L.Color_hours = "One hour or more"
 
 L.ShowCooldownModels = "Show cooldown models"
 
+L.XOffset = "X Offset"
+L.YOffset = "Y Offset"
+
+L.Anchor = 'Anchor'
+L.Anchor_LEFT = 'Left'
+L.Anchor_CENTER = 'Center'
+L.Anchor_RIGHT = 'Right'
+L.Anchor_TOPLEFT = 'TopLeft'
+L.Anchor_TOP = 'Top'
+L.Anchor_TOPRIGHT = 'TopRight'
+L.Anchor_BOTTOMLEFT = 'BottomLeft'
+L.Anchor_BOTTOM = 'Bottom'
+L.Anchor_BOTTOMRIGHT = 'BottomRight'
+
+L.JustifyH = 'Horizontal Alignment'
+L.JustifyH_LEFT = 'Left'
+L.JustifyH_CENTER = 'Center'
+L.JustifyH_RIGHT = 'Right'
+
+
 --[[ Tooltips ]]--
 
 L.ScaleTextTip =
@@ -101,3 +121,9 @@ L.FrameStackTip =
 [[Toggles showing the names
 of frames when you hover
 over them]]
+
+L.XOffsetTip = 
+[[Controls the horizontal offset of text]]
+
+L.YOffsetTip =
+[[Controls the vertical offset of text]]
