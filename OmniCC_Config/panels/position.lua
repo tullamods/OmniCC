@@ -41,6 +41,8 @@ function PositionOptions:AddWidgets()
 	--dropdowns
 	local anchor = self:CreateAnchorPicker()
 	anchor:SetPoint('TOPLEFT', self, 'TOPLEFT', 12, -26)
+	anchor:SetSize(380, 240)
+	anchor:Layout()
 	
 	--sliders
 	local yOff = self:CreateYOffsetSlider()
@@ -116,8 +118,6 @@ end
 function PositionOptions:CreateAnchorPicker()
 	local parent = self
 	local rg = OmniCCOptions.RadioGroup:New(L.Anchor, parent)
-	rg.columns = 3; rg.spacing = 24
-	rg.padW = 12; rg.padH = 24
 
 	for i, v in ipairs(ANCHOR_POINTS) do
 		rg:AddItem(v, L['Anchor_' .. v])

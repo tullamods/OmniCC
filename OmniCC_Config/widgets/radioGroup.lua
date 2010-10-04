@@ -6,22 +6,43 @@
 OmniCCOptions = OmniCCOptions or {}
 
 local RadioButton = LibStub('Classy-1.0'):New('CheckButton')
---OmniCCOptions.RadioButton = RadioButton
+OmniCCOptions.RadioButton = RadioButton
 
 --[[
 	Define Radio Button Logic Here
 --]]
 
 function RadioButton:New(value, title, parent)
-	local f = self:Bind(CreateFrame('CheckButton', parent:GetName() .. title, parent, 'UIRadioButtonTemplate'))
-	f:SetHeight(20, 20)
-	f.title = _G[f:GetName() .. 'Text']
-	f.title:SetFontObject('GameFontHighlight')
-	f.title:SetText(title)
-	f.value = value
-	f:SetScript('OnClick', f.OnClick)
-	
-	return f
+	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
+	b.value = value
+	b:SetScript('OnClick', b.OnClick)
+
+	local bg = b:CreateTexture(nil, 'BACKGROUND')
+	bg:SetTexture(0.2, 0.2, 0.2, 0.6)
+	bg:SetAllPoints(b)
+
+	local text = b:CreateFontString(nil, 'ARTWORK')
+	text:SetFontObject('GameFontNormalLarge')
+	text:SetPoint('CENTER')
+	text:SetText(title or value)
+	b:SetFontString(text)
+	b:SetNormalFontObject('GameFontNormalSmall')
+	b:SetHighlightFontObject('GameFontHighlightSmall')
+
+	local ht = b:CreateTexture(nil, 'BACKGROUND')
+	ht:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
+	ht:SetVertexColor(0.196, 0.388, 0.8)
+	ht:SetBlendMode('ADD')
+	ht:SetAllPoints(b)
+	b:SetHighlightTexture(ht)
+
+	local ct = b:CreateTexture(nil, 'OVERLAY')
+	ct:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
+	ct:SetSize(24, 24)
+	ct:SetPoint('LEFT')
+	b:SetCheckedTexture(ct)
+
+	return b
 end
 
 function RadioButton:OnClick()
@@ -35,12 +56,9 @@ end
 --]]
 
 local RadioGroup = LibStub('Classy-1.0'):New('Frame')
-RadioGroup.columns = 1
-RadioGroup.spacing = 2
-RadioGroup.padW = 4
-RadioGroup.padH = 6
-
 OmniCCOptions.RadioGroup = RadioGroup
+RadioGroup.columns = 3
+RadioGroup.spacing = 2
 
 function RadioGroup:New(title, parent)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. title, parent, 'OptionsBoxTemplate'))
@@ -98,37 +116,23 @@ function RadioGroup:SetColumns(columns)
 end
 
 function RadioGroup:Layout()
-	local width, height
-	if #self.buttons > 0 then
-		local cols = min(self.columns, #self.buttons)
-		local rows = ceil(#self.buttons / cols)
-		local spacing = self.spacing
-		local padW = self.padW
-		local padH = self.padH
-		
-		local w, h = 0, 0
-		for i, b in pairs(self.buttons) do
-			w = max(w, b:GetWidth() + b.title:GetStringWidth() + 5)
-			h = max(h, b:GetHeight())
+	local spacing = self.spacing or 0
+	local width, height = self:GetWidth(), self:GetHeight()
+	local cols = self.columns or 1
+	local rows = max(#self.buttons / cols)
+	local w, h = (self:GetWidth()-16) / cols, (self:GetHeight()-16) / rows
+	local index = 0
+	
+	for row = 1, rows do
+		for col = 1, cols do
+			index = index + 1
+			local b = self.buttons[index]
+			if b then
+				b:SetSize(w - spacing, h - spacing)
+				b:SetPoint('TOPLEFT', w*(col-1) + 8, -(h*(row-1) + 8))
+			end
 		end
-		w = w + spacing
-		h = h + spacing
-
-		for i ,b in pairs(self.buttons) do
-			local col = (i - 1) % cols
-			local row = ceil(i / cols) - 1
-			b:ClearAllPoints()
-			b:SetPoint('TOPLEFT', w*col + padW, -(h*row + padH))
-		end
-
-		width = w*cols - spacing + padW*2
-		height = h*ceil(#self.buttons/cols) - spacing + padH*2
-	else
-		width = 0
-		height = 0
 	end
-
-	self:SetSize(max(width, 8), max(height, 8))
 end
 
 --[[ Accessors ]]--
