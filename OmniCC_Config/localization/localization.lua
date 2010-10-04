@@ -53,17 +53,6 @@ L.Anchor_BOTTOMLEFT = 'BottomLeft'
 L.Anchor_BOTTOM = 'Bottom'
 L.Anchor_BOTTOMRIGHT = 'BottomRight'
 
-L.JustifyH = 'Horizontal Alignment'
-L.JustifyH_LEFT = 'Left'
-L.JustifyH_CENTER = 'Center'
-L.JustifyH_RIGHT = 'Right'
-
-L.JustifyV = 'Vertical Alignment'
-L.JustifyV_TOP = 'Top'
-L.JustifyV_MIDDLE = 'Middle'
-L.JustifyV_BOTTOM = 'Bottom'
-
-
 --[[ Tooltips ]]--
 
 L.ScaleTextTip =
