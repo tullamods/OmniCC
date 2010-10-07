@@ -4,6 +4,7 @@
 --]]
 
 local OmniCC = CreateFrame('Frame', 'OmniCC'); OmniCC:Hide()
+local CONFIG_NAME = 'OmniCC4Config'
 
 
 --[[---------------------------------------------------------------------------
@@ -82,14 +83,15 @@ OmniCC:RegisterEvent('VARIABLES_LOADED')
 --]]---------------------------------------------------------------------------
 
 function OmniCC:InitDB()
-	self.db = _G['OmniCCGlobalSettings']
+	self.db = _G[CONFIG_NAME]
 	if self.db then
+		print(self.db.version, self:GetAddOnVersion())
 		if self.db.version ~= self:GetAddOnVersion() then
 			self:UpgradeDB()
 		end
 	else
 		self.db = self:CreateNewDB()
-		_G['OmniCCGlobalSettings'] = self.db
+		_G[CONFIG_NAME] = self.db
 	end
 	return self.db
 end
@@ -177,7 +179,7 @@ function OmniCC:UpgradeDB()
 	--upgrade db if the major verson changes
 	if tonumber(pMajor) < 4 then
 		self.db = OmniCC:CreateNewDB()
-		_G['OmniCCGlobalSettings'] = self.db
+		_G[CONFIG_NAME] = self.db
 		return
 	end
 	
