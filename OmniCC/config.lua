@@ -85,7 +85,6 @@ OmniCC:RegisterEvent('VARIABLES_LOADED')
 function OmniCC:InitDB()
 	self.db = _G[CONFIG_NAME]
 	if self.db then
-		print(self.db.version, self:GetAddOnVersion())
 		if self.db.version ~= self:GetAddOnVersion() then
 			self:UpgradeDB()
 		end
