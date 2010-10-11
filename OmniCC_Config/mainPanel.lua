@@ -4,6 +4,8 @@
 		provides ways of switching between tabs & groups
 --]]
 
+local L = OMNICC_LOCALS
+
 --[[ utility functions of champions ]]--
 
 local function map(t, f)
@@ -74,18 +76,14 @@ local function groupSelector_Create(parent, size)
 	dd.titleText:Hide()
 
 	dd.Initialize = function(self)
-		self:AddItem('Base', 'base')
+		self:AddItem(L['Group_base'], 'base')
 
-		local groups = map(OmniCC.db.groups, function(g) 
-			return {g.name, g.id} 
-		end)
-		
-		table.sort(groups, function(a, b) 
-			return a[1] < b[1] 
-		end)
+		local groups = map(OmniCC.db.groups, function(g) return g.id end)
+
+		table.sort(groups)
 
 		for i, g in ipairs(groups) do
-			self:AddItem(unpack(g))
+			self:AddItem(L['Group_' .. g] or g, g)
 		end
 	end
 

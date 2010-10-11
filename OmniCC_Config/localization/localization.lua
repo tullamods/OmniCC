@@ -39,6 +39,7 @@ L.Color_hours = "One hour or more"
 
 L.ShowCooldownModels = "Show cooldown models"
 
+--text positioning
 L.XOffset = "X Offset"
 L.YOffset = "Y Offset"
 
@@ -52,6 +53,13 @@ L.Anchor_TOPRIGHT = 'TopRight'
 L.Anchor_BOTTOMLEFT = 'BottomLeft'
 L.Anchor_BOTTOM = 'Bottom'
 L.Anchor_BOTTOMRIGHT = 'BottomRight'
+
+--groups
+L.Groups = 'Groups'
+L.Group_base = 'Base'
+L.Group_action = 'Actions'
+L.Group_aura = 'Auras'
+L.Group_pet = 'Pet Actions'
 
 --[[ Tooltips ]]--
 

@@ -55,8 +55,7 @@ end
 
 function Dropdown:AddItem(name, value)
 	local parent = self
---	print('add item', parent:GetName(), name, value)
-	
+
 	local info = UIDropDownMenu_CreateInfo()
 	info.text = name
 	info.value = value or name

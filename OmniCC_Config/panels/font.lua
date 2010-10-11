@@ -68,8 +68,6 @@ function FontOptions:CreateColorPickerFrame(name)
 
 	local f = CreateFrame('Frame', parent:GetName() .. name, parent, 'OptionsBoxTemplate')
 	f.GetGroupSets = function(self) return parent:GetGroupSets() end
-	f:SetBackdropBorderColor(0.4, 0.4, 0.4)
-	f:SetBackdropColor(0.15, 0.15, 0.15, 0.5)
 	_G[f:GetName() .. 'Title']:SetText(name)
 
 	local soon = self:CreateStylePicker('soon', f)

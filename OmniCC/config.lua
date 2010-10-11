@@ -113,15 +113,20 @@ function OmniCC:CreateNewDB()
 		version = self:GetAddOnVersion(),
 		groups = {
 			{
-				id = 'action', 
-				name = 'Actions',
+				id = 'action',
 				rules = {'Action'},
+				enabled = true,
 			},
 			{
 				id = 'aura', 
-				name = 'Auras',
 				rules = {'Aura', 'Buff', 'Debuff', 'PitBull'},
+				enabled = true,
 			},
+			{
+				id = 'pet',
+				rules = {'PetActionButton'},
+				enabled = true,
+			}
 		},
 		groupSettings = {
 			base = {},
