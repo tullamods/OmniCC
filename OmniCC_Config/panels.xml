@@ -2,5 +2,5 @@
 	<Script file="panels\general.lua"/>
 	<Script file="panels\font.lua"/>
 	<Script file="panels\position.lua"/>
-	<Script file="panels\groups.lua"/>
+	<Script file="panels\rules.lua"/>
 </Ui>

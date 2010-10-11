@@ -71,32 +71,28 @@ end
 	group settings selector
 --]]
 
-local function groupSelector_Create(parent, size)
+local function groupSelector_Create(parent, size, setGroup)
 	local dd = OmniCCOptions.Dropdown:New('Group', parent, size)
 	dd.titleText:Hide()
 
-	dd.Initialize = function(self)
-		self:AddItem(L['Group_base'], 'base')
+	dd.Initialize = function(self, level)
+		level = level or 1
+		if level == 1 then
+			self:AddItem(L['Group_base'], 'base')
 
-		local groups = map(OmniCC.db.groups, function(g) return g.id end)
+			local groups = map(OmniCC.db.groups, function(g) return g.id end)
 
-		table.sort(groups)
+			table.sort(groups)
 
-		for i, g in ipairs(groups) do
-			self:AddItem(L['Group_' .. g] or g, g)
+			for i, g in ipairs(groups) do
+				self:AddItem(L['Group_' .. g] or g, g)
+			end
 		end
 	end
 
 	dd.SetSavedValue = function(self, value)
-		parent.selectedGroup = value or 'base'
-
 		groupSets_Cleanup()
-
-		--force the current panel to refresh
-		local panel = parent:GetCurrentPanel()
-		if panel.UpdateValues then
-			panel:UpdateValues()
-		end
+		setGroup(parent, value)
 	end
 
 	dd.GetSavedValue = function(self)
@@ -137,13 +133,14 @@ end
 
 local tab_Create, tab_OnClick
 do
-	tab_Create = function(parent, name, panel)
+	tab_Create = function(parent, id, name, panel)
 		parent.tabs = parent.tabs or {}
 
 		local t = CreateFrame('Button', parent:GetName() .. 'Tab' .. (#parent.tabs + 1), parent, 'OptionsFrameTabButtonTemplate')
 		table.insert(parent.tabs, t)
 
 		t.panel = panel
+		t.id = id
 		t:SetText(name)
 		t:SetScript('OnClick', tab_OnClick)
 
@@ -244,7 +241,7 @@ end
 	the main frame
 --]]
 
-local optionsPanel_Create, optionsPanel_OnShow, optionsPanel_OnHide, optionsPanel_GetCurrentPanel
+local optionsPanel_Create, optionsPanel_OnShow, optionsPanel_OnHide, optionsPanel_GetCurrentPanel, optionsPanel_OnSetGroup
 do
 	optionsPanel_Create = function(title, subtitle)
 		local f = CreateFrame('Frame', 'OmniCCOptionsPanel')
@@ -254,7 +251,7 @@ do
 		f.GetCurrentPanel = optionsPanel_GetCurrentPanel
 
 		title_Create(f, title, subtitle)
-		groupSelector_Create(f, 130)
+		groupSelector_Create(f, 130, optionsPanel_OnSetGroup)
 		panelArea_Create(f)
 
 		InterfaceOptions_AddCategory(f, title)
@@ -263,6 +260,49 @@ do
 
 	optionsPanel_OnHide = function(self)
 		groupSets_Cleanup()
+	end
+
+	optionsPanel_OnSetGroup = function(self, groupId)
+		self.selectedGroup = groupId or 'base'
+
+		--special handling for the base tab
+		--since we don't want the user to mess with the rules tab
+		if groupId == 'base' then
+			--if we're on the rules tab, then move to the general tab
+			if optionsPanel_GetCurrentTab(self).id == 'rules' then
+				tab_OnClick(optionsPanel_GetTabById(self, 'general'))
+			end
+
+			--disable the rules tab
+			local tab = optionsPanel_GetTabById(self, 'rules')
+			if tab then
+				PanelTemplates_DisableTab(self, tab:GetID())
+			end
+		else
+			--force the current panel to refresh
+			local panel = optionsPanel_GetCurrentPanel(self)
+			if panel.UpdateValues then
+				panel:UpdateValues()
+			end
+
+			--enable the rules tab
+			local tab = optionsPanel_GetTabById(self, 'rules')
+			if tab then
+				PanelTemplates_EnableTab(self, tab:GetID())
+			end
+		end
+	end
+
+	optionsPanel_GetCurrentTab = function(self)
+		return self.tabs[PanelTemplates_GetSelectedTab(self)]
+	end
+
+	optionsPanel_GetTabById = function(self, tabId)
+		for i, tab in pairs(self.tabs) do
+			if tab.id == tabId then
+				return tab
+			end
+		end
 	end
 
 	optionsPanel_GetCurrentPanel = function(self)
@@ -275,11 +315,16 @@ end
 do
 	local f = optionsPanel_Create(select(2, GetAddOnInfo('OmniCC')))
 
-	OmniCCOptions.AddTab = function(self, name, panel)
-		tab_Create(f, name, panel)
+	OmniCCOptions.AddTab = function(self, id, name, panel)
+		tab_Create(f, id, name, panel)
+		optionsPanel_OnSetGroup(f, self:GetGroupId())
 	end
 
 	OmniCCOptions.GetGroupSets = function(self)
 		return groupSets_Get(f.selectedGroup or 'base')
+	end
+
+	OmniCCOptions.GetGroupId = function(self)
+		return f.selectedGroup or 'base'
 	end
 end

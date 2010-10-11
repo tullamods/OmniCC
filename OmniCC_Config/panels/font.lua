@@ -66,9 +66,8 @@ end
 function FontOptions:CreateColorPickerFrame(name)
 	local parent = self
 
-	local f = CreateFrame('Frame', parent:GetName() .. name, parent, 'OptionsBoxTemplate')
+	local f = OmniCCOptions.Group:New(name, parent)
 	f.GetGroupSets = function(self) return parent:GetGroupSets() end
-	_G[f:GetName() .. 'Title']:SetText(name)
 
 	local soon = self:CreateStylePicker('soon', f)
 	soon:SetPoint('TOPLEFT', 8, -(BUTTON_SPACING + 4))
@@ -198,4 +197,4 @@ end
 
 --[[ Load the thing ]]--
 
-OmniCCOptions:AddTab(L.FontSettings, FontOptions)
+OmniCCOptions:AddTab('font', L.FontSettings, FontOptions)

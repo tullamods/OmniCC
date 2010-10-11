@@ -319,4 +319,4 @@ end
 
 --[[ Load the thing ]]--
 
-OmniCCOptions:AddTab(L.GeneralSettings, GeneralOptions)
+OmniCCOptions:AddTab('general', L.GeneralSettings, GeneralOptions)

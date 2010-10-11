@@ -61,13 +61,8 @@ RadioGroup.columns = 3
 RadioGroup.spacing = 2
 
 function RadioGroup:New(title, parent)
-	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. title, parent, 'OptionsBoxTemplate'))
+	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
 	f.buttons = {}
-
-	f:SetBackdropBorderColor(0.4, 0.4, 0.4)
-	f:SetBackdropColor(0.15, 0.15, 0.15, 0.5)
-	_G[f:GetName() .. 'Title']:SetText(title)
-	
 	f:SetScript('OnShow', f.OnShow)
 	
 	return f

@@ -138,4 +138,4 @@ end
 
 --[[ Load the thing ]]--
 
-OmniCCOptions:AddTab(L.PositionSettings, PositionOptions)
+OmniCCOptions:AddTab('position', L.PositionSettings, PositionOptions)

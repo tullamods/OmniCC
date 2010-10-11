@@ -99,11 +99,8 @@ local FontSelector = Classy:New('Frame')
 OmniCCOptions.FontSelector = FontSelector
 
 function FontSelector:New(title, parent)
-	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. title, parent, 'OptionsBoxTemplate'))
+	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
 	f:SetScript('OnShow', f.Load)
-	f:SetBackdropBorderColor(0.4, 0.4, 0.4)
-	f:SetBackdropColor(0.15, 0.15, 0.15, 0.5)
-	_G[f:GetName() .. 'Title']:SetText(title)
 
 	return f
 end

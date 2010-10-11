@@ -6,7 +6,7 @@ local L = OMNICC_LOCALS
 
 L.GeneralSettings = "Display"
 L.FontSettings = "Text Style"
-L.GroupSettings = "Groups"
+L.RuleSettings = "Rules"
 L.PositionSettings = "Text Position"
 
 L.Font = "Font"
@@ -124,7 +124,7 @@ L.FrameStackTip =
 of frames when you hover
 over them]]
 
-L.XOffsetTip = 
+L.XOffsetTip =
 [[Controls the horizontal offset of text]]
 
 L.YOffsetTip =
