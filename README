@@ -1,0 +1,30 @@
+OmniCC is an addon that adds text to items/spells/abilities that are on cooldown to indicate when they'll be ready for use. OmniCC should be compatible with any addon that uses a cooldown model.
+
+A configuration interface is included, and can be shown via /omnicc or /occ
+
+Changes since OmniCC 2:
+* Added blacklisting support
+* Merged Pulse and Shine into the core addon.
+* Redesigned the options menu
+* Moved development over to GitHub
+
+Whitelisting frames:
+
+I've nixed this in the latest beta.  However, OmniCC now obeys the CooldownModel.noCooldownCount flag once again.
+
+Blacklisting frames:
+
+OmniCC 3 comes with another new option "Only display text on frames not on the blacklist" When enabled, OmniCC looks for frames that have names that match items on the blacklist. If a frame matches, then OmniCC will not display text on a frame. For example, adding "ActionButton" to the blacklist will cause both ActionButton1 and ActionButton2 to not show cooldown text.
+
+GitHub:
+
+OmniCC development has moved from GogleCode to GitHub. The intention is to make it easier for people to fork/contribute to OmniCC development (and also for me to learn about git). Writing code for me typically gets your request implemented faster than asking me to write it myself :P
+
+Submitting bugs & feature requests:
+
+In order of preference, here's where you should submit bug reports and feature requests:
+* GitHub
+* GoogleCode
+* Wherever you downloaded the addon
+
+I read/have RSS feeds for everywhere, so don't think too much about it

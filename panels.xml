@@ -1,0 +1,6 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="panels\general.lua"/>
+	<Script file="panels\font.lua"/>
+	<Script file="panels\position.lua"/>
+	<Script file="panels\rules.lua"/>
+</Ui>
