@@ -202,11 +202,14 @@ end
 local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
 	local name = cooldown:GetName()
 	if name then
-		for i, group in ipairs(OmniCC.db.groups) do
-			for k, pattern in pairs(group.rules) do
-				if name:match(pattern) then
-					t[cooldown] = group.id
-					return group.id
+		for i = #OmniCC.db.groups, 1, -1 do
+			local group = OmniCC.db.groups[i]
+			if group.enabled then
+				for _, pattern in pairs(group.rules) do
+					if name:match(pattern) then
+						t[cooldown] = group.id
+						return group.id
+					end
 				end
 			end
 		end
@@ -225,10 +228,10 @@ local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
 	
 	local sets = setmetatable({}, {__index = function(_, k)
 		local v = groupSettings[groupId][k]
-		if v == nil then
-			v = groupSettings['base'][k]
+		if v ~= nil then
+			return v
 		end
-		return v
+		return groupSettings['base'][k]
 	end})
 	
 	t[groupId] = sets
@@ -237,6 +240,27 @@ end})
 
 function OmniCC:GetGroupSettings(groupId)
 	return groupSettingsCache[groupId]
+end
+
+function OmniCC:AddGroup(groupId)
+	for i, group in ipairs(OmniCC.db.groups) do
+		if group.id == groupId then
+			return false
+		end
+	end
+	table.insert(self.db.groups, {id = groupId, rules = {}, enabled = true})
+	self.db.groupSettings[groupId] = {}
+	return true
+end
+
+function OmniCC:RemoveGroup(groupId)
+	for i, group in ipairs(OmniCC.db.groups) do
+		if group.id == groupId then
+			table.remove(OmniCC.db.groups, i)
+			OmniCC.db.groupSettings[groupId] = nil
+			return true
+		end
+	end
 end
 
 
