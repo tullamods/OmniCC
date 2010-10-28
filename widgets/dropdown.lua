@@ -27,16 +27,11 @@ end
 function Dropdown:OnShow()
 --	print('onshow', self:GetName())
 	UIDropDownMenu_SetWidth(self, self.width)
-	UIDropDownMenu_Initialize(self, self.Initialize)
 	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
 end
 
 
 --[[ Update Methods ]]--
-
-function Dropdown:Initialize()
-	assert(false, 'Hey you forgot to implement Initialize for ' .. self:GetName())
-end
 
 function Dropdown:SetSavedValue(value)
 	assert(false, 'Hey you forgot to implement SetSavedValue for ' .. self:GetName())
@@ -47,7 +42,7 @@ function Dropdown:GetSavedValue()
 end
 
 function Dropdown:UpdateValue()
-	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
+	self.selectedValue = value
 end
 
 

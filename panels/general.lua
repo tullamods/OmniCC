@@ -292,7 +292,15 @@ function GeneralOptions:CreateFinishEffectPicker()
 	local parent = self
 	local dd = OmniCCOptions.Dropdown:New(L.FinishEffect, parent, 120)
 
-	dd.Initialize = function(self)
+	dd.SetSavedValue = function(self, value)
+		parent:GetGroupSets().effect = value
+	end
+
+	dd.GetSavedValue = function(self)
+		return parent:GetGroupSets().effect
+	end
+	
+	UIDropDownMenu_Initialize(dd, function(self)
 		self:AddItem(NONE, 'none')
 
 		local effects = OmniCC:ForEachEffect(function(effect) return {effect.name, effect.id} end)
@@ -301,15 +309,7 @@ function GeneralOptions:CreateFinishEffectPicker()
 		for n, v in ipairs(effects) do
 			self:AddItem(unpack(v))
 		end
-	end
-
-	dd.SetSavedValue = function(self, value)
-		parent:GetGroupSets().effect = value
-	end
-
-	dd.GetSavedValue = function(self)
-		return parent:GetGroupSets().effect
-	end
+	end)
 
 	self.dropdowns = self.dropdowns or {}
 	table.insert(self.dropdowns, dd)

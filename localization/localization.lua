@@ -56,10 +56,11 @@ L.Anchor_BOTTOMRIGHT = 'BottomRight'
 
 --groups
 L.Groups = 'Groups'
-L.Group_base = 'Base'
+L.Group_base = 'Default'
 L.Group_action = 'Actions'
 L.Group_aura = 'Auras'
 L.Group_pet = 'Pet Actions'
+L.AddGroup = 'Add Group...'
 
 --[[ Tooltips ]]--
 
