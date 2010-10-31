@@ -37,6 +37,8 @@ local timers = {}
 
 --[[ Constructorish ]]--
 
+local updater_UpdateText = function(self) self:GetParent():Update() end
+
 function Timer:New(cooldown)
 	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer:Hide()
 	timer.cooldown = cooldown
@@ -50,7 +52,13 @@ function Timer:New(cooldown)
 	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
 	timer.text = text
 
-	timer:SetScript('OnUpdate', timer.OnUpdate)
+	--updater
+	local updater = timer:CreateAnimationGroup()
+	updater:SetLooping('NONE')
+	updater:SetScript('OnFinished', updater_UpdateText)
+	
+	local a = updater:CreateAnimation('Animation'); a:SetOrder(1)
+	timer.updater = updater
 
 	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
 	--if we do set all points instead, then timer text tends to move around when the timer itself is scale)
@@ -66,15 +74,6 @@ function Timer:Get(cooldown)
 	return timers[cooldown]
 end
 
---update timer text if its time to update again
-function Timer:OnUpdate(elapsed)
-	if self.nextUpdate > 0 then
-		self.nextUpdate = self.nextUpdate - elapsed
-	else
-		self:UpdateText()
-	end
-end
-
 
 --[[ Updaters ]]--
 
@@ -85,9 +84,10 @@ function Timer:Start(start, duration)
 	self.enabled = true
 	self.visible = true
 	self.textStyle = nil
-	self.nextUpdate = 0
+--	self.nextUpdate = 0
 
 	self:UpdateShown()
+	self:Update()
 	return self
 end
 
@@ -98,7 +98,7 @@ function Timer:Stop()
 	self.enabled = nil
 	self.visible = nil
 	self.textStyle = nil
-	self.nextUpdate = nil
+--	self.nextUpdate = nil
 
 	self:Hide()
 	return self
@@ -108,8 +108,39 @@ end
 --hide if it gets too tiny
 function Timer:Size(width, height)
 	self:SetSize(width, height)
-	self:UpdateFont()
 
+	local sizeRatio = round(self:GetWidth()) / ICON_SIZE --used for scaling buttons based off of font size
+	self.sizeRatio = sizeRatio
+
+	if self:IsVisible() then
+		self:Update()
+	end
+
+	return self
+end
+
+function Timer:ScheduleUpdate(nextUpdate)
+	self.updater:GetAnimations():SetDuration(nextUpdate)
+	if self.updater:IsPlaying() then
+		self.updater:Stop()
+	end
+	self.updater:Play()
+end
+
+function Timer:Update()
+	--if there's time left on the clock, then update the timer text
+	--otherwise stop the timer
+	local remain = self.duration - (GetTime() - self.start)
+	if remain > 0 then
+		self:UpdateText(remain)
+	else
+		--if the timer was long enough to, and text is still visible
+		--then trigger a finish effect
+		if self.duration >= self:GetSettings().minEffectDuration and self.text:IsShown() then
+			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown, self.duration)
+		end
+		self:Stop()
+	end
 	return self
 end
 
@@ -135,46 +166,48 @@ function Timer:UpdateFont()
 	return self
 end
 
---update timer text
---if forceStyleUpdate is true, then update style information even if the periodStyle has yet to change
-function Timer:UpdateText(forceStyleUpdate)
-	--if there's time left on the clock, then update the timer text
-	--otherwise stop the timer
-	local remain = self.duration - (GetTime() - self.start)
-	if remain > 0 then
-		--hide text if it's too small to display
-		--check again in one second
-		if (self:GetEffectiveScale() * self.fontSize / UIParent:GetScale()) < self:GetSettings().minFontSize then
-			self.text:Hide()
-			self.nextUpdate = 1
-		else
-			--update font text
-			local time, nextUpdate = self:GetTimeText(remain)
-			self.text:SetText(time)
-			self.text:Show()
+function Timer:UpdateText(remain)
+	--calculate timer scale values
+	local overallScale = sizeRatio * self:GetScale() --used to determine text visibility
 
-			--update text scale/color info if the time period has changed
-			--of we're forcing an update (used for config live updates)
-			local period = self:GetPeriodStyle(remain)
-			if (period ~= self.textStyle) or forceStyleUpdate then
-				self.textStyle = period
-				
-				local sets = self:GetSettings().styles[period]
-				local r, g, b, a, s = sets.r, sets.g, sets.b, sets.a, sets.scale
-				self.text:SetTextColor(r, g, b, a)
-				self:SetScale(s)
-			end
-
-			self.nextUpdate = nextUpdate
-		end
+	--hide text if it's too small to display
+	--check again in one second
+	if overallScale < self:GetSettings().minScale then
+		self.text:Hide()
+		self:ScheduleUpdate(1)
 	else
-		--if the timer was long enough to, and text is still visible
-		--then trigger a finish effect
-		if self.duration >= self:GetSettings().minEffectDuration and self.text:IsShown() then
-			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown, self.duration)
+		--update font text
+		local timeFormat, timeText, nextUpdate = self:GetTimeText(remain)
+		self.text:SetFormattedText(timeFormat, timeText)
+		self.text:Show()
+		
+		self:UpdateTextStyle(remain)
+
+		--update text scale/color info if the time period has changed
+		--of we're forcing an update (used for config live updates)
+		local textStyle = self:GetPeriodStyle(remain)
+		if (textStyle ~= self.textStyle) or forceStyleUpdate then
+			self.textStyle = textStyle
+			self:UpdateTextStyle()
 		end
-		self:Stop()
+
+		self:ScheduleUpdate(nextUpdate)
 	end
+	return self
+end
+
+function Timer:UpdateTextStyle()
+	local sets = self:GetSettings()
+	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
+
+	local sets = self:GetSettings().styles[self.textStyle]
+	local font, size, outline = self.text:GetFont()
+	local r, g, b, a, s = sets.r, sets.g, sets.b, sets.a, sets.scale
+
+	self.text:SetFont(font, size * s, outline)
+	self.text:SetTextColor(r, g, b, a)
+	self:SetScale(s)
+	
 	return self
 end
 
