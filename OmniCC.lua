@@ -48,17 +48,7 @@ OmniCC:SetScript('OnEvent', function(self, event, ...)
 	end
 end)
 
-function OmniCC:VARIABLES_LOADED()
-	self:InitDB()
-	copyDefaults(self.db.groupSettings.base, self:GetBaseDefaults())
-		
-	--create options loader
-	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
-	f:SetScript('OnShow', function(self)
-		self:SetScript('OnShow', nil)
-		LoadAddOn('OmniCC_Config')
-	end)
-
+function OmniCC:PLAYER_LOGIN()
 	--add slash commands
 	SLASH_OmniCC1 = '/omnicc'
 	SLASH_OmniCC2 = '/occ'
@@ -67,36 +57,48 @@ function OmniCC:VARIABLES_LOADED()
 			InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end
 	end
+	
+	--create options loader
+	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
+	f:SetScript('OnShow', function(self)
+		self:SetScript('OnShow', nil)
+		LoadAddOn('OmniCC_Config')
+	end)
 end
 
 function OmniCC:PLAYER_LOGOUT()
-	self:RemoveDefaults()
-	removeDefaults(self.db.groupSettings.base, self:GetBaseDefaults())
+	self:RemoveDefaults(self.db)
 end
 
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
-OmniCC:RegisterEvent('VARIABLES_LOADED')
+OmniCC:RegisterEvent('PLAYER_LOGIN')
 
 
 --[[---------------------------------------------------------------------------
 	Saved Settings
 --]]---------------------------------------------------------------------------
 
-function OmniCC:InitDB()
-	self.db = _G[CONFIG_NAME]
-	if self.db then
-		if self.db.version ~= self:GetAddOnVersion() then
-			self:UpgradeDB()
-		end
-	else
-		self.db = self:CreateNewDB()
-		_G[CONFIG_NAME] = self.db
-	end
-	return self.db
+function OmniCC:GetDB()
+	return self.db or self:InitDB()
 end
 
-function OmniCC:RemoveDefaults()
-	local db = self.db
+function OmniCC:InitDB()
+	local db = _G[CONFIG_NAME]
+	if db then
+		if db.version ~= self:GetAddOnVersion() then
+			self:UpgradeDB(db)
+		end
+	else
+		db = self:CreateNewDB()
+		_G[CONFIG_NAME] = db
+	end
+	copyDefaults(db.groupSettings.base, self:GetBaseDefaults())
+	
+	self.db = db
+	return db
+end
+
+function OmniCC:RemoveDefaults(db)
 	if db then
 		--remove base style defaults from other Settings
 		local baseStyle = db.groupSettings['base']
@@ -105,6 +107,7 @@ function OmniCC:RemoveDefaults()
 				removeDefaults(styleInfo, baseStyle)
 			end
 		end
+		removeDefaults(db.groupSettings.base, self:GetBaseDefaults())
 	end
 end
 
@@ -177,17 +180,18 @@ function OmniCC:GetBaseDefaults()
 	}
 end
 
-function OmniCC:UpgradeDB()
-	local pMajor, pMinor, pBugfix = self.db.version:match('(%d+)\.(%d+)\.(%w+)')
+function OmniCC:UpgradeDB(db)
+	local pMajor, pMinor, pBugfix = db.version:match('(%d+)\.(%d+)\.(%w+)')
 	
 	--upgrade db if the major verson changes
 	if tonumber(pMajor) < 4 then
-		self.db = OmniCC:CreateNewDB()
-		_G[CONFIG_NAME] = self.db
+		db = OmniCC:CreateNewDB()
+		_G[CONFIG_NAME] = db
 		return
 	end
 	
-	self.db.version = self:GetAddOnVersion()
+	db.version = self:GetAddOnVersion()
+	return db
 end
 
 function OmniCC:GetAddOnVersion()
@@ -202,8 +206,9 @@ end
 local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
 	local name = cooldown:GetName()
 	if name then
-		for i = #OmniCC.db.groups, 1, -1 do
-			local group = OmniCC.db.groups[i]
+		local db = OmniCC:GetDB()
+		for i = #db.groups, 1, -1 do
+			local group = db.groups[i]
 			if group.enabled then
 				for _, pattern in pairs(group.rules) do
 					if name:match(pattern) then
@@ -223,8 +228,10 @@ function OmniCC:CDToGroup(cooldown)
 	return cdToGroupCache[cooldown]
 end
 
+--retrieves settings for the given groupId
+--if a setting cannot be found in the group, then retrieves the setting from the base group
 local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
-	local groupSettings = OmniCC.db.groupSettings
+	local groupSettings = OmniCC:GetDB().groupSettings
 	
 	local sets = setmetatable({}, {__index = function(_, k)
 		local v = groupSettings[groupId][k]
@@ -242,25 +249,40 @@ function OmniCC:GetGroupSettings(groupId)
 	return groupSettingsCache[groupId]
 end
 
+
+--[[---------------------------------------------------------------------------
+	Group Adding/Removing
+--]]---------------------------------------------------------------------------
+
 function OmniCC:AddGroup(groupId)
-	for i, group in ipairs(OmniCC.db.groups) do
-		if group.id == groupId then
-			return false
-		end
+	if not self:GetGroupIndex(groupId) then
+		local db = self:GetDB()
+		table.insert(db.groups, {id = groupId, rules = {}, enabled = true})
+		db.groupSettings[groupId] = {}
+				
+		return true
 	end
-	table.insert(self.db.groups, {id = groupId, rules = {}, enabled = true})
-	self.db.groupSettings[groupId] = {}
-	return true
 end
 
 function OmniCC:RemoveGroup(groupId)
-	for i, group in ipairs(OmniCC.db.groups) do
+	local index = self:GetGroupIndex(groupId)
+	if index then
+		local db = self:GetDB()
+		table.remove(db.groups, index)
+		db.groupSettings[groupId] = nil	
+			
+		return true
+	end
+end
+
+function OmniCC:GetGroupIndex(groupId)
+	local db = self:GetDB()
+	for i, group in pairs(db.groups) do
 		if group.id == groupId then
-			table.remove(OmniCC.db.groups, i)
-			OmniCC.db.groupSettings[groupId] = nil
-			return true
+			return i
 		end
 	end
+	return false
 end
 
 

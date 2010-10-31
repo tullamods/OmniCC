@@ -397,6 +397,6 @@ hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', coold
 --bugfix: force update timers when entering an arena
 do
 	local f = CreateFrame('Frame'); f:Hide()
-	f:SetScript('OnEvent', function() Timer:ForAllShown('UpdateText') end)
+	f:SetScript('OnEvent', function(self, event, ...) Timer:ForAllShown('UpdateText') end)
 	f:RegisterEvent('PLAYER_ENTERING_WORLD')
 end
