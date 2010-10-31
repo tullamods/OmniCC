@@ -75,10 +75,11 @@ do
 	groupSets_Get = function(groupId)
 		local sets = groupSets[groupId]
 		if not sets then
+			local db = OmniCC:GetDB()
 			if groupId == 'base' then
-				sets = OmniCC.db.groupSettings['base']
+				sets = db.groupSettings['base']
 			else
-				sets = copyDefaults(OmniCC.db.groupSettings[groupId], OmniCC.db.groupSettings['base'])
+				sets = copyDefaults(db.groupSettings[groupId], db.groupSettings['base'])
 			end
 			groupSets[groupId] = sets
 		end
