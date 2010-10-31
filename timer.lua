@@ -109,8 +109,8 @@ end
 function Timer:Size(width, height)
 	self:SetSize(width, height)
 
-	local sizeRatio = round(self:GetWidth()) / ICON_SIZE --used for scaling buttons based off of font size
-	self.sizeRatio = sizeRatio
+	local sizeRatio = round(self:GetWidth()) / ICON_SIZE 
+	self.sizeRatio =  round(width) / ICON_SIZE  
 
 	if self:IsVisible() then
 		self:Update()
