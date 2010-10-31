@@ -207,9 +207,9 @@ end
 local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
 	local name = cooldown:GetName()
 	if name then
-		local db = OmniCC:GetDB()
-		for i = #db.groups, 1, -1 do
-			local group = db.groups[i]
+		local groups = OmniCC:GetDB().groups
+		for i = #groups, 1, -1 do
+			local group = groups[i]
 			if group.enabled then
 				for _, pattern in pairs(group.rules) do
 					if name:match(pattern) then
