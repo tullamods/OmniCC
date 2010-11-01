@@ -57,7 +57,7 @@ function OmniCC:PLAYER_LOGIN()
 			InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end
 	end
-	
+
 	--create options loader
 	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
 	f:SetScript('OnShow', function(self)
@@ -95,7 +95,7 @@ function OmniCC:InitDB()
 		_G[CONFIG_NAME] = db
 	end
 	copyDefaults(db.groupSettings.base, self:GetBaseDefaults())
-	
+
 	self.db = db
 	return db
 end
@@ -122,7 +122,7 @@ function OmniCC:CreateNewDB()
 				enabled = true,
 			},
 			{
-				id = 'aura', 
+				id = 'aura',
 				rules = {'Aura', 'Buff', 'Debuff', 'PitBull'},
 				enabled = true,
 			},
@@ -135,8 +135,8 @@ function OmniCC:CreateNewDB()
 		groupSettings = {
 			base = {},
 			action = {},
-			pet = {fontSize = 16},
-			aura = {fontSize = 10, showCooldownModels = false},
+			pet = {},
+			aura = {},
 		}
 	}
 end
@@ -144,13 +144,13 @@ end
 function OmniCC:GetBaseDefaults()
 	return {
 		enabled = true,
-		scaleText = false,
+		scaleText = true,
 		showCooldownModels = true,
 		fontFace = STANDARD_TEXT_FONT,
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
 		minDuration = 3,
-		minFontSize = 9,
+		minSize = 0.5,
 		effect = 'pulse',
 		minEffectDuration = 30,
 		tenthsDuration = 0,
@@ -183,14 +183,14 @@ end
 
 function OmniCC:UpgradeDB(db)
 	local pMajor, pMinor, pBugfix = db.version:match('(%d+)\.(%d+)\.(%w+)')
-	
+
 	--upgrade db if the major verson changes
 	if tonumber(pMajor) < 4 then
 		db = OmniCC:CreateNewDB()
 		_G[CONFIG_NAME] = db
 		return
 	end
-	
+
 	db.version = self:GetAddOnVersion()
 	return db
 end
@@ -233,7 +233,7 @@ end
 --if a setting cannot be found in the group, then retrieves the setting from the base group
 local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
 	local groupSettings = OmniCC:GetDB().groupSettings
-	
+
 	local sets = setmetatable({}, {__index = function(_, k)
 		local v = groupSettings[groupId][k]
 		if v ~= nil then
@@ -241,7 +241,7 @@ local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
 		end
 		return groupSettings['base'][k]
 	end})
-	
+
 	t[groupId] = sets
 	return sets
 end})
@@ -260,7 +260,7 @@ function OmniCC:AddGroup(groupId)
 		local db = self:GetDB()
 		table.insert(db.groups, {id = groupId, rules = {}, enabled = true})
 		db.groupSettings[groupId] = {}
-				
+
 		return true
 	end
 end
@@ -270,8 +270,8 @@ function OmniCC:RemoveGroup(groupId)
 	if index then
 		local db = self:GetDB()
 		table.remove(db.groups, index)
-		db.groupSettings[groupId] = nil	
-			
+		db.groupSettings[groupId] = nil
+
 		return true
 	end
 end

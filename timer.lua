@@ -37,15 +37,14 @@ local timers = {}
 
 --[[ Constructorish ]]--
 
-local updater_UpdateText = function(self) self:GetParent():Update() end
+local updater_UpdateText = function(self) self:GetParent():UpdateText() end
 
 function Timer:New(cooldown)
 	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer:Hide()
 	timer.cooldown = cooldown
-	
+
 	local sets = timer:GetSettings()
 
-	--current theory: if I use toplevel, then people get FPS issues
 	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
@@ -56,7 +55,7 @@ function Timer:New(cooldown)
 	local updater = timer:CreateAnimationGroup()
 	updater:SetLooping('NONE')
 	updater:SetScript('OnFinished', updater_UpdateText)
-	
+
 	local a = updater:CreateAnimation('Animation'); a:SetOrder(1)
 	timer.updater = updater
 
@@ -84,10 +83,9 @@ function Timer:Start(start, duration)
 	self.enabled = true
 	self.visible = true
 	self.textStyle = nil
---	self.nextUpdate = 0
 
 	self:UpdateShown()
-	self:Update()
+	self:UpdateText()
 	return self
 end
 
@@ -98,7 +96,7 @@ function Timer:Stop()
 	self.enabled = nil
 	self.visible = nil
 	self.textStyle = nil
---	self.nextUpdate = nil
+	self.updater:Stop()
 
 	self:Hide()
 	return self
@@ -108,12 +106,10 @@ end
 --hide if it gets too tiny
 function Timer:Size(width, height)
 	self:SetSize(width, height)
-
-	local sizeRatio = round(self:GetWidth()) / ICON_SIZE 
-	self.sizeRatio =  round(width) / ICON_SIZE  
+	self.abRatio = round(width) / ICON_SIZE
 
 	if self:IsVisible() then
-		self:Update()
+		self:UpdateText(true)
 	end
 
 	return self
@@ -127,12 +123,32 @@ function Timer:ScheduleUpdate(nextUpdate)
 	self.updater:Play()
 end
 
-function Timer:Update()
+function Timer:UpdateText(forceStyleUpdate)
 	--if there's time left on the clock, then update the timer text
 	--otherwise stop the timer
 	local remain = self.duration - (GetTime() - self.start)
 	if remain > 0 then
-		self:UpdateText(remain)
+		local overallScale = self.abRatio * self:GetScale() --used to determine text visibility
+
+		--hide text if it's too small to display
+		--check again in one second
+		if overallScale < self:GetSettings().minSize then
+			self.text:Hide()
+			self:ScheduleUpdate(1)
+		else
+			--update text style based on time remaining
+			local textStyle = self:GetPeriodStyle(remain)
+			if (textStyle ~= self.textStyle) or forceStyleUpdate then
+				self.textStyle = textStyle
+				self:UpdateTextStyle()
+			end
+
+			--update font text
+			self.text:SetFormattedText(self:GetTimeText(remain))
+			self.text:Show()
+
+			self:ScheduleUpdate(self:GetNextUpdate(remain))
+		end
 	else
 		--if the timer was long enough to, and text is still visible
 		--then trigger a finish effect
@@ -144,12 +160,14 @@ function Timer:Update()
 	return self
 end
 
---set font to the given settings
-function Timer:UpdateFont()
+function Timer:UpdateTextStyle()
 	local sets = self:GetSettings()
 	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
+	local style = sets.styles[self.textStyle]
 	if sets.scaleText then
-		size = size * (self:GetWidth() / ICON_SIZE)
+		size = size * style.scale * (self.abRatio or 1)
+	else
+		size = size * style.scale
 	end
 
 	--fallback to the standard font if the font we tried to set happens to be invalid
@@ -159,65 +177,18 @@ function Timer:UpdateFont()
 			self.text:SetFont(STANDARD_TEXT_FONT, size, outline)
 		end
 	end
+	self.text:SetTextColor(style.r, style.g, style.b, style.a)
 
-	self.fontSize = size
-	self:UpdateShown()
-
-	return self
-end
-
-function Timer:UpdateText(remain)
-	--calculate timer scale values
-	local overallScale = sizeRatio * self:GetScale() --used to determine text visibility
-
-	--hide text if it's too small to display
-	--check again in one second
-	if overallScale < self:GetSettings().minScale then
-		self.text:Hide()
-		self:ScheduleUpdate(1)
-	else
-		--update font text
-		local timeFormat, timeText, nextUpdate = self:GetTimeText(remain)
-		self.text:SetFormattedText(timeFormat, timeText)
-		self.text:Show()
-		
-		self:UpdateTextStyle(remain)
-
-		--update text scale/color info if the time period has changed
-		--of we're forcing an update (used for config live updates)
-		local textStyle = self:GetPeriodStyle(remain)
-		if (textStyle ~= self.textStyle) or forceStyleUpdate then
-			self.textStyle = textStyle
-			self:UpdateTextStyle()
-		end
-
-		self:ScheduleUpdate(nextUpdate)
-	end
-	return self
-end
-
-function Timer:UpdateTextStyle()
-	local sets = self:GetSettings()
-	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
-
-	local sets = self:GetSettings().styles[self.textStyle]
-	local font, size, outline = self.text:GetFont()
-	local r, g, b, a, s = sets.r, sets.g, sets.b, sets.a, sets.scale
-
-	self.text:SetFont(font, size * s, outline)
-	self.text:SetTextColor(r, g, b, a)
-	self:SetScale(s)
-	
 	return self
 end
 
 function Timer:UpdateTextPosition()
 	local sets = self:GetSettings()
-	
+
 	local text = self.text
 	text:ClearAllPoints()
 	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
-	
+
 	return self
 end
 
@@ -251,43 +222,70 @@ function Timer:GetPeriodStyle(s)
 	end
 end
 
---returns both what text to display, and how long until the next update
-function Timer:GetTimeText(s)
+--return the time until the next text update
+function Timer:GetNextUpdate(remain)
 	--show tenths of seconds below tenths threshold
 	local sets = self:GetSettings()
 	local tenths = sets.tenthsDuration
-	if s < tenths then
-		return format('%.1f', s), (s*10 - floor(s*10)) / 10
-	--format text as seconds when at 90 seconds or below
-	elseif s < MINUTEISH then
-		local seconds = round(s)
-		
-		--prevent 0 seconds from displaying
+
+	if remain < tenths then
+		return (remain*10 - floor(remain*10)) / 10
+	elseif remain < MINUTEISH then
+		local seconds = round(remain)
+
+		--we're at the point where we're displaying 0 seconds, no more updates necessary
 		if seconds == 0 then
-			return '', s
+			return seconds
 		end
+
 		--update more frequently when near the tenths threshold
-		if s < (tenths + 0.5) then
-			return seconds, (s*10 - floor(s*10)) / 10
+		if remain < (tenths + 0.5) then
+			return (remain*10 - floor(remain*10)) / 10
 		end
-		
-		return seconds, s - (seconds - 0.51)
+
+		return remain - (seconds - 0.51)
+	elseif remain < sets.mmSSDuration then
+		return remain - floor(remain)
+	elseif remain < HOURISH then
+		local minutes = round(remain/MINUTE)
+		if minutes > 1 then
+			return remain - (minutes*MINUTE - HALFMINUTEISH)
+		end
+		return remain - MINUTEISH
+	elseif remain < DAYISH then
+		local hours = round(remain/HOUR)
+		if hours > 1 then
+			return remain - (hours*HOUR - HALFHOURISH)
+		end
+		return remain - HOURISH
+	end
+end
+
+--returns a format string, as well as any args for text to display
+function Timer:GetTimeText(remain)
+	local sets = self:GetSettings()
+
+	--show tenths of seconds below tenths threshold
+	if remain < sets.tenthsDuration then
+		return '%.1f', remain
+	--format text as seconds when at 90 seconds or below
+	elseif remain < MINUTEISH then
+		--prevent 0 seconds from displaying
+		local seconds = round(remain)
+		return (seconds == 0 and '') or seconds
 	--format text as MM:SS when below the MM:SS threshold
-	elseif s < sets.mmSSDuration then
-		local seconds = round(s)
-		return format('%d:%02d', seconds/MINUTE, seconds%MINUTE), s - floor(s)
+	elseif remain < sets.mmSSDuration then
+		local seconds = round(remain)
+		return '%d:%02d', seconds/MINUTE, seconds%MINUTE
 	--format text as minutes when below an hour
-	elseif s < HOURISH then
-		local minutes = round(s/MINUTE)
-		return minutes .. 'm', minutes > 1 and (s - (minutes*MINUTE - HALFMINUTEISH)) or (s - MINUTEISH)
+	elseif remain < HOURISH then
+		return '%dm', round(remain/MINUTE)
 	--format text as hours when below a day
-	elseif s < DAYISH then
-		local hours = round(s/HOUR)
-		return hours .. 'h', hours > 1 and (s - (hours*HOUR - HALFHOURISH)) or (s - HOURISH)
+	elseif remain < DAYISH then
+		return '%dh', round(remain/HOUR)
 	--format text as days
 	else
-		local days = round(s/DAY)
-		return days .. 'd', days > 1 and (s - (days*DAY - HALFDAYISH)) or (s - DAYISH)
+		return '%dd', round(remain/DAY)
 	end
 end
 
@@ -298,15 +296,10 @@ function Timer:ShouldShow()
 	if not (self.enabled and self.visible) then
 		return false
 	end
-	
-	local sets = self:GetSettings()
-	
-	if (not self.enabled) or self.cooldown.noCooldownCount then
-		return false
-	end
 
-	--the timer should have text that's large enough to display
-	if self.fontSize < sets.minFontSize then
+	local sets = self:GetSettings()
+
+	if (not self.enabled) or self.cooldown.noCooldownCount then
 		return false
 	end
 
