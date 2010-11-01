@@ -375,17 +375,17 @@ do
 				PanelTemplates_DisableTab(self, tab:GetID())
 			end
 		else
-			--force the current panel to refresh
-			local panel = optionsPanel_GetCurrentPanel(self)
-			if panel.UpdateValues then
-				panel:UpdateValues()
-			end
-
 			--enable the rules tab
 			local tab = optionsPanel_GetTabById(self, 'rules')
 			if tab then
 				PanelTemplates_EnableTab(self, tab:GetID())
 			end
+		end
+		
+		--force the current panel to refresh
+		local panel = optionsPanel_GetCurrentPanel(self)
+		if panel.UpdateValues then
+			panel:UpdateValues()
 		end
 	end
 
