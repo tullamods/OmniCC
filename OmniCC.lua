@@ -11,10 +11,10 @@ local CONFIG_NAME = 'OmniCC4Config'
 	Local Functions
 --]]---------------------------------------------------------------------------
 
-local function removeDefaults(tbl, defaults)
+local function removeTable(tbl, defaults)
 	for k, v in pairs(defaults) do
 		if type(tbl[k]) == 'table' and type(v) == 'table' then
-			removeDefaults(tbl[k], v)
+			removeTable(tbl[k], v)
 			if next(tbl[k]) == nil then
 				tbl[k] = nil
 			end
@@ -25,10 +25,10 @@ local function removeDefaults(tbl, defaults)
 	return tbl
 end
 
-local function copyDefaults(tbl, defaults)
+local function copyTable(tbl, defaults)
 	for k, v in pairs(defaults) do
 		if type(v) == 'table' then
-			tbl[k] = copyDefaults(tbl[k] or {}, v)
+			tbl[k] = copyTable(tbl[k] or {}, v)
 		elseif tbl[k] == nil then
 			tbl[k] = v
 		end
@@ -94,22 +94,29 @@ function OmniCC:InitDB()
 		db = self:CreateNewDB()
 		_G[CONFIG_NAME] = db
 	end
-	copyDefaults(db.groupSettings.base, self:GetBaseDefaults())
+
+	--copy defaults
+	for groupId, styleInfo in pairs(db.groupSettings) do
+		if groupId == 'base' then
+			copyTable(styleInfo, self:GetBaseDefaults())
+		else
+			copyTable(styleInfo, db.groupSettings['base'])
+		end
+	end
 
 	self.db = db
 	return db
 end
 
 function OmniCC:RemoveDefaults(db)
-	if db then
-		--remove base style defaults from other Settings
-		local baseStyle = db.groupSettings['base']
-		for groupId, styleInfo in pairs(db.groupSettings) do
-			if groupId ~= 'base' then
-				removeDefaults(styleInfo, baseStyle)
-			end
+	if not db then return end
+
+	for groupId, styleInfo in pairs(db.groupSettings) do
+		if groupId ~= 'base' then
+			removeTable(styleInfo, db.groupSettings['base'])
 		end
 	end
+	removeTable(db.groupSettings['base'], self:GetBaseDefaults())
 end
 
 function OmniCC:CreateNewDB()
@@ -204,7 +211,7 @@ end
 	Group Mapping
 --]]---------------------------------------------------------------------------
 
-local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
+local function cooldown_GetGroupId(cooldown)
 	local name = cooldown:GetName()
 	if name then
 		local groups = OmniCC:GetDB().groups
@@ -213,16 +220,38 @@ local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
 			if group.enabled then
 				for _, pattern in pairs(group.rules) do
 					if name:match(pattern) then
-						t[cooldown] = group.id
 						return group.id
 					end
 				end
 			end
 		end
 	end
-	t[cooldown] = 'base'
 	return 'base'
+end
+
+local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
+	local groupId = cooldown_GetGroupId(cooldown)
+	t[cooldown] = groupId
+	return groupId
 end})
+
+function OmniCC:RecalculateCachedGroups()
+	print('recalc groups')
+	for cooldown, groupId in ipairs(cdToGroupCache) do
+		local newGroupId = cooldown_GetGroupId(cooldown)
+		print('recalc', cooldown:GetParent():GetName(), groupId, newGroupId)
+		if groupId ~= newGroupId then
+			cdToGroupCache[cooldown] = newGroupId
+			print('set', cooldown:GetParent():GetName(), newGroupId)
+
+			--settings group changed, update timer
+			local timer = self.Timer:Get(cooldown)
+			if timer and timer:IsVisible() then
+				timer:UpdateText(true)
+			end
+		end
+	end
+end
 
 --maps the given cooldown to a groupId
 function OmniCC:CDToGroup(cooldown)
@@ -231,23 +260,24 @@ end
 
 --retrieves settings for the given groupId
 --if a setting cannot be found in the group, then retrieves the setting from the base group
-local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
-	local groupSettings = OmniCC:GetDB().groupSettings
+-- local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
+	-- local groupSettings = OmniCC:GetDB().groupSettings
 
-	local sets = setmetatable({}, {__index = function(_, k)
-		local v = groupSettings[groupId][k]
-		if v ~= nil then
-			return v
-		end
-		return groupSettings['base'][k]
-	end})
+	-- local sets = setmetatable({}, {__index = function(_, k)
+		-- local v = groupSettings[groupId][k]
+		-- if v ~= nil then
+			-- return v
+		-- end
+		-- return groupSettings['base'][k]
+	-- end})
 
-	t[groupId] = sets
-	return sets
-end})
+	-- t[groupId] = sets
+	-- return sets
+-- end})
 
 function OmniCC:GetGroupSettings(groupId)
-	return groupSettingsCache[groupId]
+--	return groupSettingsCache[groupId]
+	return self:GetDB().groupSettings[groupId]
 end
 
 
@@ -258,9 +288,10 @@ end
 function OmniCC:AddGroup(groupId)
 	if not self:GetGroupIndex(groupId) then
 		local db = self:GetDB()
+		db.groupSettings[groupId] = copyTable({}, db.groupSettings['base'])
 		table.insert(db.groups, {id = groupId, rules = {}, enabled = true})
-		db.groupSettings[groupId] = {}
 
+		self:RecalculateCachedGroups()
 		return true
 	end
 end
@@ -269,9 +300,10 @@ function OmniCC:RemoveGroup(groupId)
 	local index = self:GetGroupIndex(groupId)
 	if index then
 		local db = self:GetDB()
-		table.remove(db.groups, index)
 		db.groupSettings[groupId] = nil
+		table.remove(db.groups, index)
 
+		self:RecalculateCachedGroups()
 		return true
 	end
 end
