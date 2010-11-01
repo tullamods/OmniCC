@@ -69,7 +69,7 @@ end
 function OmniCC:PLAYER_LOGOUT()
 	self:RemoveDefaults(self.db)
 	--done so that I can call remove defaults from Config without blowing up the base defaults
-	removeDefaults(db.groupSettings.base, self:GetBaseDefaults())
+	removeTable(db.groupSettings.base, self:GetBaseDefaults())
 end
 
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
@@ -96,12 +96,9 @@ function OmniCC:InitDB()
 	end
 
 	--copy defaults
+	local defaults = self:GetBaseDefaults()
 	for groupId, styleInfo in pairs(db.groupSettings) do
-		if groupId == 'base' then
-			copyTable(styleInfo, self:GetBaseDefaults())
-		else
-			copyTable(styleInfo, db.groupSettings['base'])
-		end
+		copyTable(styleInfo, defaults)
 	end
 
 	self.db = db
@@ -111,12 +108,11 @@ end
 function OmniCC:RemoveDefaults(db)
 	if not db then return end
 
+	--remove base from any custom groups
+	local defaults = self:GetBaseDefaults()
 	for groupId, styleInfo in pairs(db.groupSettings) do
-		if groupId ~= 'base' then
-			removeTable(styleInfo, db.groupSettings['base'])
-		end
+		removeTable(styleInfo, defaults)
 	end
-	removeTable(db.groupSettings['base'], self:GetBaseDefaults())
 end
 
 function OmniCC:CreateNewDB()
@@ -211,6 +207,8 @@ end
 	Group Mapping
 --]]---------------------------------------------------------------------------
 
+local cdToGroupCache = {}
+
 local function cooldown_GetGroupId(cooldown)
 	local name = cooldown:GetName()
 	if name then
@@ -229,20 +227,14 @@ local function cooldown_GetGroupId(cooldown)
 	return 'base'
 end
 
-local cdToGroupCache = setmetatable({}, {__index = function(t, cooldown)
-	local groupId = cooldown_GetGroupId(cooldown)
-	t[cooldown] = groupId
-	return groupId
-end})
-
 function OmniCC:RecalculateCachedGroups()
-	print('recalc groups')
-	for cooldown, groupId in ipairs(cdToGroupCache) do
+	--print('recalc groups')
+	for cooldown, groupId in pairs(cdToGroupCache) do
 		local newGroupId = cooldown_GetGroupId(cooldown)
-		print('recalc', cooldown:GetParent():GetName(), groupId, newGroupId)
+		--print('recalc', cooldown:GetParent():GetName(), groupId, newGroupId)
 		if groupId ~= newGroupId then
 			cdToGroupCache[cooldown] = newGroupId
-			print('set', cooldown:GetParent():GetName(), newGroupId)
+			--print('set', cooldown:GetParent():GetName(), newGroupId)
 
 			--settings group changed, update timer
 			local timer = self.Timer:Get(cooldown)
@@ -255,7 +247,12 @@ end
 
 --maps the given cooldown to a groupId
 function OmniCC:CDToGroup(cooldown)
-	return cdToGroupCache[cooldown]
+	local groupId = cdToGroupCache[cooldown]
+	if not groupId then
+		groupId = cooldown_GetGroupId(cooldown)
+		cdToGroupCache[cooldown] = groupId
+	end
+	return groupId
 end
 
 --retrieves settings for the given groupId
