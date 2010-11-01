@@ -152,7 +152,7 @@ function Timer:UpdateText(forceStyleUpdate)
 	else
 		--if the timer was long enough to, and text is still visible
 		--then trigger a finish effect
-		if self.duration >= self:GetSettings().minEffectDuration and self.text:IsShown() then
+		if self.duration >= self:GetSettings().minEffectDuration and self.visible then
 			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown, self.duration)
 		end
 		self:Stop()
@@ -194,7 +194,14 @@ end
 
 function Timer:UpdateShown()
 	if self:ShouldShow() then
-		self:Show()
+		if self.enabled then
+			if self:GetRemain() > 0 then
+				self:Show()
+				self:UpdateText()
+			else
+				self:Stop()
+			end
+		end
 	else
 		self:Hide()
 	end
@@ -207,6 +214,10 @@ function Timer:UpdateCooldownShown()
 end
 
 --[[ Accessors ]]--
+
+function Timer:GetRemain()
+	return self.duration - (GetTime() - self.start)
+end
 
 --retrieves the period style id associated with the given time frame
 --necessary to retrieve text coloring information from omnicc
@@ -231,19 +242,11 @@ function Timer:GetNextUpdate(remain)
 	if remain < tenths then
 		return (remain*10 - floor(remain*10)) / 10
 	elseif remain < MINUTEISH then
-		local seconds = round(remain)
-
-		--we're at the point where we're displaying 0 seconds, no more updates necessary
-		if seconds == 0 then
-			return seconds
-		end
-
 		--update more frequently when near the tenths threshold
 		if remain < (tenths + 0.5) then
 			return (remain*10 - floor(remain*10)) / 10
 		end
-
-		return remain - (seconds - 0.51)
+		return remain - (round(remain) - 0.51)
 	elseif remain < sets.mmSSDuration then
 		return remain - floor(remain)
 	elseif remain < HOURISH then
