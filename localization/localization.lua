@@ -18,7 +18,7 @@ L.Outline_OUTLINE = "Thin"
 L.Outline_THICKOUTLINE = "Thick"
 
 L.MinDuration = "Minimum duration to display text"
-L.MinFontSize = "Minimum font size to display text"
+L.MinSize = "Minimum size to display text"
 L.ScaleText = "Automatically scale text to fit within frames"
 L.EnableText = "Enable cooldown text"
 
@@ -82,16 +82,15 @@ must be in order to show text.
 This setting is mainly used to
 filter out the GCD]]
 
-L.MinFontSizeTip =
-[[Determines how big the overall
-font size of a cooldown text object
-must be in order to display text.
-The larger the value, the larger a
-button must be.
+L.MinSizeTip =
+[[Determines how big a frame must be to display text.
+The smaller the value, smaller things can be to show text.
+The larger the value, the bigger things must be.
 
-This setting is mainly used to filter
-out unreadable text, as well as filter
-out text from displaying on buffs]]
+Some benchmarks:
+100 - The size of an action button
+80  - The size of a class or pet action button
+55  - The size of a Blizzard target frame buff]]
 
 L.MinEffectDurationTip =
 [[Determines how long a

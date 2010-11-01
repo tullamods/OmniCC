@@ -57,9 +57,9 @@ function GeneralOptions:AddWidgets()
 	minDuration:SetPoint('BOTTOMLEFT', tenthsDuration, 'TOPLEFT', 0, SLIDER_SPACING)
 	minDuration:SetPoint('BOTTOMRIGHT', tenthsDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
 
-	local minFontSize = self:CreateMinFontSizeSlider()
-	minFontSize:SetPoint('BOTTOMLEFT', minDuration, 'TOPLEFT', 0, SLIDER_SPACING)
-	minFontSize:SetPoint('BOTTOMRIGHT', minDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
+	local minSize = self:CreateMinSizeSlider()
+	minSize:SetPoint('BOTTOMLEFT', minDuration, 'TOPLEFT', 0, SLIDER_SPACING)
+	minSize:SetPoint('BOTTOMRIGHT', minDuration, 'TOPRIGHT', 0, SLIDER_SPACING)
 end
 
 function GeneralOptions:UpdateValues()
@@ -119,7 +119,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().scaleText = enable
-		Timer:ForAllShown('UpdateFont')
+		Timer:ForAllShown('UpdateText', true)
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -185,20 +185,20 @@ do
 	end
 end
 
-function GeneralOptions:CreateMinFontSizeSlider()
+function GeneralOptions:CreateMinSizeSlider()
 	local parent = self
-	local s = self:NewSlider(L.MinFontSize, 2, 64, 1)
+	local s = self:NewSlider(L.MinSize, 0, 200, 1)
 
 	s.SetSavedValue = function(self, value)
-		parent:GetGroupSets().minFontSize = value
+		parent:GetGroupSets().minSize = value/100
 		Timer:ForAllShown('UpdateShown')
 	end
 
 	s.GetSavedValue = function(self)
-		return parent:GetGroupSets().minFontSize
+		return floor(parent:GetGroupSets().minSize * 100)
 	end
 
-	s.tooltip = L.MinFontSizeTip
+	s.tooltip = L.MinSizeTip
 
 	return s
 end
@@ -299,7 +299,7 @@ function GeneralOptions:CreateFinishEffectPicker()
 	dd.GetSavedValue = function(self)
 		return parent:GetGroupSets().effect
 	end
-	
+
 	UIDropDownMenu_Initialize(dd, function(self)
 		self:AddItem(NONE, 'none')
 

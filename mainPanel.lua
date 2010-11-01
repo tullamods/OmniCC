@@ -148,7 +148,7 @@ local function groupSelector_Create(parent, size, setGroup)
 	end
 	
 	local function init_levelOne(self, level)
-		local groups = map(OmniCC.db.groups, function(g) return g.id end)
+		local groups = map(OmniCC:GetDB().groups, function(g) return g.id end)
 		table.sort(groups)
 
 		--base group

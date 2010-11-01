@@ -102,7 +102,7 @@ function FontOptions:CreateFontSizeSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontSize = value
-		Timer:ForAllShown('UpdateFont')
+		Timer:ForAllShown('UpdateText', true)
 	end
 
 	s.GetSavedValue = function(self)
@@ -134,7 +134,7 @@ do
 
 		s.SetSavedValue = function(self, value)
 			parent:GetGroupSets().fontOutline = toOutline(value)
-			Timer:ForAllShown('UpdateFont')
+			Timer:ForAllShown('UpdateText', true)
 		end
 
 		s.GetSavedValue = function(self)
