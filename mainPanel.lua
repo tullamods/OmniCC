@@ -50,16 +50,16 @@ local function map(t, f)
 	return newtbl
 end
 
-local function copyDefaults(tbl, defaults)
-	for k, v in pairs(defaults) do
-		if type(v) == 'table' then
-			tbl[k] = copyDefaults(tbl[k] or {}, v)
-		elseif tbl[k] == nil then
-			tbl[k] = v
-		end
-	end
-	return tbl
-end
+-- local function copyTable(tbl, defaults)
+	-- for k, v in pairs(defaults) do
+		-- if type(v) == 'table' then
+			-- tbl[k] = copyTable(tbl[k] or {}, v)
+		-- elseif tbl[k] == nil then
+			-- tbl[k] = v
+		-- end
+	-- end
+	-- return tbl
+-- end
 
 
 --[[
@@ -68,36 +68,37 @@ end
 
 local groupSets_Get, groupSets_ClearCache, groupSets_Cleanup
 do
-	local groupSets = {}
+	--local groupSets = {}
 
 	--this code is a bit wacky, because I want to retrieve settings + defaults
 	--so that its easier to work with
 	groupSets_Get = function(groupId)
-		local sets = groupSets[groupId]
-		if not sets then
-			local db = OmniCC:GetDB()
-			if groupId == 'base' then
-				sets = db.groupSettings['base']
-			else
-				sets = copyDefaults(db.groupSettings[groupId], db.groupSettings['base'])
-			end
-			groupSets[groupId] = sets
-		end
-		return sets
+		return OmniCC:GetDB().groupSettings[groupId]
+		-- local sets = groupSets[groupId]
+		-- if not sets then
+			-- local db = OmniCC:GetDB()
+			-- if groupId == 'base' then
+				-- sets = db.groupSettings['base']
+			-- else
+				-- sets = copyTable(db.groupSettings[groupId], db.groupSettings['base'])
+			-- end
+			-- groupSets[groupId] = sets
+		-- end
+		-- return sets
 	end
 
 	--reset our settings cache
 	--cleared when we switch panels
 	--so that we can account for things like adjustments to base settings
 	groupSets_ClearCache = function()
-		groupSets = {}
+		-- groupSets = {}
 	end
 
 	--reset the cache, and cleanup omnicc's defaults
 	--a step to remove any defaults we injected into the saved settings to preserve memory a bit
 	groupSets_Cleanup = function()
-		groupSets_ClearCache()
-		OmniCC:RemoveDefaults()
+		-- groupSets_ClearCache()
+		-- OmniCC:RemoveDefaults()
 	end
 end
 
@@ -114,7 +115,7 @@ local function deleteGroup(self, groupId)
 	self.owner:SetSavedValue('base')
 
 	OmniCC:RemoveGroup(groupId)
-	
+
 	--hide the previous dropdown menus (hack)
 	for i = 1, UIDROPDOWNMENU_MENU_LEVEL-1 do
 		_G["DropDownList"..i]:Hide()
@@ -127,7 +128,7 @@ end
 
 local function groupSelector_Create(parent, size, setGroup)
 	local dd =  CreateFrame('Frame', parent:GetName() .. 'GroupSelector', parent, 'UIDropDownMenuTemplate')
-	
+
 	dd.SetSavedValue = function(self, value)
 		setGroup(parent, value)
 	end
@@ -135,7 +136,7 @@ local function groupSelector_Create(parent, size, setGroup)
 	dd.GetSavedValue = function(self)
 		return parent.selectedGroup or 'base'
 	end
-	
+
 	--delete button for custom groups
 	local function init_levelTwo(self, level)
 		local info = UIDropDownMenu_CreateInfo()
@@ -146,7 +147,7 @@ local function groupSelector_Create(parent, size, setGroup)
 		info.notCheckable = true
 		UIDropDownMenu_AddButton(info, level)
 	end
-	
+
 	local function init_levelOne(self, level)
 		local groups = map(OmniCC:GetDB().groups, function(g) return g.id end)
 		table.sort(groups)
@@ -159,7 +160,7 @@ local function groupSelector_Create(parent, size, setGroup)
 		info.owner = self
 		info.hasArrow = false
 		UIDropDownMenu_AddButton(info, level)
-	
+
 		--custom groups (add delete button)
 		for i, g in ipairs(groups) do
 			local info = UIDropDownMenu_CreateInfo()
@@ -170,7 +171,7 @@ local function groupSelector_Create(parent, size, setGroup)
 			info.hasArrow = true
 			UIDropDownMenu_AddButton(info, level)
 		end
-	
+
 		--new group button
 		local info = UIDropDownMenu_CreateInfo()
 		info.text = L.AddGroup
@@ -188,7 +189,7 @@ local function groupSelector_Create(parent, size, setGroup)
 			init_levelTwo(self, level)
 		end
 	end)
-	
+
 	UIDropDownMenu_SetWidth(dd, 120)
 	UIDropDownMenu_SetSelectedValue(dd, dd:GetSavedValue())
 
@@ -355,7 +356,7 @@ do
 
 	optionsPanel_SetGroup = function(self, groupId)
 		self.selectedGroup = groupId or 'base'
-		
+
 		groupSets_Cleanup()
 		UIDropDownMenu_SetSelectedValue(self.dropdown, groupId)
 		UIDropDownMenu_SetText(self.dropdown, L['Group_' .. groupId] or groupId)
@@ -422,7 +423,7 @@ do
 	OmniCCOptions.GetGroupId = function(self)
 		return f.selectedGroup or 'base'
 	end
-	
+
 	OmniCCOptions.SetGroupId = function(self, groupId)
 		optionsPanel_SetGroup(f, groupId)
 	end

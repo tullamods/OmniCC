@@ -47,8 +47,8 @@ function RuleOptions:AddRulesEditor()
 	local editor = OmniCCOptions.ListEditor:New('Adjust Group Rules', parent)
 
 	editor.OnAddItem = function(self, ruleToAdd)
-		local rules = parent:GetGroupRules()
-		table.insert(rules, ruleToAdd)
+		table.insert(parent:GetGroupRules(), ruleToAdd)
+		OmniCC:RecalculateCachedGroups()
 		return true
 	end
 
@@ -57,6 +57,7 @@ function RuleOptions:AddRulesEditor()
 		for i, rule in pairs(rules) do
 			if rule == ruleToRemove then
 				table.remove(rules, i)
+				OmniCC:RecalculateCachedGroups()
 				return true
 			end
 		end
