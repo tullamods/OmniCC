@@ -68,8 +68,6 @@ end
 
 function OmniCC:PLAYER_LOGOUT()
 	self:RemoveDefaults(self.db)
-	--done so that I can call remove defaults from Config without blowing up the base defaults
-	removeTable(db.groupSettings.base, self:GetBaseDefaults())
 end
 
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
