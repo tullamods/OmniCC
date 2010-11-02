@@ -118,28 +118,9 @@ end
 function OmniCC:CreateNewDB()
 	return {
 		version = self:GetAddOnVersion(),
-		groups = {
-			{
-				id = 'action',
-				rules = {'Action'},
-				enabled = true,
-			},
-			{
-				id = 'aura',
-				rules = {'Aura', 'Buff', 'Debuff', 'PitBull'},
-				enabled = true,
-			},
-			{
-				id = 'pet',
-				rules = {'PetActionButton'},
-				enabled = true,
-			}
-		},
+		groups = {},
 		groupSettings = {
 			base = {},
-			action = {},
-			pet = {},
-			aura = {},
 		}
 	}
 end
@@ -227,24 +208,6 @@ local function cooldown_GetGroupId(cooldown)
 	return 'base'
 end
 
-function OmniCC:RecalculateCachedGroups()
-	--print('recalc groups')
-	for cooldown, groupId in pairs(cdToGroupCache) do
-		local newGroupId = cooldown_GetGroupId(cooldown)
-		--print('recalc', cooldown:GetParent():GetName(), groupId, newGroupId)
-		if groupId ~= newGroupId then
-			cdToGroupCache[cooldown] = newGroupId
-			--print('set', cooldown:GetParent():GetName(), newGroupId)
-
-			--settings group changed, update timer
-			local timer = self.Timer:Get(cooldown)
-			if timer and timer:IsVisible() then
-				timer:UpdateText(true)
-			end
-		end
-	end
-end
-
 --maps the given cooldown to a groupId
 function OmniCC:CDToGroup(cooldown)
 	local groupId = cdToGroupCache[cooldown]
@@ -255,25 +218,23 @@ function OmniCC:CDToGroup(cooldown)
 	return groupId
 end
 
---retrieves settings for the given groupId
---if a setting cannot be found in the group, then retrieves the setting from the base group
--- local groupSettingsCache = setmetatable({}, {__index = function(t, groupId)
-	-- local groupSettings = OmniCC:GetDB().groupSettings
+function OmniCC:RecalculateCachedGroups()
+	for cooldown, groupId in pairs(cdToGroupCache) do
+		local newGroupId = cooldown_GetGroupId(cooldown)
+		if groupId ~= newGroupId then
+			cdToGroupCache[cooldown] = newGroupId
+			
+			--settings group changed, update timer
+			local timer = self.Timer:Get(cooldown)
+			if timer and timer.visible then
+				timer:UpdateText(true)
+			end
+		end
+	end
+end
 
-	-- local sets = setmetatable({}, {__index = function(_, k)
-		-- local v = groupSettings[groupId][k]
-		-- if v ~= nil then
-			-- return v
-		-- end
-		-- return groupSettings['base'][k]
-	-- end})
-
-	-- t[groupId] = sets
-	-- return sets
--- end})
 
 function OmniCC:GetGroupSettings(groupId)
---	return groupSettingsCache[groupId]
 	return self:GetDB().groupSettings[groupId]
 end
 
