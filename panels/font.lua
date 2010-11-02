@@ -51,6 +51,7 @@ function FontOptions:CreateFontSelector(name)
 
 	f.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontFace = value
+		Timer:ForAllShown('UpdateText', true)
 	end
 
 	f.GetSavedValue = function(self)
