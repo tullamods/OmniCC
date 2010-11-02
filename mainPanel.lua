@@ -50,58 +50,15 @@ local function map(t, f)
 	return newtbl
 end
 
--- local function copyTable(tbl, defaults)
-	-- for k, v in pairs(defaults) do
-		-- if type(v) == 'table' then
-			-- tbl[k] = copyTable(tbl[k] or {}, v)
-		-- elseif tbl[k] == nil then
-			-- tbl[k] = v
-		-- end
-	-- end
-	-- return tbl
--- end
-
+local function sort(tbl, ...) table.sort(tbl, ...) return tbl end
 
 --[[
 	OmniCC settings retrieval
 --]]
 
-local groupSets_Get, groupSets_ClearCache, groupSets_Cleanup
-do
-	--local groupSets = {}
-
-	--this code is a bit wacky, because I want to retrieve settings + defaults
-	--so that its easier to work with
-	groupSets_Get = function(groupId)
-		return OmniCC:GetDB().groupSettings[groupId]
-		-- local sets = groupSets[groupId]
-		-- if not sets then
-			-- local db = OmniCC:GetDB()
-			-- if groupId == 'base' then
-				-- sets = db.groupSettings['base']
-			-- else
-				-- sets = copyTable(db.groupSettings[groupId], db.groupSettings['base'])
-			-- end
-			-- groupSets[groupId] = sets
-		-- end
-		-- return sets
-	end
-
-	--reset our settings cache
-	--cleared when we switch panels
-	--so that we can account for things like adjustments to base settings
-	groupSets_ClearCache = function()
-		-- groupSets = {}
-	end
-
-	--reset the cache, and cleanup omnicc's defaults
-	--a step to remove any defaults we injected into the saved settings to preserve memory a bit
-	groupSets_Cleanup = function()
-		-- groupSets_ClearCache()
-		-- OmniCC:RemoveDefaults()
-	end
+local groupSets_Get = function(groupId)
+	return OmniCC:GetDB().groupSettings[groupId]
 end
-
 
 --[[
 	group settings selector
@@ -126,11 +83,11 @@ local function addGroup(self)
 	StaticPopup_Show('OmniCC_CONFIG_CREATE_GROUP')
 end
 
-local function groupSelector_Create(parent, size, setGroup)
+local function groupSelector_Create(parent, size, onSetGroup)
 	local dd =  CreateFrame('Frame', parent:GetName() .. 'GroupSelector', parent, 'UIDropDownMenuTemplate')
 
 	dd.SetSavedValue = function(self, value)
-		setGroup(parent, value)
+		onSetGroup(parent, value)
 	end
 
 	dd.GetSavedValue = function(self)
@@ -149,9 +106,8 @@ local function groupSelector_Create(parent, size, setGroup)
 	end
 
 	local function init_levelOne(self, level)
-		local groups = map(OmniCC:GetDB().groups, function(g) return g.id end)
-		table.sort(groups)
-
+		local groups = sort(map(OmniCC:GetDB().groups, function(g) return g.id end))
+		
 		--base group
 		local info = UIDropDownMenu_CreateInfo()
 		info.text = L['Group_base']
@@ -333,13 +289,11 @@ end
 	the main frame
 --]]
 
-local optionsPanel_Create, optionsPanel_OnShow, optionsPanel_OnHide, optionsPanel_GetCurrentPanel, optionsPanel_SetGroup
+local optionsPanel_Create, optionsPanel_SetGroup, optionsPanel_GetCurrentTab, optionsPanel_GetTabById, optionsPanel_GetCurrentPanel
 do
 	optionsPanel_Create = function(title, subtitle)
 		local f = CreateFrame('Frame', 'OmniCCOptionsPanel')
 		f.name = title
-		f:SetScript('OnShow', optionsPanel_OnShow)
-		f:SetScript('OnHide', optionsPanel_OnHide)
 		f.GetCurrentPanel = optionsPanel_GetCurrentPanel
 
 		title_Create(f, title, subtitle)
@@ -350,14 +304,8 @@ do
 		return f
 	end
 
-	optionsPanel_OnHide = function(self)
-		groupSets_Cleanup()
-	end
-
 	optionsPanel_SetGroup = function(self, groupId)
 		self.selectedGroup = groupId or 'base'
-
-		groupSets_Cleanup()
 		UIDropDownMenu_SetSelectedValue(self.dropdown, groupId)
 		UIDropDownMenu_SetText(self.dropdown, L['Group_' .. groupId] or groupId)
 
