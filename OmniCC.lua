@@ -86,7 +86,7 @@ function OmniCC:InitDB()
 	local db = _G[CONFIG_NAME]
 	if db then
 		if db.version ~= self:GetAddOnVersion() then
-			self:UpgradeDB(db)
+			db = self:UpgradeDB(db)
 		end
 	else
 		db = self:CreateNewDB()
@@ -170,7 +170,7 @@ function OmniCC:UpgradeDB(db)
 	if tonumber(pMajor) < 4 then
 		db = OmniCC:CreateNewDB()
 		_G[CONFIG_NAME] = db
-		return
+		return db
 	end
 
 	db.version = self:GetAddOnVersion()
@@ -209,10 +209,13 @@ end
 --maps the given cooldown to a groupId
 function OmniCC:CDToGroup(cooldown)
 	local groupId = cdToGroupCache[cooldown]
+	
+	--save groupIds so that we don't have to look them up again
 	if not groupId then
 		groupId = cooldown_GetGroupId(cooldown)
 		cdToGroupCache[cooldown] = groupId
 	end
+
 	return groupId
 end
 
@@ -221,7 +224,7 @@ function OmniCC:RecalculateCachedGroups()
 		local newGroupId = cooldown_GetGroupId(cooldown)
 		if groupId ~= newGroupId then
 			cdToGroupCache[cooldown] = newGroupId
-			
+
 			--settings group changed, update timer
 			local timer = self.Timer:Get(cooldown)
 			if timer and timer.visible then
@@ -231,7 +234,6 @@ function OmniCC:RecalculateCachedGroups()
 		end
 	end
 end
-
 
 function OmniCC:GetGroupSettings(groupId)
 	return self:GetDB().groupSettings[groupId]
