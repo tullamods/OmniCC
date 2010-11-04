@@ -299,16 +299,11 @@ end
 --and false otherwise
 function Timer:ShouldShow()
 	--the timer should have text to display and also have its cooldown be visible
-	if not (self.enabled and self.visible) then
+	if not (self.enabled and self.visible) or self.cooldown.noCooldownCount  then
 		return false
 	end
 
 	local sets = self:GetSettings()
-
-	if (not self.enabled) or self.cooldown.noCooldownCount then
-		return false
-	end
-
 	if self.duration < sets.minDuration then
 		return false
 	end
