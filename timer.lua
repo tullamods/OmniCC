@@ -216,7 +216,10 @@ end
 --[[ Accessors ]]--
 
 function Timer:GetRemain()
-	return self.duration - (GetTime() - self.start)
+	if self.start and self.duration then
+		return self.duration - (GetTime() - self.start)
+	end
+	return 0
 end
 
 --retrieves the period style id associated with the given time frame
@@ -395,24 +398,26 @@ end
 local function cooldown_OnSetCooldown(self, start, duration)
 --	print('onsetcooldown', self:GetName(), start, duration)
 
-	--don't do anything if there's no timer to display
-	if not(start and start > 0 and duration and duration > 0) then return end
-
-	--don't display cooldown info if the timer is blacklisted
-	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self))
-	if (not sets.enabled) or self.noCooldownCount then
-		return
+	--don't do anything if there's no timer to display, or the timer has been blacklisted
+	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then 
+		return 
 	end
 
-	--start timer if duration is over the min duration
-	if start > 0 and duration >= sets.minDuration then
+	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self))
+	
+	--hide/show cooldown model as necessary
+	self:SetAlpha(sets.showCooldownModels and 1 or 0)
+	
+	--start timer if duration is over the min duration & the timer is enabled
+	if start > 0 and duration >= sets.minDuration and sets.enabled then
 		--apply methods to the cooldown frame if they do not exist yet
 		if(not self.omnicc) then
 			cooldown_Init(self)
 		end
 
 		--hide cooldown model if necessary and start the timer
-		(Timer:Get(self) or Timer:New(self)):UpdateCooldownShown():Start(start, duration)
+		local timer = Timer:Get(self) or Timer:New(self)
+		timer:Start(start, duration)
 	--stop timer
 	else
 		local timer = Timer:Get(self)
