@@ -7,9 +7,9 @@ local OmniCC = CreateFrame('Frame', 'OmniCC'); OmniCC:Hide()
 local CONFIG_NAME = 'OmniCC4Config'
 
 
---[[---------------------------------------------------------------------------
+--[[---------------------------------------
 	Local Functions
---]]---------------------------------------------------------------------------
+--]]---------------------------------------
 
 local function removeTable(tbl, defaults)
 	for k, v in pairs(defaults) do
@@ -37,9 +37,9 @@ local function copyTable(tbl, defaults)
 end
 
 
---[[---------------------------------------------------------------------------
+--[[---------------------------------------
 	Events
---]]---------------------------------------------------------------------------
+--]]---------------------------------------
 
 OmniCC:SetScript('OnEvent', function(self, event, ...)
 	local a = self[event]
@@ -73,10 +73,9 @@ end
 OmniCC:RegisterEvent('PLAYER_LOGOUT')
 OmniCC:RegisterEvent('PLAYER_LOGIN')
 
-
---[[---------------------------------------------------------------------------
+--[[---------------------------------------
 	Saved Settings
---]]---------------------------------------------------------------------------
+--]]---------------------------------------
 
 function OmniCC:GetDB()
 	return self.db or self:InitDB()
@@ -163,7 +162,7 @@ function OmniCC:GetBaseDefaults()
 	}
 end
 
-function OmniCC:UpgradeDB(db)
+function OmniCC:UpgradeDB(db)	
 	local pMajor, pMinor, pBugfix = db.version:match('(%d+)\.(%d+)\.(%w+)')
 
 	--upgrade db if the major verson changes
@@ -182,9 +181,9 @@ function OmniCC:GetAddOnVersion()
 end
 
 
---[[---------------------------------------------------------------------------
+--[[---------------------------------------
 	Group Mapping
---]]---------------------------------------------------------------------------
+--]]---------------------------------------
 
 local cdToGroupCache = {}
 
@@ -240,9 +239,9 @@ function OmniCC:GetGroupSettings(groupId)
 end
 
 
---[[---------------------------------------------------------------------------
+--[[---------------------------------------
 	Group Adding/Removing
---]]---------------------------------------------------------------------------
+--]]---------------------------------------
 
 function OmniCC:AddGroup(groupId)
 	if not self:GetGroupIndex(groupId) then
@@ -278,9 +277,9 @@ function OmniCC:GetGroupIndex(groupId)
 end
 
 
---[[---------------------------------------------------------------------------
+--[[---------------------------------------
 	Finish Effects
---]]---------------------------------------------------------------------------
+--]]---------------------------------------
 
 function OmniCC:TriggerEffect(effectId, cooldown, ...)
 	local effect = self:GetEffect(effectId)
@@ -296,10 +295,10 @@ function OmniCC:RegisterEffect(effect)
 	end
 end
 
-function OmniCC:GetEffect(id)
+function OmniCC:GetEffect(effectId)
 	if self.effects then
 		for _, effect in pairs(self.effects) do
-			if effect.id == id then
+			if effect.id == effectId then
 				return effect
 			end
 		end

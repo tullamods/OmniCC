@@ -14,6 +14,13 @@
 local Classy = LibStub('Classy-1.0')
 local OmniCC = OmniCC
 
+local function log(self, event, ...)
+	local cd = self.cooldown
+	if cd == _G['CompactPartyFrameMember1Buff1Cooldown'] then
+		OmniCC:Log(event, cd and cd:GetName() or '<No Cooldown>', ...)
+	end
+end
+
 --constants!
 local ICON_SIZE = 36 --the normal size for an icon (don't change this)
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
@@ -85,21 +92,18 @@ function Timer:Start(start, duration)
 	self.textStyle = nil
 
 	self:UpdateShown()
-	self:UpdateText()
-	return self
 end
 
 --stops the timer
 function Timer:Stop()
+	self.updater:Stop()
+	self:Hide()
+	
 	self.start = nil
 	self.duration = nil
 	self.enabled = nil
 	self.visible = nil
 	self.textStyle = nil
-	self.updater:Stop()
-
-	self:Hide()
-	return self
 end
 
 --adjust font size whenever the timer's parent size changes
@@ -108,11 +112,9 @@ function Timer:Size(width, height)
 	self:SetSize(width, height)
 	self.abRatio = round(width) / ICON_SIZE
 
-	if self:IsVisible() then
+	if self.enabled and self.visible then
 		self:UpdateText(true)
 	end
-
-	return self
 end
 
 function Timer:ScheduleUpdate(nextUpdate)
@@ -123,12 +125,14 @@ function Timer:ScheduleUpdate(nextUpdate)
 	self.updater:Play()
 end
 
-function Timer:UpdateText(forceStyleUpdate)
+function Timer:UpdateText(forceStyleUpdate, source)
+--	if not self.enabled then return end
+
 	--if there's time left on the clock, then update the timer text
 	--otherwise stop the timer
-	local remain = self.duration - (GetTime() - self.start)
+	local remain = self:GetRemain()
 	if remain > 0 then
-		local overallScale = self.abRatio * self:GetScale() --used to determine text visibility
+		local overallScale = self.abRatio * (self:GetEffectiveScale()/UIParent:GetScale()) --used to determine text visibility
 
 		--hide text if it's too small to display
 		--check again in one second
@@ -157,7 +161,6 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 		self:Stop()
 	end
-	return self
 end
 
 function Timer:UpdateTextStyle()
@@ -178,8 +181,6 @@ function Timer:UpdateTextStyle()
 		end
 	end
 	self.text:SetTextColor(style.r, style.g, style.b, style.a)
-
-	return self
 end
 
 function Timer:UpdateTextPosition()
@@ -188,38 +189,29 @@ function Timer:UpdateTextPosition()
 	local text = self.text
 	text:ClearAllPoints()
 	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
-
-	return self
 end
 
 function Timer:UpdateShown()
 	if self:ShouldShow() then
-		if self.enabled then
-			if self:GetRemain() > 0 then
-				self:Show()
-				self:UpdateText()
-			else
-				self:Stop()
-			end
+		if self:GetRemain() > 0 then
+			self:Show()
+			self:UpdateText()
+		elseif self.enabled then
+			self:Stop()
 		end
 	else
 		self:Hide()
 	end
-	return self
 end
 
 function Timer:UpdateCooldownShown()
 	self.cooldown:SetAlpha(self:GetSettings().showCooldownModels and 1 or 0)
-	return self
 end
 
 --[[ Accessors ]]--
 
 function Timer:GetRemain()
-	if self.start and self.duration then
-		return self.duration - (GetTime() - self.start)
-	end
-	return 0
+	return self.duration - (GetTime() - self.start)
 end
 
 --retrieves the period style id associated with the given time frame
@@ -348,8 +340,6 @@ end
 
 --show the timer if the cooldown is shown
 local function cooldown_OnShow(self)
---	print('onshow', self:GetName())
-
 	local timer = Timer:Get(self)
 	if timer then
 		timer.visible = true
@@ -359,8 +349,6 @@ end
 
 --hide the timer if the cooldown is hidden
 local function cooldown_OnHide(self)
---	print('onhide', self:GetName())
-
 	local timer = Timer:Get(self)
 	if timer then
 		timer.visible = nil
@@ -369,30 +357,31 @@ local function cooldown_OnHide(self)
 end
 
 --adjust the size of the timer when the cooldown's size changes
+--facts to know: OnSizeChanged occurs more frequently than you would think
 local function cooldown_OnSizeChanged(self, ...)
---	print('onsizechanged', self:GetName(), ...)
-
-	local timer = Timer:Get(self)
-	if timer then
-		timer:Size(...)
+	local w, h = ...
+	local oldW, oldH = self.omniccw, self.omnicch
+	
+	if not(oldW and oldH and round(oldW) == round(w) and round(oldH) == round(h)) then
+		self.omniccw = w
+		self.omnicch = h		
+		local timer = Timer:Get(self)
+		if timer then
+			timer:Size(...)
+		end
 	end
 end
 
 --apply some extra functionality to the cooldown
 local function cooldown_Init(self)
---	print('init', self:GetName())
-
 	self:HookScript('OnShow', cooldown_OnShow)
 	self:HookScript('OnHide', cooldown_OnHide)
 	self:HookScript('OnSizeChanged', cooldown_OnSizeChanged)
 	self.omnicc = true
-
 	return self
 end
 
 local function cooldown_OnSetCooldown(self, start, duration)
---	print('onsetcooldown', self:GetName(), start, duration)
-
 	--don't do anything if there's no timer to display, or the timer has been blacklisted
 	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then 
 		return 
@@ -422,11 +411,24 @@ local function cooldown_OnSetCooldown(self, start, duration)
 	end
 end
 
-hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_OnSetCooldown)
-
 --bugfix: force update timers when entering an arena
 do
+	local addonName, addonTbl = ...
+	
 	local f = CreateFrame('Frame'); f:Hide()
-	f:SetScript('OnEvent', function(self, event, ...) Timer:ForAllShown('UpdateText') end)
+	f:SetScript('OnEvent', function(self, event, ...) 
+		--update visible timers on player_entering_world (arena update hack)
+		if event == 'PLAYER_ENTERING_WORLD' then
+			Timer:ForAllShown('UpdateText') 
+		--hook cooldown stuff only after the addon is actually loaded
+		elseif event == 'ADDON_LOADED' then
+			local name = ...
+			if name == addonName then
+				hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_OnSetCooldown)
+				self:UnregisterEvent('ADDON_LOADED')
+			end
+		end
+	end)
 	f:RegisterEvent('PLAYER_ENTERING_WORLD')
+	f:RegisterEvent('ADDON_LOADED')
 end
