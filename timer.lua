@@ -357,14 +357,13 @@ local function cooldown_OnHide(self)
 end
 
 --adjust the size of the timer when the cooldown's size changes
---facts to know: OnSizeChanged occurs more frequently than you would think
+--facts to know: 
+--OnSizeChanged occurs more frequently than you would think
+--so I've added a check to only resize timers when a cooldown's width changes
 local function cooldown_OnSizeChanged(self, ...)
-	local w, h = ...
-	local oldW, oldH = self.omniccw, self.omnicch
-	
-	if not(oldW and oldH and round(oldW) == round(w) and round(oldH) == round(h)) then
-		self.omniccw = w
-		self.omnicch = h		
+	local width = ...
+	if self.omniccw ~= width then
+		self.omniccw = width		
 		local timer = Timer:Get(self)
 		if timer then
 			timer:Size(...)
