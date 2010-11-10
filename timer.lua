@@ -14,13 +14,6 @@
 local Classy = LibStub('Classy-1.0')
 local OmniCC = OmniCC
 
-local function log(self, event, ...)
-	local cd = self.cooldown
-	if cd == _G['CompactPartyFrameMember1Buff1Cooldown'] then
-		OmniCC:Log(event, cd and cd:GetName() or '<No Cooldown>', ...)
-	end
-end
-
 --constants!
 local ICON_SIZE = 36 --the normal size for an icon (don't change this)
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
@@ -98,7 +91,7 @@ end
 function Timer:Stop()
 	self.updater:Stop()
 	self:Hide()
-	
+
 	self.start = nil
 	self.duration = nil
 	self.enabled = nil
@@ -125,7 +118,7 @@ function Timer:ScheduleUpdate(nextUpdate)
 	self.updater:Play()
 end
 
-function Timer:UpdateText(forceStyleUpdate, source)
+function Timer:UpdateText(forceStyleUpdate)
 --	if not self.enabled then return end
 
 	--if there's time left on the clock, then update the timer text
@@ -138,7 +131,7 @@ function Timer:UpdateText(forceStyleUpdate, source)
 		--check again in one second
 		if overallScale < self:GetSettings().minSize then
 			self.text:Hide()
-			self:ScheduleUpdate(1)
+			self:ScheduleUpdate(5)
 		else
 			--update text style based on time remaining
 			local textStyle = self:GetPeriodStyle(remain)
@@ -156,7 +149,7 @@ function Timer:UpdateText(forceStyleUpdate, source)
 	else
 		--if the timer was long enough to, and text is still visible
 		--then trigger a finish effect
-		if self.duration >= self:GetSettings().minEffectDuration and self.visible then
+		if self.duration >= self:GetSettings().minEffectDuration then
 			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown, self.duration)
 		end
 		self:Stop()
@@ -196,7 +189,7 @@ function Timer:UpdateShown()
 		if self:GetRemain() > 0 then
 			self:Show()
 			self:UpdateText()
-		elseif self.enabled then
+		else
 			self:Stop()
 		end
 	else
@@ -357,13 +350,13 @@ local function cooldown_OnHide(self)
 end
 
 --adjust the size of the timer when the cooldown's size changes
---facts to know: 
+--facts to know:
 --OnSizeChanged occurs more frequently than you would think
 --so I've added a check to only resize timers when a cooldown's width changes
 local function cooldown_OnSizeChanged(self, ...)
 	local width = ...
 	if self.omniccw ~= width then
-		self.omniccw = width		
+		self.omniccw = width
 		local timer = Timer:Get(self)
 		if timer then
 			timer:Size(...)
@@ -382,15 +375,19 @@ end
 
 local function cooldown_OnSetCooldown(self, start, duration)
 	--don't do anything if there's no timer to display, or the timer has been blacklisted
-	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then 
-		return 
+	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then
+		return
+	end
+	
+	if start > GetTime() then
+		return
 	end
 
 	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self))
-	
+
 	--hide/show cooldown model as necessary
 	self:SetAlpha(sets.showCooldownModels and 1 or 0)
-	
+
 	--start timer if duration is over the min duration & the timer is enabled
 	if start > 0 and duration >= sets.minDuration and sets.enabled then
 		--apply methods to the cooldown frame if they do not exist yet
@@ -413,12 +410,12 @@ end
 --bugfix: force update timers when entering an arena
 do
 	local addonName, addonTbl = ...
-	
+
 	local f = CreateFrame('Frame'); f:Hide()
-	f:SetScript('OnEvent', function(self, event, ...) 
+	f:SetScript('OnEvent', function(self, event, ...)
 		--update visible timers on player_entering_world (arena update hack)
 		if event == 'PLAYER_ENTERING_WORLD' then
-			Timer:ForAllShown('UpdateText') 
+			Timer:ForAllShown('UpdateText')
 		--hook cooldown stuff only after the addon is actually loaded
 		elseif event == 'ADDON_LOADED' then
 			local name = ...
