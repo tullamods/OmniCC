@@ -79,15 +79,18 @@ do
 end
 
 function Shine:OnHide()
-	self.animation:Finish()
+	if self.animation:IsPlaying() then
+		self.animation:Stop()
+	end
 	self:Hide()
 end
 
 function Shine:Start()
-	if not self.animation:IsPlaying() then
-		self:Show()
-		self.animation:Play()
+	if self.animation:IsPlaying() then
+		self.animation:Stop()
 	end
+	self:Show()
+	self.animation:Play()
 end
 
 

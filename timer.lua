@@ -37,7 +37,12 @@ local timers = {}
 
 --[[ Constructorish ]]--
 
-local updater_UpdateText = function(self) self:GetParent():UpdateText() end
+local updater_UpdateText = function(self) 
+	if self:GetParent().cooldown:GetParent() == _G['DominosActionButton25'] then
+		print('updateText') 
+	end
+	self:GetParent():UpdateText() 
+end
 
 function Timer:New(cooldown)
 	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer:Hide()
@@ -119,8 +124,6 @@ function Timer:ScheduleUpdate(nextUpdate)
 end
 
 function Timer:UpdateText(forceStyleUpdate)
---	if not self.enabled then return end
-
 	--if there's time left on the clock, then update the timer text
 	--otherwise stop the timer
 	local remain = self:GetRemain()
@@ -186,12 +189,8 @@ end
 
 function Timer:UpdateShown()
 	if self:ShouldShow() then
-		if self:GetRemain() > 0 then
-			self:Show()
-			self:UpdateText()
-		else
-			self:Stop()
-		end
+		self:Show()
+		self:UpdateText()
 	else
 		self:Hide()
 	end
@@ -378,7 +377,7 @@ local function cooldown_OnSetCooldown(self, start, duration)
 	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then
 		return
 	end
-	
+
 	if start > GetTime() then
 		return
 	end

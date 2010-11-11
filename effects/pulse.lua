@@ -63,20 +63,24 @@ do
 end
 
 function Pulse:OnHide()
-	self.animation:Finish()
+	if self.animation:IsPlaying() then
+		self.animation:Stop()
+	end
 	self:Hide()
 end
 
 function Pulse:Start(texture)
-	if not self.animation:IsPlaying() then
-		local icon = self.icon
-		local r, g, b = icon:GetVertexColor()
-		icon:SetVertexColor(r, g, b, 0.7)
-		icon:SetTexture(texture:GetTexture())
-
-		self:Show()
-		self.animation:Play()
+	if self.animation:IsPlaying() then
+		self.animation:Stop()
 	end
+
+	local icon = self.icon
+	local r, g, b = icon:GetVertexColor()
+	icon:SetVertexColor(r, g, b, 0.7)
+	icon:SetTexture(texture:GetTexture())
+
+	self:Show()
+	self.animation:Play()
 end
 
 
