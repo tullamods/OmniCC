@@ -113,10 +113,10 @@ function Timer:Size(width, height)
 end
 
 function Timer:ScheduleUpdate(nextUpdate)
-	self.updater:GetAnimations():SetDuration(nextUpdate)
 	if self.updater:IsPlaying() then
 		self.updater:Stop()
 	end
+	self.updater:GetAnimations():SetDuration(nextUpdate)
 	self.updater:Play()
 end
 
@@ -131,19 +131,20 @@ function Timer:UpdateText(forceStyleUpdate)
 		--check again in one second
 		if overallScale < self:GetSettings().minSize then
 			self.text:Hide()
-			self:ScheduleUpdate(5)
+			self:ScheduleUpdate(1)
 		else
 			--update text style based on time remaining
-			local textStyle = self:GetPeriodStyle(remain)
-			if (textStyle ~= self.textStyle) or forceStyleUpdate then
-				self.textStyle = textStyle
+			local styleId = self:GetTextStyleId(remain)
+			if (styleId ~= self.textStyle) or forceStyleUpdate then
+				self.textStyle = styleId
 				self:UpdateTextStyle()
 			end
 
-			--update font text
-			self.text:SetFormattedText(self:GetTimeText(remain))
-			self.text:Show()
-
+			--make sure that we have text, and then set text
+			if self.text:GetFont() then
+				self.text:SetFormattedText(self:GetTimeText(remain))
+				self.text:Show()
+			end
 			self:ScheduleUpdate(self:GetNextUpdate(remain))
 		end
 	else
@@ -205,7 +206,7 @@ end
 
 --retrieves the period style id associated with the given time frame
 --necessary to retrieve text coloring information from omnicc
-function Timer:GetPeriodStyle(s)
+function Timer:GetTextStyleId(s)
 	if s < SOONISH then
 		return 'soon'
 	elseif s < MINUTEISH then
@@ -219,20 +220,14 @@ end
 
 --return the time until the next text update
 function Timer:GetNextUpdate(remain)
-	--show tenths of seconds below tenths threshold
 	local sets = self:GetSettings()
-	local tenths = sets.tenthsDuration
 
-	if remain < tenths then
-		return (remain*10 - floor(remain*10)) / 10
+	if remain < (sets.tenthsDuration + 0.5) then
+		return 0.1
 	elseif remain < MINUTEISH then
-		--update more frequently when near the tenths threshold
-		if remain < (tenths + 0.5) then
-			return (remain*10 - floor(remain*10)) / 10
-		end
 		return remain - (round(remain) - 0.51)
 	elseif remain < sets.mmSSDuration then
-		return remain - floor(remain)
+		return remain - (round(remain) - 0.51)
 	elseif remain < HOURISH then
 		local minutes = round(remain/MINUTE)
 		if minutes > 1 then
