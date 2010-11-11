@@ -113,13 +113,22 @@ function OmniCC:RemoveDefaults(db)
 end
 
 function OmniCC:CreateNewDB()
-	return {
+	local db = {
 		version = self:GetAddOnVersion(),
 		groups = {},
 		groupSettings = {
 			base = {},
 		}
 	}
+
+	--upgrade jamber from OmniCC3 to 4
+	if _G['OmniCCGlobalSettings'] then
+		db.groupSettings.base = _G['OmniCCGlobalSettings']
+		db.groupSettings.base.blacklist = nil
+		db.groupSettings.base.useBlacklist = nil
+		db.groupSettings.base.minFontSize = nil
+	end
+	return db
 end
 
 function OmniCC:GetBaseDefaults()
