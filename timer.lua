@@ -37,11 +37,8 @@ local timers = {}
 
 --[[ Constructorish ]]--
 
-local updater_UpdateText = function(self) 
-	if self:GetParent().cooldown:GetParent() == _G['DominosActionButton25'] then
-		print('updateText') 
-	end
-	self:GetParent():UpdateText() 
+local updater_UpdateText = function(self)
+	self:GetParent():UpdateText()
 end
 
 function Timer:New(cooldown)
