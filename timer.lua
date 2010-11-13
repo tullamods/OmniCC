@@ -121,6 +121,11 @@ function Timer:ScheduleUpdate(nextUpdate)
 end
 
 function Timer:UpdateText(forceStyleUpdate)
+	if self.start > GetTime() then
+		self:ScheduleUpdate(self.start - GetTime())
+		return
+	end
+
 	--if there's time left on the clock, then update the timer text
 	--otherwise stop the timer
 	local remain = self:GetRemain()
@@ -367,10 +372,6 @@ end
 local function cooldown_OnSetCooldown(self, start, duration)
 	--don't do anything if there's no timer to display, or the timer has been blacklisted
 	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then
-		return
-	end
-
-	if start > GetTime() then
 		return
 	end
 
