@@ -10,24 +10,15 @@ OmniCCOptions.Dropdown = Dropdown
 
 function Dropdown:New(name, parent, width)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. name, parent, 'UIDropDownMenuTemplate'))
-	f.width = width
+	UIDropDownMenu_SetWidth(f, width)
 
 	local text = f:CreateFontString(nil, 'BACKGROUND', 'GameFontNormalSmall')
 	text:SetPoint('BOTTOMLEFT', f, 'TOPLEFT', 21, 0)
 	text:SetText(name)
 	f.titleText = text
 
-	f:SetScript('OnShow', f.OnShow)
+	f:SetScript('OnShow', f.UpdateValue)
 	return f
-end
-
-
---[[ Frame Evnets ]]--
-
-function Dropdown:OnShow()
---	print('onshow', self:GetName())
-	UIDropDownMenu_SetWidth(self, self.width)
-	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
 end
 
 
@@ -41,8 +32,13 @@ function Dropdown:GetSavedValue()
 	assert(false, 'Hey you forgot to implement GetSavedValue for ' .. self:GetName())
 end
 
+function Dropdown:GetSavedText()
+	return self:GetSavedValue()
+end
+
 function Dropdown:UpdateValue()
-	self.selectedValue = value
+	UIDropDownMenu_SetSelectedValue(self, self:GetSavedValue())
+	UIDropDownMenu_SetText(self, self:GetSavedText())
 end
 
 
@@ -50,16 +46,12 @@ end
 
 function Dropdown:AddItem(name, value)
 	local parent = self
-
+	
 	local info = UIDropDownMenu_CreateInfo()
 	info.text = name
 	info.value = value or name
-	info.arg1 = self
-	info.checked = (self:GetSavedValue() == info.value)
-	info.func = function(self, parent) 
-		parent:SetSavedValue(self.value)
-		UIDropDownMenu_SetSelectedValue(parent, self.value)
-	end
-	
+	info.checked = (parent:GetSavedValue() == info.value)
+	info.func = function(self) parent:SetSavedValue(self.value); parent:UpdateValue() end
+
 	UIDropDownMenu_AddButton(info)
 end
