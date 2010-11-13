@@ -121,6 +121,7 @@ function Timer:ScheduleUpdate(nextUpdate)
 end
 
 function Timer:UpdateText(forceStyleUpdate)
+	--handle deathknight runes, which have timers that start in the future
 	if self.start > GetTime() then
 		self:ScheduleUpdate(self.start - GetTime())
 		return
