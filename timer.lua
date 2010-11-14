@@ -246,6 +246,12 @@ function Timer:GetNextUpdate(remain)
 			return remain - (hours*HOUR - HALFHOURISH)
 		end
 		return remain - HOURISH
+	else
+		local days = round(remain/DAY)
+		if days > 1 then
+			return remain - (days*DAY - HALFDAYISH)
+		end
+		return remain - DAYISH		
 	end
 end
 
