@@ -378,7 +378,7 @@ end
 
 local function cooldown_OnSetCooldown(self, start, duration)
 	--don't do anything if there's no timer to display, or the timer has been blacklisted
-	if self.noCooldownCount or not(start and start > 0 and duration and duration > 0) then
+	if self.noCooldownCount or not(start and duration) then
 		return
 	end
 
