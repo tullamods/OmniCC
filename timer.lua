@@ -83,7 +83,7 @@ function Timer:Start(start, duration)
 	self.start = start
 	self.duration = duration
 	self.enabled = true
-	self.visible = true
+	self.visible = self.cooldown:IsVisible()
 	self.textStyle = nil
 
 	self:UpdateShown()
