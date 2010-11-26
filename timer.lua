@@ -47,7 +47,8 @@ function Timer:New(cooldown)
 
 	local sets = timer:GetSettings()
 
-	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
+--	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
+	timer:SetToplevel(true)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
 	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
@@ -91,8 +92,8 @@ end
 
 --stops the timer
 function Timer:Stop()
-	self.updater:Stop()
 	self:Hide()
+	self.updater:Stop()
 
 	self.start = nil
 	self.duration = nil
@@ -337,18 +338,22 @@ end
 --show the timer if the cooldown is shown
 local function cooldown_OnShow(self)
 	local timer = Timer:Get(self)
-	if timer then
-		timer.visible = true
-		timer:UpdateShown()
+	if timer and timer.enabled then
+		if timer:GetRemain() > 0 then
+			timer.visible = true
+			timer:UpdateShown()
+		else
+			timer:Stop()
+		end
 	end
 end
 
 --hide the timer if the cooldown is hidden
 local function cooldown_OnHide(self)
 	local timer = Timer:Get(self)
-	if timer then
+	if timer and timer.enabled then
 		timer.visible = nil
-		timer:UpdateShown()
+		timer:Hide()
 	end
 end
 
@@ -367,18 +372,26 @@ local function cooldown_OnSizeChanged(self, ...)
 	end
 end
 
+local function cooldown_StopTimer(self)
+	local timer = Timer:Get(self)
+	if timer and timer.enabled then
+		timer:Stop()
+	end
+end
+
 --apply some extra functionality to the cooldown
+--so that we can track hide/show/and size changes
 local function cooldown_Init(self)
 	self:HookScript('OnShow', cooldown_OnShow)
 	self:HookScript('OnHide', cooldown_OnHide)
 	self:HookScript('OnSizeChanged', cooldown_OnSizeChanged)
-	self.omnicc = true
-	return self
 end
+
 
 local function cooldown_OnSetCooldown(self, start, duration)
 	--don't do anything if there's no timer to display, or the timer has been blacklisted
 	if self.noCooldownCount or not(start and duration) then
+		cooldown_StopTimer(self)
 		return
 	end
 
@@ -390,8 +403,9 @@ local function cooldown_OnSetCooldown(self, start, duration)
 	--start timer if duration is over the min duration & the timer is enabled
 	if start > 0 and duration >= sets.minDuration and sets.enabled then
 		--apply methods to the cooldown frame if they do not exist yet
-		if(not self.omnicc) then
+		if not self.omnicc then
 			cooldown_Init(self)
+			self.omnicc = true
 		end
 
 		--hide cooldown model if necessary and start the timer
@@ -399,16 +413,13 @@ local function cooldown_OnSetCooldown(self, start, duration)
 		timer:Start(start, duration)
 	--stop timer
 	else
-		local timer = Timer:Get(self)
-		if timer then
-			timer:Stop()
-		end
+		cooldown_StopTimer(self)
 	end
 end
 
 --bugfix: force update timers when entering an arena
 do
-	local addonName, addonTbl = ...
+	local addonName = ...
 
 	local f = CreateFrame('Frame'); f:Hide()
 	f:SetScript('OnEvent', function(self, event, ...)
