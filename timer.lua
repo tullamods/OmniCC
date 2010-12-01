@@ -51,7 +51,6 @@ function Timer:New(cooldown)
 	timer:SetToplevel(true)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
-	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
 	timer.text = text
 
 	--updater
@@ -105,8 +104,10 @@ end
 --adjust font size whenever the timer's parent size changes
 --hide if it gets too tiny
 function Timer:Size(width, height)
-	self:SetSize(width, height)
 	self.abRatio = round(width) / ICON_SIZE
+
+	self:SetSize(width, height)
+	self:UpdateTextPosition()
 
 	if self.enabled and self.visible then
 		self:UpdateText(true)
@@ -186,10 +187,11 @@ end
 
 function Timer:UpdateTextPosition()
 	local sets = self:GetSettings()
+	local abRatio = self.abRatio or 1
 
 	local text = self.text
 	text:ClearAllPoints()
-	text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
+	text:SetPoint(sets.anchor, sets.xOff * abRatio, sets.yOff * abRatio)
 end
 
 function Timer:UpdateShown()
@@ -252,7 +254,7 @@ function Timer:GetNextUpdate(remain)
 		if days > 1 then
 			return remain - (days*DAY - HALFDAYISH)
 		end
-		return remain - DAYISH		
+		return remain - DAYISH
 	end
 end
 
