@@ -4,4 +4,5 @@
 	<Script file="localization\localization.cn.lua"/>
 	<Script file="localization\localization.ko.lua"/>
 	<Script file="localization\localization.de.lua"/>
+	<Script file="localization\localization.ru.lua"/>
 </Ui>
