@@ -47,8 +47,8 @@ function Timer:New(cooldown)
 
 	local sets = timer:GetSettings()
 
---	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
-	timer:SetToplevel(true)
+	timer:SetFrameLevel(cooldown:GetFrameLevel() + 10)
+--	timer:SetToplevel(true)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
 	timer.text = text
@@ -92,7 +92,9 @@ end
 --stops the timer
 function Timer:Stop()
 	self:Hide()
-	self.updater:Stop()
+	if self.updater:IsPlaying() then
+		self.updater:Stop()
+	end
 
 	self.start = nil
 	self.duration = nil
