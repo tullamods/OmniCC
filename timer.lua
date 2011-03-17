@@ -37,17 +37,13 @@ local timers = {}
 
 --[[ Constructorish ]]--
 
-local updater_UpdateText = function(self)
-	self:GetParent():UpdateText()
-end
-
 function Timer:New(cooldown)
 	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer:Hide()
 	timer.cooldown = cooldown
 
 	local sets = timer:GetSettings()
 
-	timer:SetFrameLevel(cooldown:GetFrameLevel() + 10)
+	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
 --	timer:SetToplevel(true)
 
 	local text = timer:CreateFontString(nil, 'OVERLAY')
@@ -56,7 +52,7 @@ function Timer:New(cooldown)
 	--updater
 	local updater = timer:CreateAnimationGroup()
 	updater:SetLooping('NONE')
-	updater:SetScript('OnFinished', updater_UpdateText)
+	updater:SetScript('OnFinished', function(self) self:GetParent():UpdateText() end)
 
 	local a = updater:CreateAnimation('Animation'); a:SetOrder(1)
 	timer.updater = updater
@@ -91,16 +87,16 @@ end
 
 --stops the timer
 function Timer:Stop()
-	self:Hide()
-	if self.updater:IsPlaying() then
-		self.updater:Stop()
-	end
-
 	self.start = nil
 	self.duration = nil
 	self.enabled = nil
 	self.visible = nil
 	self.textStyle = nil
+
+	if self.updater:IsPlaying() then
+		self.updater:Stop()
+	end
+	self:Hide()
 end
 
 --adjust font size whenever the timer's parent size changes
@@ -117,10 +113,10 @@ function Timer:Size(width, height)
 end
 
 function Timer:ScheduleUpdate(nextUpdate)
+	self.updater:GetAnimations():SetDuration(nextUpdate)
 	if self.updater:IsPlaying() then
 		self.updater:Stop()
 	end
-	self.updater:GetAnimations():SetDuration(nextUpdate)
 	self.updater:Play()
 end
 
