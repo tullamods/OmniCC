@@ -115,6 +115,7 @@ end
 function OmniCC:CreateNewDB()
 	local db = {
 		version = self:GetAddOnVersion(),
+		updaterEngine = 'AniUpdater',
 		groups = {},
 		groupSettings = {
 			base = {},
@@ -175,6 +176,10 @@ function OmniCC:UpgradeDB(db)
 	local pMajor, pMinor, pBugfix = db.version:match('(%d+)\.(%d+)\.(%w+)')
 
 	--upgrade db if the major verson changes
+	if not db.updaterEngine then
+		db.updaterEngine = 'AniUpdater'
+	end
+	
 	if tonumber(pMajor) < 4 then
 		db = OmniCC:CreateNewDB()
 		_G[CONFIG_NAME] = db
@@ -187,6 +192,36 @@ end
 
 function OmniCC:GetAddOnVersion()
 	return GetAddOnMetadata('OmniCC', 'Version')
+end
+
+
+--[[---------------------------------------
+	Timer Scheduling
+--]]---------------------------------------
+
+function OmniCC:ScheduleUpdate(frame, delay)
+	local engine = self:GetUpdateEngine()
+	local updater = engine:Get(frame)
+	
+	updater:ScheduleUpdate(delay)
+end
+
+function OmniCC:CancelUpdate(frame)
+	local engine = self:GetUpdateEngine()
+	local updater = engine:GetActive(frame)
+	
+	if updater then
+		updater:CancelUpdate()
+	end
+end
+
+function OmniCC:GetUpdateEngine()
+	--print('GetUpdateEngine', self.db.updaterEngine)
+	return self[self.db.updaterEngine]
+end
+
+function OmniCC:SetUpdateEngine(engine)
+	self.db.updaterEngine = engine or 'AniUpdater'
 end
 
 

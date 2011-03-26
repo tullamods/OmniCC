@@ -35,32 +35,19 @@ local GetTime = GetTime
 local Timer = Classy:New('Frame'); Timer:Hide(); OmniCC.Timer = Timer
 local timers = {}
 
+
 --[[ Constructorish ]]--
 
 function Timer:New(cooldown)
-	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer:Hide()
-	timer.cooldown = cooldown
-
-	local sets = timer:GetSettings()
-
+	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer.cooldown = cooldown
 	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
---	timer:SetToplevel(true)
+	timer:Hide()
 
-	local text = timer:CreateFontString(nil, 'OVERLAY')
-	timer.text = text
-
-	--updater
-	local updater = timer:CreateAnimationGroup()
-	updater:SetLooping('NONE')
-	updater:SetScript('OnFinished', function(self) self:GetParent():UpdateText() end)
-
-	local a = updater:CreateAnimation('Animation'); a:SetOrder(1)
-	timer.updater = updater
+	timer.text = timer:CreateFontString(nil, 'OVERLAY')
 
 	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
 	--if we do set all points instead, then timer text tends to move around when the timer itself is scale)
 	timer:SetPoint('CENTER', cooldown)
-
 	timer:Size(cooldown:GetSize())
 
 	timers[cooldown] = timer
@@ -69,6 +56,12 @@ end
 
 function Timer:Get(cooldown)
 	return timers[cooldown]
+end
+
+function Timer:OnScheduledUpdate()
+	--print('Timer:OnScheduledUpdate')
+	
+	self:UpdateText()
 end
 
 
@@ -93,9 +86,7 @@ function Timer:Stop()
 	self.visible = nil
 	self.textStyle = nil
 
-	if self.updater:IsPlaying() then
-		self.updater:Stop()
-	end
+	self:CancelUpdate()
 	self:Hide()
 end
 
@@ -112,15 +103,9 @@ function Timer:Size(width, height)
 	end
 end
 
-function Timer:ScheduleUpdate(nextUpdate)
-	self.updater:GetAnimations():SetDuration(nextUpdate)
-	if self.updater:IsPlaying() then
-		self.updater:Stop()
-	end
-	self.updater:Play()
-end
-
 function Timer:UpdateText(forceStyleUpdate)
+	--print('Timer:UpdateText', forceStyleUpdate)
+	
 	--handle deathknight runes, which have timers that start in the future
 	if self.start > GetTime() then
 		self:ScheduleUpdate(self.start - GetTime())
@@ -164,6 +149,8 @@ function Timer:UpdateText(forceStyleUpdate)
 end
 
 function Timer:UpdateTextStyle()
+	--print('Timer:UpdateTextStyle')
+	
 	local sets = self:GetSettings()
 	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
 	local style = sets.styles[self.textStyle]
@@ -204,6 +191,20 @@ end
 function Timer:UpdateCooldownShown()
 	self.cooldown:SetAlpha(self:GetSettings().showCooldownModels and 1 or 0)
 end
+
+
+--[[ Update Scheduling ]]--
+
+function Timer:ScheduleUpdate(delay)
+	--print('Timer:ScheduleUpdate', delay)
+	OmniCC:ScheduleUpdate(self, delay)
+end
+
+function Timer:CancelUpdate()
+	--print('Timer:CancelUpdate')
+	OmniCC:CancelUpdate(self)
+end
+
 
 --[[ Accessors ]]--
 
@@ -288,7 +289,7 @@ end
 --and false otherwise
 function Timer:ShouldShow()
 	--the timer should have text to display and also have its cooldown be visible
-	if not (self.enabled and self.visible) or self.cooldown.noCooldownCount  then
+	if not (self.enabled and self.visible) or self.cooldown.noCooldownCount then
 		return false
 	end
 
@@ -331,9 +332,7 @@ function Timer:ForAllShown(f, ...)
 end
 
 
---[[
-	cooldown display
---]]
+--[[ cooldown display ]]--
 
 --show the timer if the cooldown is shown
 local function cooldown_OnShow(self)
