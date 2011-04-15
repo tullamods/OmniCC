@@ -53,9 +53,7 @@ function OmniCC:PLAYER_LOGIN()
 	SLASH_OmniCC1 = '/omnicc'
 	SLASH_OmniCC2 = '/occ'
 	SlashCmdList['OmniCC'] = function(msg)
-		if LoadAddOn('OmniCC_Config') then
-			InterfaceOptionsFrame_OpenToCategory('OmniCC')
-		end
+		self:OnSlashCmd(strsplit(' ', (msg or ''):lower()))
 	end
 
 	--create options loader
@@ -91,11 +89,13 @@ function OmniCC:InitDB()
 		db = self:CreateNewDB()
 		_G[CONFIG_NAME] = db
 	end
+	
+	copyTable(db, self:GetGlobalDefaults())
 
 	--copy defaults
-	local defaults = self:GetBaseDefaults()
+	local groupDefaults = self:GetGroupDefaults()
 	for groupId, styleInfo in pairs(db.groupSettings) do
-		copyTable(styleInfo, defaults)
+		copyTable(styleInfo, groupDefaults)
 	end
 
 	self.db = db
@@ -104,22 +104,23 @@ end
 
 function OmniCC:RemoveDefaults(db)
 	if not db then return end
+	
+	removeTable(defaults, self:GetGlobalDefaults())
 
 	--remove base from any custom groups
-	local defaults = self:GetBaseDefaults()
+	local groupDefaults = self:GetGroupDefaults()
 	for groupId, styleInfo in pairs(db.groupSettings) do
-		removeTable(styleInfo, defaults)
+		removeTable(styleInfo, groupDefaults)
 	end
 end
 
 function OmniCC:CreateNewDB()
 	local db = {
-		version = self:GetAddOnVersion(),
-		updaterEngine = 'AniUpdater',
 		groups = {},
 		groupSettings = {
 			base = {},
-		}
+		},
+		version = self:GetAddonVersion()
 	}
 
 	--upgrade jamber from OmniCC3 to 4
@@ -132,7 +133,13 @@ function OmniCC:CreateNewDB()
 	return db
 end
 
-function OmniCC:GetBaseDefaults()
+function OmniCC:GetGlobalDefaults()
+	return {
+		updaterEngine = 'AniUpdater',
+	}
+end
+
+function OmniCC:GetGroupDefaults()
 	return {
 		enabled = true,
 		scaleText = true,
@@ -174,11 +181,6 @@ end
 
 function OmniCC:UpgradeDB(db)	
 	local pMajor, pMinor, pBugfix = db.version:match('(%d+)\.(%d+)\.(%w+)')
-
-	--upgrade db if the major verson changes
-	if not db.updaterEngine then
-		db.updaterEngine = 'AniUpdater'
-	end
 	
 	if tonumber(pMajor) < 4 then
 		db = OmniCC:CreateNewDB()
@@ -361,4 +363,34 @@ function OmniCC:ForEachEffect(f, ...)
 		end
 	end
 	return results
+end
+
+--[[---------------------------------------
+	Slash Commands
+--]]---------------------------------------
+
+function OmniCC:OnSlashCmd(...)
+	local cmd = ...
+	if cmd == '' or cmd == 'config' or cmd == 'menu' then
+		if LoadAddOn('OmniCC_Config') then
+			InterfaceOptionsFrame_OpenToCategory('OmniCC')
+		end
+	elseif cmd = 'setengine' then
+		local engine = select(2, ...)
+		if engine == 'classic' then
+			OmniCC:SetUpdateEngine('ClassicUpdater')
+			self:Print('Switched timers to the Classic engine.  This setting will take effect the next time you log in.')
+		elseif engine == 'animation' or engine == 'ani' then
+			OmniCC:SetUpdateEngine('AniUpdater')
+			self:Print('Switched tiemrs to the Animation engine.  This setting will take effect the next time you log in.')
+		elseif engine and engine ~= '' then
+			self:Print(('Unknown engine "%s"'):format(engine))
+		else
+			self:Print('Current Timer Engine: ' .. (self:GetUpdateEngine() == 'AniUpdater' and 'Animation' or 'Classic'))
+		end
+	elseif cmd == 'version' then
+		self:Print('AddOn Version: ' .. self:GetAddOnVersion())
+	else
+		self:Print(('Unknown command "%s"'):format(cmd))
+	end
 end
