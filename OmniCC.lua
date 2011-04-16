@@ -5,6 +5,7 @@
 
 local OmniCC = CreateFrame('Frame', 'OmniCC'); OmniCC:Hide()
 local CONFIG_NAME = 'OmniCC4Config'
+local L = OMNICC_LOCALS
 
 
 --[[---------------------------------------
@@ -105,7 +106,7 @@ end
 function OmniCC:RemoveDefaults(db)
 	if not db then return end
 	
-	removeTable(defaults, self:GetGlobalDefaults())
+	removeTable(db, self:GetGlobalDefaults())
 
 	--remove base from any custom groups
 	local groupDefaults = self:GetGroupDefaults()
@@ -219,11 +220,15 @@ end
 
 function OmniCC:GetUpdateEngine()
 	--print('GetUpdateEngine', self.db.updaterEngine)
-	return self[self.db.updaterEngine]
+	return self[self:GetDB().updaterEngine]
+end
+
+function OmniCC:GetUpdateEngineName()
+	return self:GetDB().updaterEngine
 end
 
 function OmniCC:SetUpdateEngine(engine)
-	self.db.updaterEngine = engine or 'AniUpdater'
+	self:GetDB().updaterEngine = engine or 'AniUpdater'
 end
 
 
@@ -375,22 +380,34 @@ function OmniCC:OnSlashCmd(...)
 		if LoadAddOn('OmniCC_Config') then
 			InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end
-	elseif cmd = 'setengine' then
+	elseif cmd == 'setengine' then
 		local engine = select(2, ...)
 		if engine == 'classic' then
-			OmniCC:SetUpdateEngine('ClassicUpdater')
-			self:Print('Switched timers to the Classic engine.  This setting will take effect the next time you log in.')
+			self:SetUpdateEngine('ClassicUpdater')
+			self:Print(L.SetEngine_Classic)
 		elseif engine == 'animation' or engine == 'ani' then
-			OmniCC:SetUpdateEngine('AniUpdater')
-			self:Print('Switched tiemrs to the Animation engine.  This setting will take effect the next time you log in.')
+			self:SetUpdateEngine('AniUpdater')
+			self:Print(L.SetEngine_Animation)
 		elseif engine and engine ~= '' then
-			self:Print(('Unknown engine "%s"'):format(engine))
+			self:Print(L.UnknownEngineName:format(engine))
 		else
-			self:Print('Current Timer Engine: ' .. (self:GetUpdateEngine() == 'AniUpdater' and 'Animation' or 'Classic'))
+			self:Print(L.SetEngineUsage)
 		end
+	elseif cmd == 'engine' then
+		local engineName = (self:GetUpdateEngineName() == 'AniUpdater' and 'Animation' or 'Classic')
+		self:Print(engineName)
 	elseif cmd == 'version' then
-		self:Print('AddOn Version: ' .. self:GetAddOnVersion())
+		self:Print(self:GetAddOnVersion())
+	elseif cmd == 'help' then
+		self:Print(L.Commands)
+		print(L.Command_ShowOptionsMenu)
+		print(L.Command_SetTimerEngine)
+		print(L.Command_ShowAddonVersion)
 	else
-		self:Print(('Unknown command "%s"'):format(cmd))
+		self:Print(L.UnknownCommandName:format(cmd))
 	end
+end
+
+function OmniCC:Print(...)
+	return print('|cffFCF75EOmniCC|r:', ...)
 end
