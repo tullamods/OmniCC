@@ -121,7 +121,7 @@ function OmniCC:CreateNewDB()
 		groupSettings = {
 			base = {},
 		},
-		version = self:GetAddonVersion()
+		version = self:GetAddOnVersion()
 	}
 
 	--upgrade jamber from OmniCC3 to 4
@@ -219,7 +219,6 @@ function OmniCC:CancelUpdate(frame)
 end
 
 function OmniCC:GetUpdateEngine()
-	--print('GetUpdateEngine', self.db.updaterEngine)
 	return self[self:GetDB().updaterEngine]
 end
 
