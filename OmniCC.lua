@@ -90,7 +90,7 @@ function OmniCC:InitDB()
 		db = self:CreateNewDB()
 		_G[CONFIG_NAME] = db
 	end
-	
+
 	copyTable(db, self:GetGlobalDefaults())
 
 	--copy defaults
@@ -105,7 +105,7 @@ end
 
 function OmniCC:RemoveDefaults(db)
 	if not db then return end
-	
+
 	removeTable(db, self:GetGlobalDefaults())
 
 	--remove base from any custom groups
@@ -180,9 +180,9 @@ function OmniCC:GetGroupDefaults()
 	}
 end
 
-function OmniCC:UpgradeDB(db)	
+function OmniCC:UpgradeDB(db)
 	local pMajor, pMinor, pBugfix = db.version:match('(%d+)\.(%d+)\.(%w+)')
-	
+
 	if tonumber(pMajor) < 4 then
 		db = OmniCC:CreateNewDB()
 		_G[CONFIG_NAME] = db
@@ -205,14 +205,14 @@ end
 function OmniCC:ScheduleUpdate(frame, delay)
 	local engine = self:GetUpdateEngine()
 	local updater = engine:Get(frame)
-	
+
 	updater:ScheduleUpdate(delay)
 end
 
 function OmniCC:CancelUpdate(frame)
 	local engine = self:GetUpdateEngine()
 	local updater = engine:GetActive(frame)
-	
+
 	if updater then
 		updater:CancelUpdate()
 	end
@@ -258,7 +258,7 @@ end
 --maps the given cooldown to a groupId
 function OmniCC:CDToGroup(cooldown)
 	local groupId = cdToGroupCache[cooldown]
-	
+
 	--save groupIds so that we don't have to look them up again
 	if not groupId then
 		groupId = cooldown_GetGroupId(cooldown)
