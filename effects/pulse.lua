@@ -6,7 +6,7 @@
 local Classy = LibStub('Classy-1.0')
 local L = OMNICC_LOCALS
 local PULSE_SCALE = 2
-local PULSE_DURATION = 1
+local PULSE_DURATION = 1.5
 
 --[[
 	The pulse object
@@ -23,7 +23,6 @@ function Pulse:New(parent)
 	f.animation = f:CreatePulseAnimation()
 
 	local icon = f:CreateTexture(nil, 'OVERLAY')
-	icon:SetPoint('CENTER')
 	icon:SetBlendMode('ADD')
 	icon:SetAllPoints(f)
 	f.icon = icon
