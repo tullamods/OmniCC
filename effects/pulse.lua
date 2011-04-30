@@ -5,8 +5,8 @@
 
 local Classy = LibStub('Classy-1.0')
 local L = OMNICC_LOCALS
-local PULSE_SCALE = 3
-local PULSE_DURATION = 0.8
+local PULSE_SCALE = 2
+local PULSE_DURATION = 1
 
 --[[
 	The pulse object
@@ -15,13 +15,12 @@ local PULSE_DURATION = 0.8
 local Pulse = Classy:New('Frame')
 
 function Pulse:New(parent)
-	local f = self:Bind(CreateFrame('Frame', nil, parent))
+	local f = self:Bind(CreateFrame('Frame', nil, parent)); f:Hide()
 	f:SetAllPoints(parent)
 	f:SetToplevel(true)
-	f:Hide()
+	f:SetScript('OnHide', f.OnHide)
 
 	f.animation = f:CreatePulseAnimation()
-	f:SetScript('OnHide', f.OnHide)
 
 	local icon = f:CreateTexture(nil, 'OVERLAY')
 	icon:SetPoint('CENTER')
@@ -39,10 +38,19 @@ do
 			parent:Hide()
 		end
 	end
+	
+	local function scale_OnFinished(self)
+		if self.reverse then
+			self.reverse = nil
+			self:GetParent():Finish()
+		else
+			self.reverse = true
+		end
+	end
 
 	function Pulse:CreatePulseAnimation()
 		local g = self:CreateAnimationGroup()
-		g:SetLooping('NONE')
+		g:SetLooping('BOUNCE')
 		g:SetScript('OnFinished', animation_OnFinished)
 
 		--animation = AnimationGroup:CreateAnimation("animationType" [, "name" [, "inheritsFrom"]])
@@ -50,13 +58,8 @@ do
 		grow:SetScale(PULSE_SCALE, PULSE_SCALE)
 		grow:SetOrigin('CENTER', 0, 0)
 		grow:SetDuration(PULSE_DURATION/2)
-		grow:SetOrder(1)
-
-		local shrink = g:CreateAnimation('Scale')
-		shrink:SetScale(-PULSE_SCALE, -PULSE_SCALE)
-		shrink:SetOrigin('CENTER', 0, 0)
-		shrink:SetDuration(PULSE_DURATION/2)
-		shrink:SetOrder(2)
+		grow:SetOrder(0)
+		grow:SetScript('OnFinished', scale_OnFinished)
 
 		return g
 	end
