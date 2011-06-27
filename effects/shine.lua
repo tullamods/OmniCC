@@ -6,7 +6,7 @@
 local Classy = LibStub('Classy-1.0')
 local L = OMNICC_LOCALS
 local SCALE = 5
-local DURATION = 0.8
+local DURATION = 0.75
 local TEXTURE = [[Interface\Cooldown\star4]]
 
 

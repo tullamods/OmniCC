@@ -5,8 +5,8 @@
 
 local Classy = LibStub('Classy-1.0')
 local L = OMNICC_LOCALS
-local PULSE_SCALE = 2
-local PULSE_DURATION = 1.5
+local PULSE_SCALE = 2.5
+local PULSE_DURATION = 0.6
 
 --[[
 	The pulse object
