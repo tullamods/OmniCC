@@ -150,7 +150,7 @@ function OmniCC:GetGroupDefaults()
 		fontOutline = 'OUTLINE',
 		minDuration = 3,
 		minSize = 0.5,
-		effect = 'none',
+		effect = 'pulse',
 		minEffectDuration = 30,
 		tenthsDuration = 0,
 		mmSSDuration = 0,
