@@ -9,8 +9,8 @@ local LSM = LibStub('LibSharedMedia-3.0')
 local Classy = LibStub('Classy-1.0')
 local LSM_FONT = LSM.MediaType.FONT
 local PADDING = 2
-local FONT_HEIGHT = 18
-local BUTTON_HEIGHT = 34
+local FONT_HEIGHT = 24
+local BUTTON_HEIGHT = 54
 local SCROLL_STEP = BUTTON_HEIGHT + PADDING
 
 local function getFontIDs()
@@ -98,8 +98,10 @@ end
 local FontSelector = Classy:New('Frame')
 OmniCCOptions.FontSelector = FontSelector
 
-function FontSelector:New(title, parent)
+function FontSelector:New(title, parent, width, height)
 	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
+	f.scrollWidth = width
+	f.scrollHeight = height
 	f:SetScript('OnShow', f.Load)
 
 	return f
@@ -221,7 +223,7 @@ function FontSelector:Load()
 	scrollBar:SetWidth(16)
 	self.scrollBar = scrollBar
 
-	scrollFrame:SetSize(346, 140)
+	scrollFrame:SetSize(self.scrollWidth, self.scrollHeight)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:OnShow()

@@ -41,7 +41,7 @@ function PositionOptions:AddWidgets()
 	--dropdowns
 	local anchor = self:CreateAnchorPicker()
 	anchor:SetPoint('TOPLEFT', self, 'TOPLEFT', 12, -26)
-	anchor:SetSize(380, 240)
+	anchor:SetSize(592, 380)
 	anchor:Layout()
 	
 	--sliders

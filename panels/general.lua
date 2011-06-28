@@ -8,7 +8,7 @@ local Timer = OmniCC.Timer
 local L = OMNICC_LOCALS
 
 --fun constants!
-local BUTTON_SPACING = 0
+local BUTTON_SPACING = 8
 local SLIDER_SPACING = 24
 
 local GeneralOptions = CreateFrame('Frame', 'OmniCCOptions_General')

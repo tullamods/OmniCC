@@ -47,7 +47,7 @@ end
 
 function FontOptions:CreateFontSelector(name)
 	local parent = self
-	local f = OmniCCOptions.FontSelector:New(name, self)
+	local f = OmniCCOptions.FontSelector:New(name, self, 552, 280)
 
 	f.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontFace = value

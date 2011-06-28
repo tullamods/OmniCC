@@ -25,9 +25,10 @@ function RadioButton:New(value, title, parent)
 	text:SetFontObject('GameFontNormalLarge')
 	text:SetPoint('CENTER')
 	text:SetText(title or value)
+	
 	b:SetFontString(text)
-	b:SetNormalFontObject('GameFontNormalSmall')
-	b:SetHighlightFontObject('GameFontHighlightSmall')
+	b:SetNormalFontObject('GameFontNormalLarge')
+	b:SetHighlightFontObject('GameFontHighlightLarge')
 
 	local ht = b:CreateTexture(nil, 'BACKGROUND')
 	ht:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
