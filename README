@@ -1,3 +1,0 @@
-OmniCC is an addon that adds text to items/spells/abilities that are on cooldown to indicate when they'll be ready for use. OmniCC should be compatible with any addon that uses a cooldown model.
-
-A configuration interface is included, and can be shown via /omnicc or /occ

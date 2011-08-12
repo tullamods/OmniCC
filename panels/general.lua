@@ -37,8 +37,11 @@ function GeneralOptions:AddWidgets()
 	local showModels = self:CreateShowCooldownModelsCheckbox()
 	showModels:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 
+    local aniUpdate = self:CreateUseAniUpdaterCheckbox()
+    aniUpdate:SetPoint('TOPLEFT', showModels, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
+
 	local finishEffect = self:CreateFinishEffectPicker()
-	finishEffect:SetPoint('TOPLEFT', showModels, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 16))
+	finishEffect:SetPoint('TOPLEFT', aniUpdate, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 16))
 
 	--sliders
 	local minEffectDuration = self:CreateMinEffectDurationSlider()
@@ -146,8 +149,31 @@ function GeneralOptions:CreateShowCooldownModelsCheckbox()
 	end
 
 	b.tooltip = L.ShowCooldownModelsTip
+    b.smallTip = L.ShowCooldownModelsSmallTip
 
 	return b
+end
+
+--use classic updater
+function GeneralOptions:CreateUseAniUpdaterCheckbox()
+    local b = self:NewCheckbox(L.UseAniUpdater)
+
+    b.OnEnableSetting = function(self, enable)
+        if OmniCC:GetUpdateEngine() == 'ClassicUpdater' then
+            OmniCC:SetUpdateEngine(nil)
+        else
+            OmniCC:SetUpdateEngine('ClassicUpdater')
+        end
+    end
+
+    b.IsSettingEnabled = function(self)
+        return OmniCC:GetUpdateEngine() ~= 'ClassicUpdater'
+    end
+
+    b.tooltip = L.UseAniUpdaterTip
+    b.smallTip = L.UseAniUpdaterSmallTip
+
+    return b
 end
 
 --[[ Sliders ]]--

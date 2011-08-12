@@ -16,12 +16,16 @@ function RadioButton:New(value, title, parent)
 	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
 	b.value = value
 	b:SetScript('OnClick', b.OnClick)
+    b:SetScript('OnEnter', b.OnEnter)
+    b:SetScript('OnLeave', b.OnLeave)
 
 	local bg = b:CreateTexture(nil, 'BACKGROUND')
-	bg:SetTexture(0.2, 0.2, 0.2, 0.6)
 	bg:SetAllPoints(b)
 
-	local text = b:CreateFontString(nil, 'ARTWORK')
+    b.bg = bg
+    b:OnLeave()
+
+	local text = b:CreateFontString(nil, 'OVERLAY')
 	text:SetFontObject('GameFontNormalLarge')
 	text:SetPoint('CENTER')
 	text:SetText(title or value)
@@ -30,17 +34,10 @@ function RadioButton:New(value, title, parent)
 	b:SetNormalFontObject('GameFontNormalLarge')
 	b:SetHighlightFontObject('GameFontHighlightLarge')
 
-	local ht = b:CreateTexture(nil, 'BACKGROUND')
-	ht:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
-	ht:SetVertexColor(0.196, 0.388, 0.8)
-	ht:SetBlendMode('ADD')
-	ht:SetAllPoints(b)
-	b:SetHighlightTexture(ht)
-
-	local ct = b:CreateTexture(nil, 'OVERLAY')
+	local ct = b:CreateTexture(nil, 'ARTWORK')
 	ct:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
 	ct:SetSize(24, 24)
-	ct:SetPoint('LEFT')
+	ct:SetPoint('RIGHT', text, 'LEFT', -5, 0)
 	b:SetCheckedTexture(ct)
 
 	return b
@@ -50,6 +47,13 @@ function RadioButton:OnClick()
 	self:GetParent():Select(self.value)
 end
 
+function RadioButton:OnEnter()
+    self.bg:SetTexture(1, 1, 1, 0.25)
+end
+
+function RadioButton:OnLeave()
+    self.bg:SetTexture(0.2, 0.2, 0.2, 0.6)
+end
 
 
 --[[

@@ -1,10 +1,11 @@
 ## Interface: 40200
-## Title: OmniCC Config
+## Title: |cff20ff20OmniCC Config|r
 ## Notes: OmniCC's configuration menu
 ## Notes-koKR: OmniCC의 설정 메뉴
 ## Author: Tuller
 ## Dependencies: OmniCC
 ## LoadOnDemand: 1
+
 embeds.xml
 localization.xml
 widgets.xml

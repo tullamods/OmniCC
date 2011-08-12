@@ -38,42 +38,35 @@ end
 
 local FontButton = Classy:New('CheckButton')
 
-function FontButton:New(parent, useAltColor)
+function FontButton:New(parent, altColor)
 	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
 	b:SetHeight(BUTTON_HEIGHT)
 	b:SetScript('OnClick', b.OnClick)
+    b:SetScript('OnEnter', b.OnEnter)
+    b:SetScript('OnLeave', b.OnLeave)
 
 	local bg = b:CreateTexture(nil, 'BACKGROUND')
-	if useAltColor then
-		bg:SetTexture(0.2, 0.2, 0.2, 0.6)
-	else
-		bg:SetTexture(0.3, 0.3, 0.3, 0.6)
-	end
 	bg:SetAllPoints(b)
+
+    b.altColor = altColor
+    b.bg = bg
+    b:OnLeave()
 
 	local text = b:CreateFontString(nil, 'ARTWORK')
 	text:SetPoint('BOTTOM', 0, PADDING)
+
 	b:SetFontString(text)
 	b:SetNormalFontObject('GameFontNormalSmall')
 	b:SetHighlightFontObject('GameFontHighlightSmall')
 
 	local fontText = b:CreateFontString(nil, 'ARTWORK')
-	fontText:SetPoint('TOPLEFT', 4, -2)
-	fontText:SetPoint('TOPRIGHT', -4, -2)
 	fontText:SetPoint('BOTTOM', text, 'TOP', 0, 2)
 	b.fontText = fontText
 
-	local ht = b:CreateTexture(nil, 'BACKGROUND')
-	ht:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
-	ht:SetVertexColor(0.196, 0.388, 0.8)
-	ht:SetBlendMode('ADD')
-	ht:SetAllPoints(b)
-	b:SetHighlightTexture(ht)
-
 	local ct = b:CreateTexture(nil, 'OVERLAY')
 	ct:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
+    ct:SetPoint('RIGHT', fontText, 'LEFT', -5, 0)
 	ct:SetSize(24, 24)
-	ct:SetPoint('LEFT')
 	b:SetCheckedTexture(ct)
 
 	return b
@@ -88,6 +81,18 @@ end
 
 function FontButton:GetFontFace()
 	return (self.fontText:GetFont())
+end
+
+function FontButton:OnEnter()
+    self.bg:SetTexture(1, 1, 1, 0.3)
+end
+
+function FontButton:OnLeave()
+    if self.altColor then
+        self.bg:SetTexture(0.2, 0.2, 0.2, 0.6)
+    else
+        self.bg:SetTexture(0.25, 0.25, 0.25, 0.6)
+    end
 end
 
 
