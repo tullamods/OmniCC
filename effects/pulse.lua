@@ -98,6 +98,7 @@ do
 	OmniCC:RegisterEffect{
 		id = 'pulse',
 		name = L.Pulse,
+    desc = L.PulseTip,
 		Run = function(self, cooldown)
 			local b = cooldown:GetParent()
 			local icon = OmniCC:GetIcon(b)

@@ -5,11 +5,6 @@
 OMNICC_LOCALS = {} --should be done in the US locale file, only
 
 local L = OMNICC_LOCALS
---[[
-if not GetLocale() == 'enUS' then
-	return
-end
---]]
 
 L.Updated = "Updated to version %s"
 L.None = NONE
@@ -17,6 +12,13 @@ L.Pulse = "Pulse"
 L.Shine = "Shine"
 L.Alert = "Alert"
 L.Activate = "Activate"
+
+--effect tooltip text
+L.ActivateTip = [[Mimics the default effect that shows on
+action buttons when an ability "procs".]]
+L.AlertTip = [[Pulses the finished cooldown icon
+at the center of the screen.]]
+L.PulseTip = [[Pulses the cooldown icon.]]
 
 --slash command text
 L.SetEngine_Classic = 'Switched timers to the Classic engine. This setting will take effect the next time you log in.'
