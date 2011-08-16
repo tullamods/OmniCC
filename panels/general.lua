@@ -318,7 +318,7 @@ function GeneralOptions:CreateFinishEffectPicker()
 	local parent = self
 	local dd = OmniCCOptions.Dropdown:New(L.FinishEffect, parent, 120)
 
-	local effects = OmniCC:ForEachEffect(function(effect) return {name = effect.name, value = effect.id} end)
+	local effects = OmniCC:ForEachEffect(function(effect) return {name = effect.name, value = effect.id, tooltip = effect.desc} end)
 	table.sort(effects, function(e1, e2) return e1.name < e2.name end)
 	table.insert(effects, 1, {name = NONE, value = 'none'})
 
@@ -340,7 +340,7 @@ function GeneralOptions:CreateFinishEffectPicker()
 
 	UIDropDownMenu_Initialize(dd, function(self)
 		for n, v in ipairs(effects) do
-			self:AddItem(v.name, v.value)
+			self:AddItem(v.name, v.value, v.tooltip)
 		end
 	end)
 

@@ -33,7 +33,7 @@ function Dropdown:GetSavedValue()
 end
 
 function Dropdown:GetSavedText()
-	return self:GetSavedValue()
+  return self:GetSavedValue()
 end
 
 function Dropdown:UpdateValue()
@@ -44,14 +44,22 @@ end
 
 --[[ Item Adding ]]--
 
-function Dropdown:AddItem(name, value)
-	local parent = self
-	
+function Dropdown:AddItem(name, value, tooltip)
+  value = value or name
+  
 	local info = UIDropDownMenu_CreateInfo()
 	info.text = name
-	info.value = value or name
-	info.checked = (parent:GetSavedValue() == info.value)
-	info.func = function(self) parent:SetSavedValue(self.value); parent:UpdateValue() end
+  info.checked = (self:GetSavedValue() == value)
+	info.func = function()
+    self:SetSavedValue(value)
+    self:UpdateValue()
+  end
+
+  if tooltip then
+    info.tooltipTitle = name
+    info.tooltipText = tooltip
+    info.tooltipOnButton = true
+  end
 
 	UIDropDownMenu_AddButton(info)
 end
