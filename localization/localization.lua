@@ -11,10 +11,12 @@ if not GetLocale() == 'enUS' then
 end
 --]]
 
-L.Updated = "Updated to v%s"
+L.Updated = "Updated to version %s"
 L.None = NONE
 L.Pulse = "Pulse"
 L.Shine = "Shine"
+L.Alert = "Alert"
+L.Activate = "Activate"
 
 --slash command text
 L.SetEngine_Classic = 'Switched timers to the Classic engine. This setting will take effect the next time you log in.'

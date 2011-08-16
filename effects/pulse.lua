@@ -1,6 +1,6 @@
 --[[
 	pulse.lua
-		a pulsing effect for when a cooldown completes
+		a pulsing finish effect
 --]]
 
 local Classy = LibStub('Classy-1.0')
@@ -95,33 +95,14 @@ do
 		return f
 	end})
 
-	local function getTexture(frame)
-		if not frame then
-			return
-		end
-
-		local icon = frame.icon
-		if icon and icon.GetTexture then
-			return icon
-		end
-
-		local name = frame:GetName()
-		if name then
-			local icon = _G[name .. 'Icon'] or _G[name .. 'IconTexture']
-			if icon and icon.GetTexture then
-				return icon
-			end
-		end
-	end
-
 	OmniCC:RegisterEffect{
 		id = 'pulse',
 		name = L.Pulse,
 		Run = function(self, cooldown)
-			local p = cooldown:GetParent()
-			local texture = getTexture(p)
-			if texture then
-				pulses[p]:Start(texture)
+			local b = cooldown:GetParent()
+			local icon = OmniCC:GetIcon(b)
+			if icon then
+				pulses[b]:Start(icon)
 			end
 		end
 	}

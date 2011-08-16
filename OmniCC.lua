@@ -199,7 +199,7 @@ end
 
 
 --[[---------------------------------------
-	Timer Scheduling
+	Update Engine
 --]]---------------------------------------
 
 function OmniCC:ScheduleUpdate(frame, delay)
@@ -362,11 +362,28 @@ function OmniCC:ForEachEffect(f, ...)
 			local result = f(effect, ...)
 			if result then
 				results = results or {}
-				table.insert(results, result)
+				tinsert(results, result)
 			end
 		end
 	end
 	return results
+end
+
+function OmniCC:GetIcon(frame)
+  if frame then
+    local icon = frame.icon
+    if icon and icon.GetTexture then
+      return icon
+    end
+
+    local name = frame:GetName()
+    if name then
+      local icon = _G[name .. 'Icon'] or _G[name .. 'IconTexture']
+      if icon and icon.GetTexture then
+        return icon
+      end
+    end
+  end
 end
 
 --[[---------------------------------------

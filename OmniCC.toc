@@ -12,4 +12,8 @@ OmniCC.lua
 timer.lua
 aniUpdater.lua
 classicUpdater.lua
-effects.xml
+
+effects\alert.lua
+effects\activate.lua
+effects\pulse.lua
+effects\shine.lua

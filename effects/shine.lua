@@ -1,6 +1,6 @@
 --[[
 	shine.lua
-		a shine effect for when a cooldown completes
+		a shine finish effect
 --]]
 
 local Classy = LibStub('Classy-1.0')

@@ -1,3 +1,6 @@
+====== 4.2.2
+* Jaliborc: Introducing new affect that mimics Blizzard's "spell proc" - Activate
+
 ====== 4.2.1
 * Jaliborc: Added a button at the interface options for selecting the update engine
 * Jaliborc: Several aestetical improvements to the options menu
