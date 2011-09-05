@@ -46,6 +46,7 @@ OmniCC:RegisterEffect({
     local icon = OmniCC:GetIcon(button)
 
     if icon then
+      Icon:SetVertexColor(icon:GetVertexColor())
       Icon:SetTexture(icon:GetTexture())
       Frame:Show()
       

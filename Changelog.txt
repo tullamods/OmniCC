@@ -1,5 +1,9 @@
+====== 4.2.3
+* Jaliborc: Reduced download size by about 70%
+
 ====== 4.2.2
-* Jaliborc: Introducing new affect that mimics Blizzard's "spell proc" - Activate
+* Jaliborc: Introducing 2 new finish effects - "Activate" and "Alert"
+* Jaliborc: Fixed a bug causing the new update engine button to allways be checked
 
 ====== 4.2.1
 * Jaliborc: Added a button at the interface options for selecting the update engine
