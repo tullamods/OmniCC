@@ -159,7 +159,7 @@ function GeneralOptions:CreateUseAniUpdaterCheckbox()
     local b = self:NewCheckbox(L.UseAniUpdater)
 
     b.OnEnableSetting = function(self, enable)
-        if OmniCC:GetUpdateEngine() == 'ClassicUpdater' then
+        if OmniCC:GetUpdateEngineName() == 'ClassicUpdater' then
             OmniCC:SetUpdateEngine(nil)
         else
             OmniCC:SetUpdateEngine('ClassicUpdater')
@@ -167,7 +167,7 @@ function GeneralOptions:CreateUseAniUpdaterCheckbox()
     end
 
     b.IsSettingEnabled = function(self)
-        return OmniCC:GetUpdateEngine() ~= 'ClassicUpdater'
+        return OmniCC:GetUpdateEngineName() ~= 'ClassicUpdater'
     end
 
     b.tooltip = L.UseAniUpdaterTip
