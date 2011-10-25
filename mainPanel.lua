@@ -42,6 +42,11 @@ StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 
 --[[ utility functions of champions ]]--
 
+local function sort(...)
+	table.sort(...)
+	return ...
+end
+
 local function map(t, f)
 	local newtbl = {}
 	for i, v in pairs(t) do
@@ -49,8 +54,6 @@ local function map(t, f)
 	end
 	return newtbl
 end
-
-local function sort(tbl, ...) table.sort(tbl, ...) return tbl end
 
 --[[
 	OmniCC settings retrieval
@@ -357,7 +360,7 @@ end
 
 --[[ build the main options panel ]]--
 do
-	local f = optionsPanel_Create(select(2, GetAddOnInfo('OmniCC')))
+	local f = optionsPanel_Create('OmniCC')
 
 	OmniCCOptions.AddTab = function(self, id, name, panel)
 		tab_Create(f, id, name, panel)
