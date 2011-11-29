@@ -431,8 +431,6 @@ local function action_OnHide(self)
 end
 
 local function action_Add(button, action, cooldown)
-	--if type(cooldown) ~= 'table' then return end
-	
 	if not cooldown.omniccAction then
 		cooldown:HookScript('OnShow', action_OnShow)
 		cooldown:HookScript('OnHide', action_OnHide)
