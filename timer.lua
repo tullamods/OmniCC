@@ -15,7 +15,6 @@ local Classy = LibStub('Classy-1.0')
 local OmniCC = OmniCC
 
 --constants!
-local ADDON = ...
 local ICON_SIZE = 36 --the normal size for an icon (don't change this)
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
 local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5 --used for formatting text at transition points
@@ -333,7 +332,7 @@ function Timer:ForAllShown(f, ...)
 end
 
 
---[[ Cooldown Display ]]--
+--[[ cooldown display ]]--
 
 --show the timer if the cooldown is shown
 local function cooldown_OnShow(self)
@@ -385,11 +384,10 @@ local function cooldown_Init(self)
 	self:HookScript('OnShow', cooldown_OnShow)
 	self:HookScript('OnHide', cooldown_OnHide)
 	self:HookScript('OnSizeChanged', cooldown_OnSizeChanged)
-	self.omnicc = true
 end
 
 
-local function cooldown_Show(self, start, duration)
+local function cooldown_OnSetCooldown(self, start, duration)
 	--don't do anything if there's no timer to display, or the timer has been blacklisted
 	if self.noCooldownCount or not(start and duration) then
 		cooldown_StopTimer(self)
@@ -406,6 +404,7 @@ local function cooldown_Show(self, start, duration)
 		--apply methods to the cooldown frame if they do not exist yet
 		if not self.omnicc then
 			cooldown_Init(self)
+			self.omnicc = true
 		end
 
 		--hide cooldown model if necessary and start the timer
@@ -417,64 +416,24 @@ local function cooldown_Show(self, start, duration)
 	end
 end
 
+--bugfix: force update timers when entering an arena
+do
+	local addonName = ...
 
---[[ ActionUI Button ]]--
-
--- visible action cooldowns
-local actions = {}
-
-local function action_OnShow(self)
-	actions[self] = true
-end
-
-local function action_OnHide(self)
-	actions[self] = nil
-end
-
-local function action_Add(button, cooldown, action)
-	if not cooldown.omniccAction then
-		cooldown:HookScript('OnShow', action_OnShow)
-		cooldown:HookScript('OnHide', action_OnHide)
-	end
-	
-	cooldown.omniccAction = action
-end
-
-local function actions_Update()
-	for cooldown in pairs(actions) do
-        local start, duration = GetActionCooldown(cooldown.omniccAction)
-        cooldown_Show(cooldown, start, duration)
-    end
-end
-
-
---[[ Events ]]--
-
-local f = CreateFrame('Frame'); f:Hide()
-f:SetScript('OnEvent', function(self, event, ...)
-	-- update action cooldowns
-	if event == 'ACTIONBAR_UPDATE_COOLDOWN' then
-		actions_Update()
-	
-	-- update visible timers on player_entering_world (arena update hack)
-	if event == 'PLAYER_ENTERING_WORLD' then
-		Timer:ForAllShown('UpdateText')
-		
-	-- hook cooldown stuff only after the addon is actually loaded
-	else
-		if ... == ADDON then
-			hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_Show)
-			hooksecurefunc('SetActionUIButton', action_Add)
-			
-			for i, button in pairs(ActionBarButtonEventsFrame.frames) do
-			    action_Add(button, button.cooldown, button.action)
+	local f = CreateFrame('Frame'); f:Hide()
+	f:SetScript('OnEvent', function(self, event, ...)
+		--update visible timers on player_entering_world (arena update hack)
+		if event == 'PLAYER_ENTERING_WORLD' then
+			Timer:ForAllShown('UpdateText')
+		--hook cooldown stuff only after the addon is actually loaded
+		elseif event == 'ADDON_LOADED' then
+			local name = ...
+			if name == addonName then
+				hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_OnSetCooldown)
+				self:UnregisterEvent('ADDON_LOADED')
 			end
-			
-			self:UnregisterEvent('ADDON_LOADED')
 		end
-	end
-end)
-
-f:RegisterEvent('ACTIONBAR_UPDATE_COOLDOWN')
-f:RegisterEvent('PLAYER_ENTERING_WORLD')
-f:RegisterEvent('ADDON_LOADED')
+	end)
+	f:RegisterEvent('PLAYER_ENTERING_WORLD')
+	f:RegisterEvent('ADDON_LOADED')
+end
