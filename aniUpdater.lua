@@ -58,7 +58,7 @@ function AniUpdater:ScheduleUpdate(delay)
 	self:StopAnimation()
 	if delay > 0 then
 		self:Show()
-		self.ani:SetDuration(delay)
+		self.ani:SetDuration(delay + 0.0002)
 		self.aniGroup:Play()
 	else
 		self:OnFinished()
