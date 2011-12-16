@@ -1,3 +1,11 @@
+====== 4.3.1
+* Fixed a bug freezing the addon at extremely small durations
+
+===== 4.3.0
+* Updated for WoW 4.3
+* Now follows the new Blizzard's *mandatory* cooldown model standard. Addons not yet supporting it may not be tracked by OmniCC properly.
+* Dominos and Cornucopia are both confirmed to work with this new release.
+
 ====== 4.2.3
 * Jaliborc: Reduced download size by about 70%
 
