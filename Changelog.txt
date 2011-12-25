@@ -1,3 +1,7 @@
+====== 4.3.2
+* Almost finished portuguese translations
+* Fixed a bug with the activate effect
+
 ====== 4.3.1
 * Fixed a bug freezing the addon at extremely small durations
 
