@@ -15,10 +15,10 @@ L.FontOutline = "Contorno do Texto"
 
 L.Outline_NONE = NONE
 L.Outline_OUTLINE = "Fino"
-L.Outline_THICKOUTLINE = "Grosso"
+L.Outline_THICKOUTLINE = "Espesso"
 
-L.MinDuration = "Duração mínima para mostar texto"
-L.MinSize = "Tamanho mínimo para mostrar texto"
+L.MinDuration = "Duração mínima para exibir texto"
+L.MinSize = "Tamanho mínimo para exibir texto"
 L.ScaleText = "Redimensionar texto automaticamente"
 L.EnableText = "Ativar texto"
 
@@ -26,18 +26,18 @@ L.Add = "Adicionar"
 L.Remove = "Remover"
 
 L.FinishEffect = "Efeito Final"
-L.MinEffectDuration = "Duração mínima para mostrar o efeito final"
+L.MinEffectDuration = "Duração mínima para exibir o efeito final"
 
-L.MMSSDuration = "Minimum duration to display text as MM:SS"
-L.TenthsDuration = "Minimum duration to display tenths of seconds"
+L.MMSSDuration = "Duração mínima para exibir o texto como MM:SS"
+L.TenthsDuration = "Duração mínima para mostrar décimos de segundo"
 
 L.ColorAndScale = "Cor e Tamanho"
-L.Color_soon = "Soon to expire"
+L.Color_soon = "Perto de expirar"
 L.Color_seconds = "Menos de um minuto"
 L.Color_minutes = "Menos de uma hora"
 L.Color_hours = "Mais de uma hora"
 
-L.ShowCooldownModels = "Mostrar animação circular padrão"
+L.ShowCooldownModels = "Exibir espirais"
 L.UseAniUpdater = "Otimizar desempenho"
 
 --text positioning
@@ -66,78 +66,73 @@ L.AddGroup = 'Adicionar Grupo...'
 --[[ Tooltips ]]--
 
 L.ScaleTextTip =
-[[When enabled, this setting will
-cause text to shrink to fit within
-frames that are too small.]]
+[[Quando ativada, esta opção faz o
+texto a encolher para caber dentro dos
+elementos que são muito pequenos.]]
 
-L.ShowCooldownModelsTip =
-[[Toggles the display of cooldown
-models.]]
-
-L.ShowCooldownModelsSmallTip = [[(The dark spiral you normally
-see on a button when on cooldown)]]
+L.ShowCooldownModelsTip = [[Ativa a exibição das espirais padrão.]]
+L.ShowCooldownModelsSmallTip =
+[[(As espirais negras que normalmente
+são exibidas em botões em cooldown)]]
 
 L.UseAniUpdaterTip =
-[[Optimizes CPU performance, but may
-cause crashes on some environments.
-Disabling this option will solve the issue.]]
+[[Otimiza o desempenho do processador, mas pode
+causar falhas em alguns sistemas.
+Desativar esta opção irá resolver o problema.]]
 
 L.UseAniUpdaterSmallTip = "|cffff2020Changing requires game reload.|r"
 
 L.MinDurationTip =
-[[Determines how long a cooldown
-must be in order to show text.
+[[Determina o tempo mínimo que um cooldown
+tem de ter a fim de mostrar o texto.
 
-This setting is mainly used to
-filter out the GCD.]]
+Esta configuração é usada maioritariamente para
+filtrar o GCD.]]
 
 L.MinSizeTip =
-[[Determines how big a frame must be to display text.
-The smaller the value, smaller things can be to show text.
-The larger the value, the bigger things must be.
+[[Determina quão grande um elemento tem de ser para exibir texto.
+Quanto menor o valor, mais pequenos poderão ser os elementos para o exibir.
 
-Some benchmarks:
-100 - The size of an action button
-80  - The size of a class or pet action button
-55  - The size of a Blizzard target frame buff]]
+Alguns exemplos:
+100 - O tamanho de um botão de ação
+80 - O tamanho de um botão de classe ou de ação do pet
+55 - O tamanho de um buff da janela do alvo]]
 
 L.MinEffectDurationTip =
-[[Determines how long a
-cooldown must be in order
-to show a finish effect
-(ex, pulse/shine)]]
+[[Determina o tempo mínimo para
+um cooldown mostrar o efeito final]]
 
 L.MMSSDurationTip =
-[[Determines the threshold
-for showing a cooldown
-in a MM:SS format.]]
+[[Determina o limite
+para mostrar um cooldown
+em MM:SS.]]
 
 L.TenthsDurationTip =
-[[Determines the threshold
-for showing tenths of seconds.]]
+[[Determina o limite para
+mostrar décimos de segundos.]]
 
 L.FontSizeTip =
-[[Controls how large text is.]]
+[[Controla o tamanho do texto]]
 
 L.FontOutlineTip =
-[[Controls the thickness of the
-outline around text.]]
+[[Controla a espessura do
+contorno à volta do texto.]]
 
 L.UseBlacklistTip =
-[[Click this to toggle using the blacklist.
-When enabled, any frame with a name
-that matches an item on the blacklist
-will not display cooldown text.]]
+[[Ativa o uso de lista negra.
+Quando ativada, qualquer elemento com um nome
+que corresponda a um item na lista negra
+não mostrará texto.]]
 
 L.FrameStackTip =
-[[Toggles showing the names
-of frames when you hover
-over them.]]
+[[Se ativado, mostra os nomes
+dos elementos quando você passa
+com o rato sobre eles.]]
 
 L.XOffsetTip =
-[[Controls the horizontal
-offset of text.]]
+[[Controla o deslocamento
+horizontal do texto.]]
 
 L.YOffsetTip =
-[[Controls the vertical
-offset of text.]]
+[[Controla o deslocamento
+vertical do texto.]]
