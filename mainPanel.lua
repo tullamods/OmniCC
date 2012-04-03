@@ -18,12 +18,14 @@ StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 	button2 = CANCEL,
 	hasEditBox = 1,
 	maxLetters = 24,
+	
 	OnAccept = function(self)
 		local groupId = _G[self:GetName()..'EditBox']:GetText()
 		if groupId ~= '' then
 			createGroup(groupId)
 		end
 	end,
+	
 	EditBoxOnEnterPressed = function(self)
 		local groupId = self:GetText()
 		if groupId ~= '' then
@@ -31,13 +33,16 @@ StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 		end
 		self:GetParent():Hide()
 	end,
+	
 	OnShow = function(self)
 		_G[self:GetName()..'EditBox']:SetFocus()
 	end,
+	
 	OnHide = function(self)
 		_G[self:GetName()..'EditBox']:SetText('')
 	end,
-	timeout = 0, exclusive = 1, hideOnEscape = 1
+	
+	timeout = 0, exclusive = 1, hideOnEscape = 1, preferredIndex = 3
 }
 
 --[[ utility functions of champions ]]--
