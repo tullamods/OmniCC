@@ -1,3 +1,12 @@
+====== 5.0.2
+* Fixed bug causing abilities with multiple charges to show cooldowns before all are spent.
+
+====== 5.0.1
+* Tagging as release.
+
+====== 5.0.0 (beta)
+* Updated and tested for Mists of Pandaria.
+
 ====== 4.3.2
 * Almost finished portuguese translations
 * Fixed a bug with the activate effect
@@ -12,6 +21,7 @@
 
 ====== 4.2.3
 * Jaliborc: Reduced download size by about 70%
+* Jaliborc: No more "Jaliborc:" tag from now on. If no tag is here, it means it was me.
 
 ====== 4.2.2
 * Jaliborc: Introducing 2 new finish effects - "Activate" and "Alert"
@@ -258,4 +268,4 @@
 ====== 2.0.9
 * Updated to LSM 3
 * Unthrottled the updates for cooldowns with durations > 1 minute.  This is to (hopefully) prevent an issue with the rogue ability Preparation.
-* Reimplemented the slash commands
+* Reimplemented the slash commands* Reimplemented the slash commands
