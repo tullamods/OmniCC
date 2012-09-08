@@ -1,3 +1,6 @@
+====== 5.0.3
+* Fixed charges bug, still happening in some non-standard action bar addons (ex: Bartender).
+
 ====== 5.0.2
 * Fixed bug causing abilities with multiple charges to show cooldowns before all are spent.
 

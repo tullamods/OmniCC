@@ -363,17 +363,14 @@ local function cooldown_Init(self)
 	self.omnicc = true
 end
 
-local function cooldown_Show(self, start, duration)
-	if cooldown_CanShow(self, start, duration) then
-		if not self.omnicc then
-			cooldown_Init(self)
-		end
+local function cooldown_ParentAction(self)
+	local parent = self:GetParent()
+	return parent and parent:GetAttribute("action")
+end
 
-		local timer = Timer:Get(self) or Timer:New(self)
-		timer:Start(start, duration)
-	else
-		cooldown_StopTimer(self)
-	end
+local function cooldown_HasCharges(self)
+	local action = self.omniccAction or cooldown_ParentAction(self)
+	return action and GetActionCharges(action) ~= 0
 end
 
 local function cooldown_CanShow(self, start, duration)
@@ -389,14 +386,17 @@ local function cooldown_CanShow(self, start, duration)
 	end
 end
 
-local function cooldown_HasCharges(self)
-	local action = self.omniccAction or cooldown_ParentAction(self)
-	return action and GetActionCharges(action) ~= 0
-end
+local function cooldown_Show(self, start, duration)
+	if cooldown_CanShow(self, start, duration) then
+		if not self.omnicc then
+			cooldown_Init(self)
+		end
 
-local function cooldown_ParentAction(self)
-	local parent = self:GetParent()
-	return parent and parent:GetAttribute("action")
+		local timer = Timer:Get(self) or Timer:New(self)
+		timer:Start(start, duration)
+	else
+		cooldown_StopTimer(self)
+	end
 end
 
 
