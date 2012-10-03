@@ -12,6 +12,7 @@ L.Pulse = "Pulse"
 L.Shine = "Shine"
 L.Alert = "Alert"
 L.Activate = "Activate"
+L.Flare = "Flare"
 
 --effect tooltip text
 L.ActivateTip = [[Mimics the default effect that shows on

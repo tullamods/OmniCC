@@ -331,8 +331,10 @@ end
 	Finish Effects
 --]]---------------------------------------
 
-function OmniCC:TriggerEffect(effectId, cooldown, ...)
-	local effect = self:GetEffect(effectId)
+OmniCC.effects = {}
+
+function OmniCC:TriggerEffect(id, cooldown, ...)
+	local effect = self:GetEffect(id)
 	if effect then
 		effect:Run(cooldown, ...)
 	end
@@ -340,32 +342,27 @@ end
 
 function OmniCC:RegisterEffect(effect)
 	if not self:GetEffect(effect.id) then
-		self.effects = self.effects or {}
-		table.insert(self.effects, effect)
+		self.effects[effect.id] = effect
 	end
 end
 
-function OmniCC:GetEffect(effectId)
-	if self.effects then
-		for _, effect in pairs(self.effects) do
-			if effect.id == effectId then
-				return effect
-			end
-		end
-	end
+function OmniCC:GetEffect(id)
+	return self.effects[id]
 end
 
-function OmniCC:ForEachEffect(f, ...)
+function OmniCC:ForEachEffect(func, ...)
 	local results
+	
 	if self.effects then
 		for _, effect in pairs(self.effects) do
-			local result = f(effect, ...)
+			local result = func(effect, ...)
 			if result then
 				results = results or {}
 				tinsert(results, result)
 			end
 		end
 	end
+
 	return results
 end
 

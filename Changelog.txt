@@ -1,3 +1,10 @@
+====== 5.0.4
+* Added new Monocrome font outline option.
+* Added new Flare finish effect (artwork by Renaitre).
+
+====== 5.0.3b
+* Wrong file upload.
+
 ====== 5.0.3
 * Fixed charges bug, still happening in some non-standard action bar addons (ex: Bartender).
 
