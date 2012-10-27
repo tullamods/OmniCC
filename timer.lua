@@ -368,26 +368,23 @@ local function cooldown_ParentAction(self)
 	return parent and parent:GetAttribute("action")
 end
 
-local function cooldown_HasCharges(self)
-	local action = self.omniccAction or cooldown_ParentAction(self)
-	return action and GetActionCharges(action) ~= 0
-end
 
-local function cooldown_CanShow(self, start, duration)
-	if self.noCooldownCount or not (start and duration) or cooldown_HasCharges(self) then
+local function cooldown_CanShow(self, start, duration, charges, maxCharges)
+	local charges = charges or 0
+	
+	if self.noCooldownCount or not (start and duration and charges == 0) then
 		return
 	end
 	
-	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self)) 
+	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self))
+	
 	self:SetAlpha(sets.showCooldownModels and 1 or 0)
 	
-	if start > 0 and duration >= sets.minDuration and sets.enabled then
-		return true
-	end
+	return start > 0 and duration >= sets.minDuration and sets.enabled
 end
 
-local function cooldown_Show(self, start, duration)
-	if cooldown_CanShow(self, start, duration) then
+local function cooldown_Show(self, start, duration, charges, maxCharges)
+	if cooldown_CanShow(self, start, duration, charges, maxCharges) then
 		if not self.omnicc then
 			cooldown_Init(self)
 		end
@@ -412,17 +409,20 @@ local function action_OnHide(self)
 end
 
 local function action_Add(button, action, cooldown)
-	if not cooldown.omniccAction then
+	if not cooldown.omniccActionButton then
 		cooldown:HookScript('OnShow', action_OnShow)
 		cooldown:HookScript('OnHide', action_OnHide)
 	end
-	cooldown.omniccAction = action
+	cooldown.omniccActionButton = button
 end
 
 local function actions_Update()
 	for cooldown in pairs(actions) do
-        local start, duration = GetActionCooldown(cooldown.omniccAction)
-        cooldown_Show(cooldown, start, duration)
+		local button = cooldown.omniccActionButton
+		local start, duration, enable = GetActionCooldown(button.action)
+		local charges, maxCharges, chargeStart, chargeDuration = GetActionCharges(button.action)
+		
+		cooldown_Show(cooldown, start, duration, charges, maxCharges)
     end
 end
 
@@ -435,17 +435,19 @@ f:SetScript('OnEvent', function(self, event, ...)
 		actions_Update()
 	
 	elseif event == 'PLAYER_ENTERING_WORLD' then
-		Timer:ForAllShown('UpdateText')
-		
-	elseif ... == ADDON then
-		hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_Show)
-		hooksecurefunc('SetActionUIButton', action_Add)
-			
-		for i, button in pairs(ActionBarButtonEventsFrame.frames) do
-			action_Add(button, button.action, button.cooldown)
+		Timer:ForAllShown('UpdateText')	
+	elseif event == 'ADDON_LOADED' then
+		local addonName = ...
+		if addonName == ADDON then
+			hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_Show)
+			hooksecurefunc('SetActionUIButton', action_Add)
+				
+			for i, button in pairs(ActionBarButtonEventsFrame.frames) do
+				action_Add(button, button.action, button.cooldown)
+			end
+				
+			self:UnregisterEvent('ADDON_LOADED')
 		end
-			
-		self:UnregisterEvent('ADDON_LOADED')
 	end
 end)
 
