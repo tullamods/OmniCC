@@ -8,7 +8,7 @@ local Settings = 'OmniCC4Config'
 
 --[[ API ]]--
 
-function OmniCC:InitSettings()
+function OmniCC:StartupSettings()
 	self.sets = _G[Settings] or self:GetDefaults()
 	self:UpgradeSettings()
 	
@@ -28,10 +28,11 @@ end
 
 
 function OmniCC:UpgradeSettings()
-	local expansion, patch, version = self.sets.version:match('(%d+)\.(%d+)\.(%w+)')
-
-	if tonumber(expansion) < 4 then
+	local version = self:GetVersionID()
+	if version < 40000 then
 		self.sets = self:GetDefaults()
+	else if version < 50005 then
+		CopyTable(self.sets, self:GetGlobalDefaults())
 	end
 
 	self.sets.version = self:GetAddOnVersion()
@@ -86,6 +87,14 @@ function OmniCC:GetGroupDefaults()
 			},
 		},
 	}
+end
+
+
+--[[ Version ]]--
+
+function OmniCC:GetVersionID()
+	local expansion, patch, version = self.sets.version:match('(%d+)\.(%d+)\.(%w+)')
+	return tonumber(expansion) * 10000 + tonumber(patch) * 100 + tonumber(version)
 end
 
 function OmniCC:GetVersion()

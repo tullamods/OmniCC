@@ -5,7 +5,6 @@
 
 local OmniCC = CreateFrame('Frame', 'OmniCC')
 local Classy = LibStub('Classy-1.0')
-local L = OMNICC_LOCALS
 
 
 --[[ Startup ]]--

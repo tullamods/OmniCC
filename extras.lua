@@ -4,6 +4,7 @@
 --]]
 
 local Config = 'OmniCC_Config'
+local L = OMNICC_LOCALS
 
 function OmniCC:SetupConfig()
 	local config = CreateFrame('Frame', Config)
@@ -42,3 +43,6 @@ function OmniCC:OnCommand(command)
 		end
 	end
 end
+
+OmniCC:SetupConfig()
+OmniCC:RegisterCommands()

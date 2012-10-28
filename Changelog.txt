@@ -1,6 +1,6 @@
 ====== 5.0.5
-* Optimized the most important bottlenecks in OmniCC, for better performace.
-* Rebuilt most of OmniCC from the ground-up, for easier bug-fixing and feature addition.
+* Optimized the most important bottlenecks in OmniCC, for much better performance.
+* Rebuilt OmniCC from the ground-up, for easier bug-fixing and feature addition.
 
 ====== 5.0.4
 * Added new Monocrome font outline option.
@@ -73,7 +73,7 @@
 * Extracted the timer scheduling code from the timer code.
 * Created two scheduling engines for the timer: One based on the Animation system, and one based on the classic OnUpdate methods, with the animation system used by default. If you're experiencing crashes when using OmniCC, try switching to the OnUpdate engine.
 * To switch to the OnUpdate engine, use
-/run OmniCC:SetUpdateEngine('ClassicUpdater'); ReloadUI()
+/run OmniCC:SetUpdateEngine('ScriptUpdater'); ReloadUI()
 * To switch back to the Animation engine, use
 /run OmniCC:SetUpdateEngine('AniUpdater'); ReloadUI()
 

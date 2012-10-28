@@ -36,7 +36,8 @@ function OmniCC:FindGroup(cooldown)
 	return 'base'
 end
 
-function OmniCC:GetGroupSettings(group)
+function OmniCC:GetGroupSettings(cooldown)
+	local group = self:GetGroup(cooldown)
 	return self.sets.groupSettings[group]
 end
 

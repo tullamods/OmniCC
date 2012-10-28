@@ -292,8 +292,8 @@ function Timer:ForAllShown(f, ...)
 end
 
 
---[[ Settings Methods ]]--
+--[[ Settings ]]--
 
 function Timer:GetSettings()
-	return OmniCC:GetGroupSettings(OmniCC:CDToGroup(self.cooldown))
+	return OmniCC:GetGroupSettings(self.cooldown)
 end

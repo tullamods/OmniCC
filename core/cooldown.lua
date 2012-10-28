@@ -79,7 +79,7 @@ local function Cooldown:CanShow(start, duration)
 		return
 	end
 	
-	local sets = OmniCC:GetGroupSettings(OmniCC:GetGroup(self)) 
+	local sets = OmniCC:GetGroupSettings(self) 
 	self:SetAlpha(sets.showCooldownModels and 1 or 0)
 	
 	if start > 0 and duration >= sets.minDuration and sets.enabled then
