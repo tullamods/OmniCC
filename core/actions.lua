@@ -1,6 +1,6 @@
 --[[
 	actions.lua
-		handles action buttons specific behaviour
+		Handles action buttons specific behaviour
 --]]
 
 local Action = OmnCC:New('Actions', {visible = {}})

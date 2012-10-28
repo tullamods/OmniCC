@@ -3,40 +3,39 @@
 		config and slash commands
 --]]
 
+local Config = 'OmniCC_Config'
 
---[[ Config ]]--
+function OmniCC:SetupConfig()
+	local config = CreateFrame('Frame', Config)
+	config.name = 'OmniCC'
 
-local ConfigAddon = 'OmniCC_Config'
-local Config = CreateFrame('Frame', Config)
-Config.name = 'OmniCC'
+	config:SetScript('OnShow', function()
+		local loaded, reason = LoadAddOn(Config)
+		if not loaded then
+			local string = config:CreateFontString(nil, nil, 'GameFontHighlight')
+			local reason = _G['ADDON_'..reason]:lower()
+			
+			string:SetText(L.ConfigMissing:format(Config, reason))
+			string:SetPoint('RIGHT', -40, 0)
+			string:SetPoint('LEFT', 40, 0)
+			string:SetHeight(30)
+		end 
+	end)
 
-Config:SetScript('OnShow', function()
-	local loaded, reason = LoadAddOn(Config)
-	if not loaded then
-		local string = config:CreateFontString(nil, nil, 'GameFontHighlight')
-		local reason = _G['ADDON_'..reason]:lower()
-		
-		string:SetText(L.ConfigMissing:format(Config, reason))
-		string:SetPoint('RIGHT', -40, 0)
-		string:SetPoint('LEFT', 40, 0)
-		string:SetHeight(30)
-	end 
-end)
-
-InterfaceOptions_AddCategory(Config)
-
-
---[[ Slash Commands ]]--
-
-SLASH_OmniCC1 = '/omnicc'
-SLASH_OmniCC2 = '/occ'
-SlashCmdList['OmniCC'] = function(...)
-	OnCommand(...)
+	InterfaceOptions_AddCategory(config)
 end
 
-local function OnCommand(command)
+function OmniCC:RegisterCommands()
+	SLASH_OmniCC1 = '/omnicc'
+	SLASH_OmniCC2 = '/occ'
+	SlashCmdList['OmniCC'] = function(...)
+		self:OnCommand(...)
+	end
+end
+
+function OmniCC:OnCommand(command)
 	if comand == 'version' then
-		print(L.Version:format(OmniCC:GetVersion()))
+		print(L.Version:format(self:GetVersion()))
 	else
 		if LoadAddOn(Config) then
 			InterfaceOptionsFrame_OpenToCategory(Config)

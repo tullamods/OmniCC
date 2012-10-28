@@ -1,6 +1,6 @@
 --[[
 	timer.lua
-		Displays text for cooldowns on widgets
+		Displays countdowns on widgets
 --]]
 
 local Timer = LibStub('Classy-1.0'):New('Frame')
@@ -267,7 +267,7 @@ function Timer:ShouldShow()
 end
 
 
---[[ Meta Functions ]]--
+--[[ Static Functions ]]--
 
 function Timer:ForAll(f, ...)
 	if type(f) == 'string' then
@@ -297,143 +297,3 @@ end
 function Timer:GetSettings()
 	return OmniCC:GetGroupSettings(OmniCC:CDToGroup(self.cooldown))
 end
-
-
---[[ Cooldown Display ]]--
-
-local function cooldown_OnShow(self)
-	local timer = Timer:Get(self)
-	if timer and timer.enabled then
-		if timer:GetRemain() > 0 then
-			timer.visible = true
-			timer:UpdateShown()
-		else
-			timer:Stop()
-		end
-	end
-end
-
-local function cooldown_OnHide(self)
-	local timer = Timer:Get(self)
-	if timer and timer.enabled then
-		timer.visible = nil
-		timer:Hide()
-	end
-end
-
--- adjust the size of the timer when the cooldown's width changes, because OnSizeChanged occurs frequently
-local function cooldown_OnSizeChanged(self, ...)
-	local width = ...
-	if self.omniccw ~= width then
-		self.omniccw = width
-		
-		local timer = Timer:Get(self)
-		if timer then
-			timer:UpdateFontSize(...)
-		end
-	end
-end
-
-local function cooldown_StopTimer(self)
-	local timer = Timer:Get(self)
-	if timer and timer.enabled then
-		timer:Stop()
-	end
-end
-
-local function cooldown_Init(self)
-	self:HookScript('OnShow', cooldown_OnShow)
-	self:HookScript('OnHide', cooldown_OnHide)
-	self:HookScript('OnSizeChanged', cooldown_OnSizeChanged)
-	self.omnicc = true
-end
-
-local function cooldown_ParentAction(self)
-	local parent = self:GetParent()
-	return parent and parent:GetAttribute("action")
-end
-
-local function cooldown_HasCharges(self)
-	local action = self.omniccAction or cooldown_ParentAction(self)
-	return action and GetActionCharges(action) ~= 0
-end
-
-local function cooldown_CanShow(self, start, duration)
-	if self.noCooldownCount or not (start and duration) or cooldown_HasCharges(self) then
-		return
-	end
-	
-	local sets = OmniCC:GetGroupSettings(OmniCC:CDToGroup(self)) 
-	self:SetAlpha(sets.showCooldownModels and 1 or 0)
-	
-	if start > 0 and duration >= sets.minDuration and sets.enabled then
-		return true
-	end
-end
-
-local function cooldown_Show(self, start, duration)
-	if cooldown_CanShow(self, start, duration) then
-		if not self.omnicc then
-			cooldown_Init(self)
-		end
-
-		local timer = Timer:Get(self) or Timer:New(self)
-		timer:Start(start, duration)
-	else
-		cooldown_StopTimer(self)
-	end
-end
-
-
---[[ ActionUI Button ]]--
-
-local actions = {}
-local function action_OnShow(self)
-	actions[self] = true
-end
-
-local function action_OnHide(self)
-	actions[self] = nil
-end
-
-local function action_Add(button, action, cooldown)
-	if not cooldown.omniccAction then
-		cooldown:HookScript('OnShow', action_OnShow)
-		cooldown:HookScript('OnHide', action_OnHide)
-	end
-	cooldown.omniccAction = action
-end
-
-local function actions_Update()
-	for cooldown in pairs(actions) do
-        local start, duration = GetActionCooldown(cooldown.omniccAction)
-        cooldown_Show(cooldown, start, duration)
-    end
-end
-
-
---[[ Events ]]--
-
-local f = CreateFrame('Frame'); f:Hide()
-f:SetScript('OnEvent', function(self, event, ...)
-	if event == 'ACTIONBAR_UPDATE_COOLDOWN' then
-		actions_Update()
-	
-	elseif event == 'PLAYER_ENTERING_WORLD' then
-		Timer:ForAllShown('UpdateText')
-		
-	elseif ... == Addon then
-		hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_Show)
-		hooksecurefunc('SetActionUIButton', action_Add)
-			
-		for i, button in pairs(ActionBarButtonEventsFrame.frames) do
-			action_Add(button, button.action, button.cooldown)
-		end
-			
-		self:UnregisterEvent('ADDON_LOADED')
-	end
-end)
-
-f:RegisterEvent('ACTIONBAR_UPDATE_COOLDOWN')
-f:RegisterEvent('PLAYER_ENTERING_WORLD')
-f:RegisterEvent('ADDON_LOADED')

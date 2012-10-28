@@ -1,6 +1,6 @@
 --[[
 	cooldown.lua
-		initializes OmniCC
+		Manages the cooldowns need for timers
 --]]
 
 local Cooldown = OmniCC:New('Cooldown')
