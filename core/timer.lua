@@ -86,7 +86,7 @@ end
 --[[ Redraw ]]--
 
 function Timer:UpdateFontSize(width, height)
-	self.abRatio = round(width) / ICON_SIZE
+	self.abRatio = round(width) / IconSize
 
 	self:SetSize(width, height)
 	self:UpdateTextPosition()

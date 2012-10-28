@@ -10,6 +10,7 @@ local Timer = OmniCC.Timer
 --[[ Control ]]--
 
 function Cooldown:Start(...)
+	print('CanShow', Cooldown.CanShow(self, ...))
 	if Cooldown.CanShow(self, ...) then
 		if not self.omnicc then
 			Cooldown.Setup(self)
@@ -39,7 +40,7 @@ end
 
 --[[ Frame Events ]]--
 
-function Cooldown:OnShown()
+function Cooldown:OnShow()
 	local timer = Timer:Get(self)
 	if timer and timer.enabled then
 		if timer:GetRemain() > 0 then
@@ -75,8 +76,9 @@ end
 --[[ Queries ]]--
 
 function Cooldown:CanShow(start, duration)
+	if true then return true end
 	if self.noCooldownCount or not (start and duration) or Cooldown.HasCharges(self) then
-		return
+		return false
 	end
 	
 	local sets = OmniCC:GetGroupSettings(self) 

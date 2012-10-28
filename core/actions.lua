@@ -26,8 +26,9 @@ end
 
 function Actions:Update()
 	for cooldown in pairs(self.visible) do
-        local start, duration = Cooldown.GetAction(cooldown.omniccAction)
-        Cooldown.Show(cooldown, start, duration)
+        local start, duration = GetActionCooldown(cooldown.omniccAction)
+		print(start, duration)
+        Cooldown.Start(cooldown, start, duration)
     end
 end
 
@@ -35,7 +36,7 @@ end
 --[[ Events ]]--
 
 function Actions:OnShow()
-	Action.visible[self] = true
+	Actions.visible[self] = true
 end
 
 function Actions:OnHide()

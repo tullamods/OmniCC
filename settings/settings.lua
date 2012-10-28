@@ -4,6 +4,19 @@
 --]]
 
 local Settings = 'OmniCC4Config'
+local function CopyTable(target, source)
+	for k, v in pairs(source) do
+		if type(value) == 'table' then
+			target[k] = CopyTable(target[k] or {}, v)
+			
+		elseif target[k] == nil then
+			target[k] = v
+		end
+	end
+	
+	return target
+end
+
 
 --[[ API ]]--
 
@@ -18,8 +31,8 @@ function OmniCC:GetDefaults()
 	local sets = self:GetGlobalDefaults()
 	
 	local defaults = self:GetGroupDefaults()
-	for id, sets in pairs(self.sets.groupSettings) do
-		CopyTable(sets, defaults)
+	for id, group in pairs(sets.groupSettings) do
+		CopyTable(group, defaults)
 	end
 	
 	return sets
@@ -93,8 +106,10 @@ end
 --[[ Version ]]--
 
 function OmniCC:GetVersionID()
-	local expansion, patch, version = self.sets.version:match('(%d+)\.(%d+)\.(%w+)')
-	return tonumber(expansion) * 10000 + tonumber(patch) * 100 + tonumber(version)
+	local version = self.sets.version or self:GetVersion()
+	local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%w+)')
+	
+	return tonumber(expansion) * 10000 + tonumber(patch) * 100 + tonumber(release)
 end
 
 function OmniCC:GetVersion()
