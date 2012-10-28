@@ -1,4 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="effects.lua"/>
+	
 	<Script file="activate.lua"/>
 	<Script file="alert.lua"/>
 	<Script file="pulse.lua"/>

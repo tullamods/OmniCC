@@ -1,52 +1,35 @@
 --[[
 	timer.lua
 		Displays text for cooldowns on widgets
-
-	cases when font size should be updated:
-		frame is resized
-		font is changed
-
-	cases when text should be hidden:
-		scale * fontSize < MIN_FONT_SIE
 --]]
 
---globals!
-local Classy = LibStub('Classy-1.0')
+local Timer = LibStub('Classy-1.0'):New('Frame')
 local OmniCC = OmniCC
+local Addon = ...
 
---constants!
-local ADDON = ...
-local ICON_SIZE = 36 --the normal size for an icon (don't change this)
-local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
-local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5 --used for formatting text at transition points
-local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY/2 + 0.5, HOUR/2 + 0.5, MINUTE/2 + 0.5 --used for calculating next update times
-local PADDING = 0 --amount of spacing between the timer text and the rest of the cooldown
+local IconSize = 36
+local Padding = 0 
+local timers = {}
 
---local bindings!
+local Day, Hour, Minute = 86400, 3600, 60
+local Dayish, Hourish, Minuteish, Soonish = 3600 * 23.5, 60 * 59.5, 59.5, 5.5
+local HalfDayish, HalfHourish, HalfMinuteish = Day/2 + 0.5, Hour/2 + 0.5, Minute/2 + 0.5
+
 local floor, min, type = floor, min, type
 local round = function(x) return floor(x + 0.5) end
 local GetTime = GetTime
 
---[[
-	the cooldown timer object:
-		displays time remaining for the given cooldown
---]]
 
-local Timer = Classy:New('Frame'); Timer:Hide(); OmniCC.Timer = Timer
-local timers = {}
-
-
---[[ Constructorish ]]--
+--[[ Constructor ]]--
 
 function Timer:New(cooldown)
-	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent())); timer.cooldown = cooldown
+	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent()))
 	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
 	timer:Hide()
 
 	timer.text = timer:CreateFontString(nil, 'OVERLAY')
+	timer.cooldown = cooldown
 
-	--we set the timer to the center of the cooldown and manually set size information in order to allow me to scale text
-	--if we do set all points instead, then timer text tends to move around when the timer itself is scale)
 	timer:SetPoint('CENTER', cooldown)
 	timer:UpdateFontSize(cooldown:GetSize())
 
@@ -58,14 +41,8 @@ function Timer:Get(cooldown)
 	return timers[cooldown]
 end
 
-function Timer:OnScheduledUpdate()
-	--print('Timer:OnScheduledUpdate')
-	
-	self:UpdateText()
-end
 
-
---[[ Updaters ]]--
+--[[ Controls ]]--
 
 function Timer:Start(start, duration)
 	self.start = start
@@ -83,6 +60,32 @@ function Timer:Stop()
 	self:Hide()
 end
 
+
+--[[ Update Schedules ]]--
+
+function Timer:ScheduleUpdate(delay)
+	local engine = OmniCC:GetUpdateEngine()
+	local updater = engine:Get(self)
+
+	updater:ScheduleUpdate(delay)
+end
+
+function Timer:OnScheduledUpdate()
+	self:UpdateText()
+end
+
+function Timer:CancelUpdate()
+	local engine = OmniCC:GetUpdateEngine()
+	local updater = engine:GetActive(self)
+
+	if updater then
+		updater:CancelUpdate()
+	end
+end
+
+
+--[[ Redraw ]]--
+
 function Timer:UpdateFontSize(width, height)
 	self.abRatio = round(width) / ICON_SIZE
 
@@ -95,43 +98,36 @@ function Timer:UpdateFontSize(width, height)
 end
 
 function Timer:UpdateText(forceStyleUpdate)
-	--handle deathknight runes, which have timers that start in the future
 	if self.start > GetTime() then
 		return self:ScheduleUpdate(self.start - GetTime())
 	end
 
-	--if there's time left on the clock, then update the timer text
-	--otherwise stop the timer
 	local remain = self:GetRemain()
 	if remain > 0 then
 		local overallScale = self.abRatio * (self:GetEffectiveScale()/UIParent:GetScale()) --used to determine text visibility
 
-		--hide text if it's too small to display
-		--check again in one second
 		if overallScale < self:GetSettings().minSize then
 			self.text:Hide()
 			self:ScheduleUpdate(1)
 		else
-			--update text style based on time remaining
-			local styleId = self:GetTextStyleId(remain)
-			if (styleId ~= self.textStyle) or forceStyleUpdate then
-				self.textStyle = styleId
+			local style = self:GetTextStyleId(remain)
+			if (style ~= self.textStyle) or forceStyleUpdate then
+				self.textStyle = style
 				self:UpdateTextStyle()
 			end
 
-			--make sure that we have text, and then set text
 			if self.text:GetFont() then
 				self.text:SetFormattedText(self:GetTimeText(remain))
 				self.text:Show()
 			end
+
 			self:ScheduleUpdate(self:GetNextUpdate(remain))
 		end
 	else
-		--if the timer was long enough to, and text is still visible
-		--then trigger a finish effect
 		if self.duration >= self:GetSettings().minEffectDuration then
-			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown, self.duration)
+			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown)
 		end
+		
 		self:Stop()
 	end
 end
@@ -140,6 +136,7 @@ function Timer:UpdateTextStyle()
 	local sets = self:GetSettings()
 	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
 	local style = sets.styles[self.textStyle]
+	
 	if sets.scaleText then
 		size = size * style.scale * (self.abRatio or 1)
 	else
@@ -147,7 +144,6 @@ function Timer:UpdateTextStyle()
 	end
 
 	if size > 0 then
-		--fallback to the standard font if the font we tried to set happens to be invalid
 		if not self.text:SetFont(font, size, outline) then
 			self.text:SetFont(STANDARD_TEXT_FONT, size, outline)
 		end
@@ -179,17 +175,6 @@ function Timer:UpdateCooldownShown()
 end
 
 
---[[ Update Scheduling ]]--
-
-function Timer:ScheduleUpdate(delay)
-	OmniCC:ScheduleUpdate(self, delay)
-end
-
-function Timer:CancelUpdate()
-	OmniCC:CancelUpdate(self)
-end
-
-
 --[[ Accessors ]]--
 
 function Timer:GetRemain()
@@ -214,32 +199,32 @@ function Timer:GetNextUpdate(remain)
 	if remain < (sets.tenthsDuration + 0.5) then
 		return 0.1
 		
-	elseif remain < MINUTEISH then
+	elseif remain < Minuteish then
 		return remain - round(remain) + 0.51
 		
 	elseif remain < sets.mmSSDuration then
 		return remain - round(remain) + 0.51
 		
-	elseif remain < HOURISH then
-		local minutes = round(remain/MINUTE)
+	elseif remain < Hourish then
+		local minutes = round(remain/Minute)
 		if minutes > 1 then
-			return remain - (minutes*MINUTE - HALFMINUTEISH)
+			return remain - (minutes*Minute - HalfMinuteish)
 		end
-		return remain - MINUTEISH + 0.01
+		return remain - Minuteish + 0.01
 		
-	elseif remain < DAYISH then
-		local hours = round(remain/HOUR)
+	elseif remain < Dayish then
+		local hours = round(remain/Hour)
 		if hours > 1 then
-			return remain - (hours*HOUR - HALFHOURISH)
+			return remain - (hours*Hour - HalfHourish)
 		end
-		return remain - HOURISH + 0.01
+		return remain - Hourish + 0.01
 		
 	else
-		local days = round(remain/DAY)
+		local days = round(remain/Day)
 		if days > 1 then
-			return remain - (days*DAY - HALFDAYISH)
+			return remain - (days*Day - HalfDayish)
 		end
-		return remain - DAYISH + 0.01
+		return remain - Dayish + 0.01
 	end
 end
 
@@ -249,22 +234,22 @@ function Timer:GetTimeText(remain)
 	if remain < sets.tenthsDuration then
 		return '%.1f', remain
 		
-	elseif remain < MINUTEISH then
+	elseif remain < Minuteish then
 		local seconds = round(remain)
 		return seconds ~= 0 and seconds or ''
 		
 	elseif remain < sets.mmSSDuration then
 		local seconds = round(remain)
-		return '%d:%02d', seconds/MINUTE, seconds%MINUTE
+		return '%d:%02d', seconds/Minute, seconds%Minute
 		
-	elseif remain < HOURISH then
-		return '%dm', round(remain/MINUTE)
+	elseif remain < Hourish then
+		return '%dm', round(remain/Minute)
 		
-	elseif remain < DAYISH then
-		return '%dh', round(remain/HOUR)
+	elseif remain < Dayish then
+		return '%dh', round(remain/Hour)
 
 	else
-		return '%dd', round(remain/DAY)
+		return '%dd', round(remain/Day)
 	end
 end
 
@@ -279,13 +264,6 @@ function Timer:ShouldShow()
 	end
 
 	return sets.enabled
-end
-
-
---[[ Settings Methods ]]--
-
-function Timer:GetSettings()
-	return OmniCC:GetGroupSettings(OmniCC:CDToGroup(self.cooldown))
 end
 
 
@@ -311,6 +289,13 @@ function Timer:ForAllShown(f, ...)
 			f(timer, ...)
 		end
 	end
+end
+
+
+--[[ Settings Methods ]]--
+
+function Timer:GetSettings()
+	return OmniCC:GetGroupSettings(OmniCC:CDToGroup(self.cooldown))
 end
 
 
@@ -437,7 +422,7 @@ f:SetScript('OnEvent', function(self, event, ...)
 	elseif event == 'PLAYER_ENTERING_WORLD' then
 		Timer:ForAllShown('UpdateText')
 		
-	elseif ... == ADDON then
+	elseif ... == Addon then
 		hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, 'SetCooldown', cooldown_Show)
 		hooksecurefunc('SetActionUIButton', action_Add)
 			

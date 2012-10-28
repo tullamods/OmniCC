@@ -17,21 +17,16 @@ end})
 --[[ Updater Retrieval ]]--
 
 function ClassicUpdater:Get(frame)
-	-- print('ClassicUpdater:Get', frame)
-
 	return updaters[frame]
 end
 
 function ClassicUpdater:GetActive(frame)
-	-- print('ClassicUpdater:GetActive', frame)
-
 	return rawget(updaters, frame)
 end
 
 function ClassicUpdater:New(frame)
-	-- print('ClassicUpdater:New', count, frame)
-
-	local updater = self:Bind(CreateFrame('Frame', nil)); updater:Hide()
+	local updater = self:Bind(CreateFrame('Frame', nil))
+	updater:Hide()
 	updater:SetScript('OnUpdate', updater.OnUpdate)
 	updater.frame = frame
 
@@ -42,8 +37,6 @@ end
 --[[ Updater Events ]]--
 
 function ClassicUpdater:OnUpdate(elapsed)
-	-- print('ClassicUpdater:OnUpdate', elapsed)
-
 	local delay = self.delay - elapsed
 	if delay > 0 then
 		self.delay = delay
@@ -53,8 +46,6 @@ function ClassicUpdater:OnUpdate(elapsed)
 end
 
 function ClassicUpdater:OnFinished()
-	-- print('ClassicUpdater:OnFinished')
-
 	self:Cleanup()
 	self.frame:OnScheduledUpdate()
 end
@@ -63,8 +54,6 @@ end
 --[[ Updater Updating ]]--
 
 function ClassicUpdater:ScheduleUpdate(delay)
-	-- print('ClassicUpdater:ScheduleUpdate', delay)
-
 	if delay > 0 then
 		self.delay = delay
 		self:Show()
@@ -74,14 +63,10 @@ function ClassicUpdater:ScheduleUpdate(delay)
 end
 
 function ClassicUpdater:CancelUpdate()
-	-- print('ClassicUpdater:CancelUpdate')
-
 	self:Cleanup()
 end
 
 function ClassicUpdater:Cleanup()
-	-- print('ClassicUpdater:Cleanup')
-
 	self:Hide()
 	self.delay = nil
 end

@@ -9,8 +9,10 @@
 libs\libs.xml
 localization\localization.xml
 
-OmniCC.lua
-timer.lua
+main.lua
+extras.lua
 
-updaters\updaters.xml
+core\core.xml
+settings\settings.xml
+engines\engines.xml
 effects\effects.xml

@@ -100,10 +100,11 @@ do
 		name = L.Pulse,
     desc = L.PulseTip,
 		Run = function(self, cooldown)
-			local b = cooldown:GetParent()
-			local icon = OmniCC:GetIcon(b)
+			local button = cooldown:GetParent()
+			local icon = OmniCC:GetIcon(button)
+			
 			if icon then
-				pulses[b]:Start(icon)
+				pulses[button]:Start(icon)
 			end
 		end
 	}

@@ -1,3 +1,7 @@
+====== 5.0.5
+* Optimized the most important bottlenecks in OmniCC, for better performace.
+* Rebuilt most of OmniCC from the ground-up, for easier bug-fixing and feature addition.
+
 ====== 5.0.4
 * Added new Monocrome font outline option.
 * Added new Flare finish effect (artwork by Renaitre).
