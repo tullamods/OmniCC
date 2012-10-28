@@ -74,7 +74,7 @@ end
 
 --[[ Queries ]]--
 
-local function Cooldown:CanShow(start, duration)
+function Cooldown:CanShow(start, duration)
 	if self.noCooldownCount or not (start and duration) or Cooldown.HasCharges(self) then
 		return
 	end
@@ -87,12 +87,12 @@ local function Cooldown:CanShow(start, duration)
 	end
 end
 
-local function Cooldown:HasCharges()
+function Cooldown:HasCharges()
 	local action = self.omniccAction or Cooldown.GetAction(self)
 	return action and GetActionCharges(action) ~= 0
 end
 
-local function Cooldown:GetAction()
+function Cooldown:GetAction()
 	local parent = self:GetParent()
 	return parent and parent:GetAttribute('action')
 end

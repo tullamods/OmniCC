@@ -3,7 +3,7 @@
 		Handles action buttons specific behaviour
 --]]
 
-local Action = OmnCC:New('Actions', {visible = {}})
+local Actions = OmniCC:New('Actions', {visible = {}})
 local Cooldown = OmniCC.Cooldown
 
 
@@ -17,8 +17,8 @@ end
 
 function Actions:Add(action, cooldown)
 	if not cooldown.omniccAction then
-		cooldown:HookScript('OnShow', Action.OnShow)
-		cooldown:HookScript('OnHide', Action.OnHide)
+		cooldown:HookScript('OnShow', Actions.OnShow)
+		cooldown:HookScript('OnHide', Actions.OnHide)
 	end
 
 	cooldown.omniccAction = action
@@ -39,5 +39,5 @@ function Actions:OnShow()
 end
 
 function Actions:OnHide()
-	Action.visible[self] = nil
+	Actions.visible[self] = nil
 end

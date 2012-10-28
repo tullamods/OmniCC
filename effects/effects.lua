@@ -27,7 +27,7 @@ function OmniCC:ForAllEffect(func, ...)
 end
 
 function OmniCC:RegisterEffect(effect)
-	self.effects[id] = effect
+	self.effects[effect.id] = effect
 end
 
 function OmniCC:GetEffect(id)

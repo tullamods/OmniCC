@@ -5,7 +5,6 @@
 
 local Settings = 'OmniCC4Config'
 
-
 --[[ API ]]--
 
 function OmniCC:StartupSettings()
@@ -31,12 +30,12 @@ function OmniCC:UpgradeSettings()
 	local version = self:GetVersionID()
 	if version < 40000 then
 		self.sets = self:GetDefaults()
-	else if version < 50005 then
+	elseif version < 50005 then
 		CopyTable(self.sets, self:GetGlobalDefaults())
 		self.sets.updaterEngine = nil
 	end
 
-	self.sets.version = self:GetAddOnVersion()
+	self.sets.version = self:GetVersion()
 end
 	
 
@@ -68,7 +67,7 @@ function OmniCC:GetGroupDefaults()
 		mmSSDuration = 0,
 		xOff = 0,
 		yOff = 0,
-		anchor = 'CENTER'
+		anchor = 'CENTER',
 		styles = {
 			soon = {
 				r = 1, g = 0, b= 0, a = 1,

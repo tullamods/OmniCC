@@ -3,6 +3,7 @@
 		initializes OmniCC
 --]]
 
+local Addon = ...
 local OmniCC = CreateFrame('Frame', 'OmniCC')
 local Classy = LibStub('Classy-1.0')
 
@@ -14,13 +15,12 @@ function OmniCC:Startup()
 		self[event](self)
 	end)
 	
-	self:RegisterEvent('ADDON_LOADED')
+	self:RegisterEvent('VARIABLES_LOADED')
 	self.effects = {}
 end
 
-function OmniCC:ADDON_LOADED()
+function OmniCC:VARIABLES_LOADED()
 	self:StartupSettings()
-	
 	self.Actions:AddDefaults()
 	self:SetupEvents()
 	self:SetupHooks()
@@ -37,7 +37,7 @@ function OmniCC:SetupHooks()
 end
 
 function OmniCC:SetupEvents()
-	self:UnregisterEvent('ADDON_LOADED')
+	self:UnregisterEvent('VARIABLES_LOADED')
 	self:RegisterEvent('ACTIONBAR_UPDATE_COOLDOWN')
 	self:RegisterEvent('PLAYER_ENTERING_WORLD')
 end
