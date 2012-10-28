@@ -16,6 +16,7 @@ L.FontOutline = "Font Outline"
 L.Outline_NONE = NONE
 L.Outline_OUTLINE = "Thin"
 L.Outline_THICKOUTLINE = "Thick"
+L.Outline_OUTLINEMONOCHROME = "Monochrome"
 
 L.MinDuration = "Minimum duration to display text"
 L.MinSize = "Minimum size to display text"
@@ -81,8 +82,6 @@ L.UseAniUpdaterTip =
 [[Optimizes CPU performance, but may
 cause crashes on some environments.
 Disabling this option will solve the issue.]]
-
-L.UseAniUpdaterSmallTip = "|cffff2020Changing requires game reload.|r"
 
 L.MinDurationTip =
 [[Determines how long a cooldown

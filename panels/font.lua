@@ -115,7 +115,7 @@ function FontOptions:CreateFontSizeSlider()
 end
 
 do
-	local fontOutlines = {'NONE', 'OUTLINE', 'THICKOUTLINE'}
+	local fontOutlines = {'NONE', 'OUTLINE', 'THICKOUTLINE', 'OUTLINEMONOCHROME'}
 	local function toIndex(fontOutline)
 		for i, outline in pairs(fontOutlines) do
 			if outline == fontOutline then

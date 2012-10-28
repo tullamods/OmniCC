@@ -80,8 +80,6 @@ L.UseAniUpdaterTip =
 causar falhas em alguns sistemas.
 Desativar esta opção irá resolver o problema.]]
 
-L.UseAniUpdaterSmallTip = "|cffff2020Changing requires game reload.|r"
-
 L.MinDurationTip =
 [[Determina o tempo mínimo que um cooldown
 tem de ter a fim de mostrar o texto.

@@ -1,0 +1,4 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Include file="CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
+	<Include file="LibSharedMedia-3.0\lib.xml"/>
+</Ui>

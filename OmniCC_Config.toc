@@ -1,4 +1,4 @@
-## Interface: 40300
+## Interface: 50001
 ## Title: |cffE32929OmniCC Config|r
 ## Notes: OmniCC's configuration menu
 ## Notes-koKR: OmniCC의 설정 메뉴
@@ -6,8 +6,9 @@
 ## Dependencies: OmniCC
 ## LoadOnDemand: 1
 
-embeds.xml
-localization.xml
-widgets.xml
+libs\libs.xml
+localization\localization.xml
+widgets\widgets.xml
+
 mainPanel.lua
-panels.xml
+panels\panels.xml
