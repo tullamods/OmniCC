@@ -2,45 +2,49 @@
 	An animation sytem based timer thingy
 --]]
 
-local Classy = LibStub('Classy-1.0')
-local OmniCC = OmniCC
-local AniUpdater = Classy:New('Frame'); OmniCC.AniUpdater = AniUpdater
+local AniUpdater = OmniCC:New('AniUpdater')
+AniUpdater.updaters = {}
 
-local updaters = setmetatable({}, {__index = function(self, frame)
-	local updater = AniUpdater:New(frame)
-	self[frame] = updater
 
-	return updater
-end})
+--[[ Constructor ]]--
 
 function AniUpdater:Get(frame)
-	return updaters[frame]
+	return self:GetActive(frame) or self:GetNew(frame)
 end
 
 function AniUpdater:GetActive(frame)
-	return rawget(updaters, frame)
+	return self.updaters[frame]
 end
 
-local animation_OnFinished = function(self) self:GetParent():OnFinished() end
 function AniUpdater:New(frame)
-	local updater = self:Bind(CreateFrame('Frame', nil)); updater:Hide()
-	updater.frame = frame
+	local updater = self:Bind(CreateFrame('Frame'))
+	self.updaters[frame] = updater
+	
+	local group = updater:CreateAnimationGroup()
+	group:SetLooping('NONE')
+	group:SetScript('OnFinished', function(self)
+		self:GetParent():OnFinished()
+	end)
 
-	local aniGroup = updater:CreateAnimationGroup()
-	aniGroup:SetLooping('NONE')
-	aniGroup:SetScript('OnFinished', animation_OnFinished)
-	updater.aniGroup = aniGroup
-
-	local ani = aniGroup:CreateAnimation('Animation')
-	ani:SetOrder(1)
-	updater.ani = ani
-
+	local animation = aniGroup:CreateAnimation('Animation')
+	animation:SetOrder(1)
+	
+	updater.frame, updater.group = frame, group
+	updater.animation =animation
 	return updater
 end
 
+
+--[[ Controls ]]--
+
+function AniUpdater:CancelUpdate()
+	self:StopAnimation()
+	self:Hide()
+end
+
 function AniUpdater:StopAnimation()
-	if self.aniGroup:IsPlaying() then
-		self.aniGroup:Stop()
+	if self.group:IsPlaying() then
+		self.group:Stop()
 	end
 end
 
@@ -49,16 +53,11 @@ function AniUpdater:ScheduleUpdate(delay)
 	
 	if delay > 0 then
 		self:Show()
-		self.ani:SetDuration(delay + 0.0002)
-		self.aniGroup:Play()
+		self.animation:SetDuration(delay + 0.0002)
+		self.group:Play()
 	else
 		self:OnFinished()
 	end
-end
-
-function AniUpdater:CancelUpdate()
-	self:StopAnimation()
-	self:Hide()
 end
 
 function AniUpdater:OnFinished()
