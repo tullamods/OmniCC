@@ -55,5 +55,5 @@ function OmniCC:GetButtonIcon(frame)
 end
 
 function OmniCC:GetUpdateEngine()
-	return self[self.sets.updaterEngine]
+	return self[self.sets.engine]
 end

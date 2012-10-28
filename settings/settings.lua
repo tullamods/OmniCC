@@ -33,6 +33,7 @@ function OmniCC:UpgradeSettings()
 		self.sets = self:GetDefaults()
 	else if version < 50005 then
 		CopyTable(self.sets, self:GetGlobalDefaults())
+		self.sets.updaterEngine = nil
 	end
 
 	self.sets.version = self:GetAddOnVersion()
@@ -43,7 +44,7 @@ end
 
 function OmniCC:GetGlobalDefaults()
 	return {
-		updaterEngine = 'AniUpdater',
+		engine = 'AniUpdater',
 		groups = {},
 		groupSettings = {
 			base = {},

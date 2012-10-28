@@ -3,13 +3,12 @@
 		Displays countdowns on widgets
 --]]
 
-local Timer = LibStub('Classy-1.0'):New('Frame')
-local OmniCC = OmniCC
 local Addon = ...
+local Timer = OmniCC:New('Timer')
+local timers = {}
 
 local IconSize = 36
-local Padding = 0 
-local timers = {}
+local Padding = 0
 
 local Day, Hour, Minute = 86400, 3600, 60
 local Dayish, Hourish, Minuteish, Soonish = 3600 * 23.5, 60 * 59.5, 59.5, 5.5
@@ -17,7 +16,7 @@ local HalfDayish, HalfHourish, HalfMinuteish = Day/2 + 0.5, Hour/2 + 0.5, Minute
 
 local floor, min, type = floor, min, type
 local round = function(x) return floor(x + 0.5) end
-local GetTime = GetTime
+local OmniCC, GetTime = OmniCC, GetTime
 
 
 --[[ Constructor ]]--
@@ -104,13 +103,13 @@ function Timer:UpdateText(forceStyleUpdate)
 
 	local remain = self:GetRemain()
 	if remain > 0 then
-		local overallScale = self.abRatio * (self:GetEffectiveScale()/UIParent:GetScale()) --used to determine text visibility
+		local overallScale = self.abRatio * (self:GetEffectiveScale()/UIParent:GetScale())
 
 		if overallScale < self:GetSettings().minSize then
 			self.text:Hide()
 			self:ScheduleUpdate(1)
 		else
-			local style = self:GetTextStyleId(remain)
+			local style = self:GetTextStyle(remain)
 			if (style ~= self.textStyle) or forceStyleUpdate then
 				self.textStyle = style
 				self:UpdateTextStyle()
@@ -181,7 +180,7 @@ function Timer:GetRemain()
 	return self.duration - (GetTime() - self.start)
 end
 
-function Timer:GetTextStyleId(s)
+function Timer:GetTextStyle(s)
 	if s < SOONISH then
 		return 'soon'
 	elseif s < MINUTEISH then
