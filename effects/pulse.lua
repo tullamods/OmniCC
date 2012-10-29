@@ -43,6 +43,10 @@ end
 --[[ Setup ]]--
 
 function Pulse:Setup(cooldown)
+	if self.active[cooldown] then
+		return
+	end
+	
 	local parent = cooldown:GetParent()
 	if parent then
 		local pulse = self:Bind(CreateFrame('Frame', nil, parent))

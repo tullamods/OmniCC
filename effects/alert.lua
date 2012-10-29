@@ -38,23 +38,25 @@ newAnim('Scale', -2.5, 2)
 newAnim('Alpha', -.7, 2)
 
 OmniCC:RegisterEffect({
-  id = 'alert',
-  name = L.Alert,
-  desc = L.AlertTip,
-  Run = function(self, cooldown)
-    local button = cooldown:GetParent()
-    local icon = OmniCC:GetButtonIcon(button)
+	id = 'alert',
+	name = L.Alert,
+	desc = L.AlertTip,
+	Setup = function() end,
+	
+	Run = function(self, cooldown)
+		local button = cooldown:GetParent()
+		local icon = OmniCC:GetButtonIcon(button)
 
-    if icon then
-      Icon:SetVertexColor(icon:GetVertexColor())
-      Icon:SetTexture(icon:GetTexture())
-      Frame:Show()
-      
-      if Anims:IsPlaying() then
-        Anims:Finish()
-      end
+		if icon then
+		  Icon:SetVertexColor(icon:GetVertexColor())
+		  Icon:SetTexture(icon:GetTexture())
+		  Frame:Show()
 
-      Anims:Play()
-    end
-  end
+		  if Anims:IsPlaying() then
+		    Anims:Finish()
+		  end
+
+		  Anims:Play()
+		end
+	end
 })

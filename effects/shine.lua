@@ -51,6 +51,10 @@ end
 --[[ Setup ]]--
 
 function Shine:Setup(cooldown)
+	if self.instances[cooldown] then
+		return
+	end
+	
 	local parent = cooldown:GetParent()
 	if parent then
 		local shine = self:Bind(CreateFrame('Frame', nil, parent))

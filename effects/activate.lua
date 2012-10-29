@@ -23,6 +23,7 @@ OmniCC:RegisterEffect({
 	name = L.Activate,
 	desc = L.ActivateTip,
 	Setup = function() end,
+	
 	Run = function(self, cooldown)
 		local button = cooldown:GetParent()
 		if button then

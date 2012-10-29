@@ -294,5 +294,5 @@ end
 --[[ Settings ]]--
 
 function Timer:GetSettings()
-	return OmniCC:GetGroupSettings(self.cooldown)
+	return OmniCC:GetGroupSettingsFor(self.cooldown)
 end

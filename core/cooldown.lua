@@ -33,9 +33,9 @@ function Cooldown:Setup()
 		self:HookScript('OnHide', Cooldown.OnHide)
 		self:HookScript('OnSizeChanged', Cooldown.OnSizeChanged)
 		self.omnicc = true
-		
-		OmniCC:SetupEffect(self)
 	end
+	
+	OmniCC:SetupEffect(self)
 end
 
 
@@ -80,7 +80,7 @@ function Cooldown:CanShow(start, duration)
 		return false
 	end
 	
-	local sets = OmniCC:GetGroupSettings(self) 
+	local sets = OmniCC:GetGroupSettingsFor(self) 
 	self:SetAlpha(sets.showCooldownModels and 1 or 0)
 	
 	if start > 0 and duration >= sets.minDuration and sets.enabled then
