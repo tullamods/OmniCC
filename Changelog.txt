@@ -1,5 +1,5 @@
 ====== 5.0.5
-* Optimized the most important bottlenecks in OmniCC, for much better performance.
+* Optimized the most important bottleneck in OmniCC, for better performance in intense battles.
 * Rebuilt OmniCC from the ground-up, for easier bug-fixing and feature addition.
 
 ====== 5.0.4

@@ -9,6 +9,17 @@ local Timer = OmniCC.Timer
 
 --[[ Control ]]--
 
+function Cooldown:Setup()
+	if not self.omnicc then
+		self:HookScript('OnShow', Cooldown.OnShow)
+		self:HookScript('OnHide', Cooldown.OnHide)
+		self:HookScript('OnSizeChanged', Cooldown.OnSizeChanged)
+		self.omnicc = true
+	end
+	
+	OmniCC:SetupEffect(self)
+end
+
 function Cooldown:Start(...)
 	if Cooldown.CanShow(self, ...) then
 		Cooldown.Setup(self)
@@ -27,15 +38,15 @@ function Cooldown:Stop()
 	end
 end
 
-function Cooldown:Setup()
-	if not self.omnicc then
-		self:HookScript('OnShow', Cooldown.OnShow)
-		self:HookScript('OnHide', Cooldown.OnHide)
-		self:HookScript('OnSizeChanged', Cooldown.OnSizeChanged)
-		self.omnicc = true
+function Cooldown:CanShow(start, duration, charges, maxCharges)
+	if self.noCooldownCount or not (start and duration) or charges > 0 then
+		return false
 	end
 	
-	OmniCC:SetupEffect(self)
+	local sets = OmniCC:GetGroupSettingsFor(self) 
+	self:SetAlpha(sets.showCooldownModels and 1 or 0)
+	
+	return start > 0 and duration >= sets.minDuration and sets.enabled
 end
 
 
@@ -70,30 +81,4 @@ function Cooldown:OnSizeChanged(width, ...)
 			timer:UpdateFontSize(width, ...)
 		end
 	end
-end
-
-
---[[ Queries ]]--
-
-function Cooldown:CanShow(start, duration)
-	if self.noCooldownCount or not (start and duration) or Cooldown.HasCharges(self) then
-		return false
-	end
-	
-	local sets = OmniCC:GetGroupSettingsFor(self) 
-	self:SetAlpha(sets.showCooldownModels and 1 or 0)
-	
-	if start > 0 and duration >= sets.minDuration and sets.enabled then
-		return true
-	end
-end
-
-function Cooldown:HasCharges()
-	local action = self.omniccAction or Cooldown.GetAction(self)
-	return action and GetActionCharges(action) ~= 0
-end
-
-function Cooldown:GetAction()
-	local parent = self:GetParent()
-	return parent and parent:GetAttribute('action')
 end

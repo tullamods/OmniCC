@@ -28,7 +28,9 @@ end
 function Actions:Update()
 	for cooldown in pairs(self.visible) do
         local start, duration = GetActionCooldown(cooldown.omniccAction)
-        Cooldown.Start(cooldown, start, duration)
+		local charges, maxCharges = GetActionCharges(cooldown.omniccAction)
+
+        Cooldown.Start(cooldown, start, duration, charges, maxCharges)
     end
 end
 
