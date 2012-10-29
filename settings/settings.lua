@@ -18,7 +18,7 @@ local function CopyTable(target, source)
 end
 
 
---[[ API ]]--
+--[[ Startup ]]--
 
 function OmniCC:StartupSettings()
 	self.sets = _G[Settings] or self:GetDefaults()
@@ -27,25 +27,17 @@ function OmniCC:StartupSettings()
 	_G[Settings] = self.sets
 end
 
-function OmniCC:GetDefaults()
-	local sets = self:GetGlobalDefaults()
-	
-	local defaults = self:GetGroupDefaults()
-	for id, group in pairs(sets.groupSettings) do
-		CopyTable(group, defaults)
-	end
-	
-	return sets
-end
-
-
 function OmniCC:UpgradeSettings()
 	local version = self:GetVersionID()
 	if version < 40000 then
 		self.sets = self:GetDefaults()
 	elseif version < 50005 then
-		CopyTable(self.sets, self:GetGlobalDefaults())
+		self.sets.engine = 'AniUpdater'
 		self.sets.updaterEngine = nil
+		
+		for _, group in pairs(self.sets.groupSettings) do
+			CopyTable(group, self:GetGroupDefaults())
+		end
 	end
 
 	self.sets.version = self:GetVersion()
@@ -54,12 +46,12 @@ end
 
 --[[ Constants ]]--
 
-function OmniCC:GetGlobalDefaults()
+function OmniCC:GetDefaults()
 	return {
 		engine = 'AniUpdater',
 		groups = {},
 		groupSettings = {
-			base = {},
+			base = self:GetGroupDefaults()
 		}
 	}
 end
@@ -84,24 +76,23 @@ function OmniCC:GetGroupDefaults()
 		styles = {
 			soon = {
 				r = 1, g = 0, b= 0, a = 1,
-				scale = 1.5,
+				scale = 1.5
 			},
 			seconds = {
 				r = 1, g = 1, b= 0, a = 1,
-				scale = 1,
+				scale = 1
 			},
 			minutes = {
 				r = 1, g = 1, b = 1, a = 1,
-				scale = 1,
+				scale = 1
 			},
 			hours = {
 				r = 0.7, g = 0.7, b = 0.7, a = 1,
-				scale = 0.75,
-			},
-		},
+				scale = 0.75
+			}
+		}
 	}
 end
-
 
 --[[ Version ]]--
 

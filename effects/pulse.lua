@@ -3,31 +3,63 @@
 		a pulsing finish effect
 --]]
 
-local Classy = LibStub('Classy-1.0')
 local L = OMNICC_LOCALS
 local PULSE_SCALE = 2.5
 local PULSE_DURATION = 0.6
 
---[[
-	The pulse object
---]]
+local Pulse = LibStub('Classy-1.0'):New('Frame')
+Pulse.name = L.Pulse
+Pulse.desc = L.PulseTip
+Pulse.id = 'pulse'
+Pulse.active = {}
 
-local Pulse = Classy:New('Frame')
 
-function Pulse:New(parent)
-	local f = self:Bind(CreateFrame('Frame', nil, parent)); f:Hide()
-	f:SetAllPoints(parent)
-	f:SetToplevel(true)
-	f:SetScript('OnHide', f.OnHide)
+--[[ Run ]]--
 
-	f.animation = f:CreatePulseAnimation()
+function Pulse:Run(cooldown)
+	local button = cooldown:GetParent()
+	local icon = OmniCC:GetButtonIcon(button)
+	
+	if icon then
+		self.active[cooldown]:Start(icon)
+	end
+end
 
-	local icon = f:CreateTexture(nil, 'OVERLAY')
-	icon:SetBlendMode('ADD')
-	icon:SetAllPoints(f)
-	f.icon = icon
+function Pulse:Start(texture)
+	if self.animation:IsPlaying() then
+		self.animation:Stop()
+	end
 
-	return f
+	local icon = self.icon
+	local r, g, b = icon:GetVertexColor()
+	icon:SetVertexColor(r, g, b, 0.7)
+	icon:SetTexture(texture:GetTexture())
+
+	self:Show()
+	self.animation:Play()
+end
+
+
+--[[ Setup ]]--
+
+function Pulse:Setup(cooldown)
+	local parent = cooldown:GetParent()
+	if parent then
+		local pulse = self:Bind(CreateFrame('Frame', nil, parent))
+		pulse:Hide()
+		pulse:SetAllPoints(parent)
+		pulse:SetToplevel(true)
+		pulse:SetScript('OnHide', pulse.OnHide)
+
+		local icon = pulse:CreateTexture(nil, 'OVERLAY')
+		icon:SetBlendMode('ADD')
+		icon:SetAllPoints()
+	
+		pulse.animation = pulse:CreatePulseAnimation()
+		pulse.icon = icon
+	
+		self.active[cooldown] = pulse
+	end
 end
 
 do
@@ -52,7 +84,6 @@ do
 		g:SetLooping('BOUNCE')
 		g:SetScript('OnFinished', animation_OnFinished)
 
-		--animation = AnimationGroup:CreateAnimation("animationType" [, "name" [, "inheritsFrom"]])
 		local grow = g:CreateAnimation('Scale')
 		grow:SetScale(PULSE_SCALE, PULSE_SCALE)
 		grow:SetOrigin('CENTER', 0, 0)
@@ -71,41 +102,4 @@ function Pulse:OnHide()
 	self:Hide()
 end
 
-function Pulse:Start(texture)
-	if self.animation:IsPlaying() then
-		self.animation:Stop()
-	end
-
-	local icon = self.icon
-	local r, g, b = icon:GetVertexColor()
-	icon:SetVertexColor(r, g, b, 0.7)
-	icon:SetTexture(texture:GetTexture())
-
-	self:Show()
-	self.animation:Play()
-end
-
-
---[[ register effect with OmniCC ]]--
-
-do
-	local pulses = setmetatable({}, {__index = function(t, k)
-		local f = Pulse:New(k)
-		t[k] = f
-		return f
-	end})
-
-	OmniCC:RegisterEffect{
-		id = 'pulse',
-		name = L.Pulse,
-    desc = L.PulseTip,
-		Run = function(self, cooldown)
-			local button = cooldown:GetParent()
-			local icon = OmniCC:GetIcon(button)
-			
-			if icon then
-				pulses[button]:Start(icon)
-			end
-		end
-	}
-end
+OmniCC:RegisterEffect(Pulse)

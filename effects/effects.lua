@@ -4,26 +4,15 @@
 --]]
 
 
---[[ Finish Effects ]]--
+--[[ Effects ]]--
 
-function OmniCC:TriggerEffect(cooldown)
-	if self.effect then
-		self.effect:Run(cooldown)
-	end
+function OmniCC:TriggerEffect(id, cooldown)
+	self:GetEffect(id):Run(cooldown)
 end
 
-function OmniCC:ForAllEffect(func, ...)
-	local results
-	
-	for _, effect in pairs(self.effects) do
-		local result = func(effect, ...)
-		if result then
-			results = results or {}
-			tinsert(results, result)
-		end
-	end
-
-	return results
+function OmniCC:SetupEffect(cooldown)
+	local id = self:GetGroupSettings(cooldown).effect
+	self:GetEffect(id):Setup(cooldown)
 end
 
 function OmniCC:RegisterEffect(effect)

@@ -19,20 +19,21 @@ local function OnFinish(anim)
 end
 
 OmniCC:RegisterEffect({
-  id = 'activate',
-  name = L.Activate,
-  desc = L.ActivateTip,
-  Run = function(self, cooldown)
-	local button = cooldown:GetParent()
-	if button then
-		ActionButton_ShowOverlayGlow(button)
-		active[button] = true
+	id = 'activate',
+	name = L.Activate,
+	desc = L.ActivateTip,
+	Setup = function() end,
+	Run = function(self, cooldown)
+		local button = cooldown:GetParent()
+		if button then
+			ActionButton_ShowOverlayGlow(button)
+			active[button] = true
 
-		local overlay = button.overlay
-		if not hooked[overlay] then
-			overlay.animIn:HookScript('OnFinished', OnFinish)
-			hooked[overlay] = true
+			local overlay = button.overlay
+			if not hooked[overlay] then
+	            overlay.animIn:HookScript('OnFinished', OnFinish)
+	            hooked[overlay] = true
+			end
 		end
 	end
-  end
 })

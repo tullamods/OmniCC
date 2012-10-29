@@ -9,7 +9,7 @@ AniUpdater.updaters = {}
 --[[ Constructor ]]--
 
 function AniUpdater:Get(frame)
-	return self:GetActive(frame) or self:GetNew(frame)
+	return self:GetActive(frame) or self:New(frame)
 end
 
 function AniUpdater:GetActive(frame)
@@ -26,11 +26,11 @@ function AniUpdater:New(frame)
 		self:GetParent():OnFinished()
 	end)
 
-	local animation = aniGroup:CreateAnimation('Animation')
+	local animation = group:CreateAnimation('Animation')
 	animation:SetOrder(1)
 	
 	updater.frame, updater.group = frame, group
-	updater.animation =animation
+	updater.animation = animation
 	return updater
 end
 

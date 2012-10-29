@@ -14,23 +14,61 @@ Shine.duration = .75
 Shine.scale = 5
 
 
---[[ Startup ]]--
+--[[ Run ]]--
 
-function Shine:New(parent)
-	local f = self:Bind(CreateFrame('Frame', nil, parent)); f:Hide()
-	f:SetScript('OnHide', f.OnHide)
-	f:SetAllPoints(parent)
-	f:SetToplevel(true)
+function Shine:Run(cooldown)
+	local shine = self.instances[cooldown]
+	if shine then
+		shine:Start()
+	end
+end
 
-	local icon = f:CreateTexture(nil, 'OVERLAY')
-	icon:SetPoint('CENTER')
-	icon:SetBlendMode('ADD')
-	icon:SetAllPoints(f)
-	icon:SetTexture(self.texture)
+function Shine:Start()
+	if self.animation:IsPlaying() then
+		self.animation:Finish()
+	end
+	
+	self:Show()
+	self.animation:Play()
+end
 
-	self.instances[parent] = f
-	f.animation = f:CreateShineAnimation()
-	return f
+function Shine:OnAnimationFinished()
+	local parent = self:GetParent()
+	if parent:IsShown() then
+		parent:Hide()
+	end
+end
+
+function Shine:OnHide()
+	if self.animation:IsPlaying() then
+		self.animation:Finish()
+	end
+	
+	self:Hide()
+end
+
+
+--[[ Setup ]]--
+
+function Shine:Setup(cooldown)
+	local parent = cooldown:GetParent()
+	if parent then
+		local shine = self:Bind(CreateFrame('Frame', nil, parent))
+		shine:Hide()
+		shine:SetScript('OnHide', shine.OnHide)
+		shine:SetAllPoints(parent)
+		shine:SetToplevel(true)
+		shine.animation = shine:CreateShineAnimation()
+
+		local icon = shine:CreateTexture(nil, 'OVERLAY')
+		icon:SetPoint('CENTER')
+		icon:SetBlendMode('ADD')
+		icon:SetAllPoints(shine)
+		icon:SetTexture(self.texture)
+
+		self.instances[cooldown] = shine
+		return shine
+	end
 end
 
 function Shine:CreateShineAnimation()
@@ -67,41 +105,5 @@ function Shine:CreateShineAnimation()
 
 	return group
 end
-
-
---[[ Events ]]--
-
-function Shine:Run (cooldown)
-	local p = cooldown:GetParent()
-	if p then
-		local shine = self.instances[p] or self:New(p)
-		shine:Start()
-	end	
-end
-
-function Shine:Start()
-	if self.animation:IsPlaying() then
-		self.animation:Finish()
-	end
-	
-	self:Show()
-	self.animation:Play()
-end
-
-function Shine:OnAnimationFinished()
-	local parent = self:GetParent()
-	if parent:IsShown() then
-		parent:Hide()
-	end
-end
-
-function Shine:OnHide()
-	if self.animation:IsPlaying() then
-		self.animation:Finish()
-	end
-	
-	self:Hide()
-end
-
 
 OmniCC:RegisterEffect(Shine)

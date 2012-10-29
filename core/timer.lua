@@ -180,12 +180,12 @@ function Timer:GetRemain()
 	return self.duration - (GetTime() - self.start)
 end
 
-function Timer:GetTextStyle(s)
-	if s < SOONISH then
+function Timer:GetTextStyle(remain)
+	if remain < Soonish then
 		return 'soon'
-	elseif s < MINUTEISH then
+	elseif remain < Minuteish then
 		return 'seconds'
-	elseif s <  HOURISH then
+	elseif remain <  Hourish then
 		return 'minutes'
 	else
 		return 'hours'

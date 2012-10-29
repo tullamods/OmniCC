@@ -2,6 +2,7 @@
 	OmniCC localization - Portuguese
 --]]
 
+if GetLocale() ~= 'ptBR' then return end
 local L = OMNICC_LOCALS
 
 L.Updated = "Atualizado para a versão %s"

@@ -10,11 +10,8 @@ local Timer = OmniCC.Timer
 --[[ Control ]]--
 
 function Cooldown:Start(...)
-	print('CanShow', Cooldown.CanShow(self, ...))
 	if Cooldown.CanShow(self, ...) then
-		if not self.omnicc then
-			Cooldown.Setup(self)
-		end
+		Cooldown.Setup(self)
 
 		local timer = Timer:Get(self) or Timer:New(self)
 		timer:Start(...)
@@ -31,10 +28,14 @@ function Cooldown:Stop()
 end
 
 function Cooldown:Setup()
-	self:HookScript('OnShow', Cooldown.OnShow)
-	self:HookScript('OnHide', Cooldown.OnHide)
-	self:HookScript('OnSizeChanged', Cooldown.OnSizeChanged)
-	self.omnicc = true
+	if not self.omnicc then
+		self:HookScript('OnShow', Cooldown.OnShow)
+		self:HookScript('OnHide', Cooldown.OnHide)
+		self:HookScript('OnSizeChanged', Cooldown.OnSizeChanged)
+		self.omnicc = true
+		
+		OmniCC:SetupEffect(self)
+	end
 end
 
 
@@ -60,14 +61,13 @@ function Cooldown:OnHide()
 	end
 end
 
-function Cooldown:OnSizeChanged(...)
-	local width = ...
-	if self.omniccw ~= width then
-		self.omniccw = width
+function Cooldown:OnSizeChanged(width, ...)
+	if self.omniWidth ~= width then
+		self.omniWidth = width
 		
 		local timer = Timer:Get(self)
 		if timer then
-			timer:UpdateFontSize(...)
+			timer:UpdateFontSize(width, ...)
 		end
 	end
 end
@@ -76,7 +76,6 @@ end
 --[[ Queries ]]--
 
 function Cooldown:CanShow(start, duration)
-	if true then return true end
 	if self.noCooldownCount or not (start and duration) or Cooldown.HasCharges(self) then
 		return false
 	end

@@ -43,7 +43,7 @@ OmniCC:RegisterEffect({
   desc = L.AlertTip,
   Run = function(self, cooldown)
     local button = cooldown:GetParent()
-    local icon = OmniCC:GetIcon(button)
+    local icon = OmniCC:GetButtonIcon(button)
 
     if icon then
       Icon:SetVertexColor(icon:GetVertexColor())
@@ -53,7 +53,8 @@ OmniCC:RegisterEffect({
       if Anims:IsPlaying() then
         Anims:Finish()
       end
+
       Anims:Play()
-		end
+    end
   end
 })

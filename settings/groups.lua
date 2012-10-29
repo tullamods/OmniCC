@@ -55,7 +55,7 @@ end
 function OmniCC:AddGroup(id)
 	if not self:GetGroupIndex(id) then
 		local sets = self.sets
-		sets.groupSettings[id] = CopyTable({}, sets.groupSettings['base'])
+		sets.groupSettings[id] = CopyTable(sets.groupSettings['base'])
 		tinsert(sets.groups, {id = id, rules = {}, enabled = true})
 
 		self:UpdateGroups()
@@ -66,7 +66,7 @@ end
 function OmniCC:RemoveGroup(id)
 	local index = self:GetGroupIndex(id)
 	if index then
-		self.sets.groupSettings[groupId] = nil
+		self.sets.groupSettings[id] = nil
 		tremove(self.sets.groups, index)
 
 		self:UpdateGroups()

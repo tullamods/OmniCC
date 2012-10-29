@@ -16,18 +16,18 @@ function Actions:AddDefaults()
 end
 
 function Actions:Add(action, cooldown)
-	if not cooldown.omniccAction then
+	cooldown.omniccAction = action
+	
+	if not cooldown.omnicc then
 		cooldown:HookScript('OnShow', Actions.OnShow)
 		cooldown:HookScript('OnHide', Actions.OnHide)
+		Cooldown.Setup(cooldown)
 	end
-
-	cooldown.omniccAction = action
 end
 
 function Actions:Update()
 	for cooldown in pairs(self.visible) do
         local start, duration = GetActionCooldown(cooldown.omniccAction)
-		print(start, duration)
         Cooldown.Start(cooldown, start, duration)
     end
 end
