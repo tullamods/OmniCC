@@ -60,13 +60,6 @@ local function map(t, f)
 	return newtbl
 end
 
---[[
-	OmniCC settings retrieval
---]]
-
-local groupSets_Get = function(groupId)
-	return OmniCC.sets.groupSettings[groupId]
-end
 
 --[[
 	group settings selector
@@ -364,7 +357,7 @@ OmniCCOptions.AddTab = function(self, id, name, panel)
 end
 
 OmniCCOptions.GetGroupSets = function(self)
-	return groupSets_Get(f.selectedGroup or 'base')
+	return OmniCC:GetGroupSettings(f.selectedGroup or 'base')
 end
 
 OmniCCOptions.GetGroupId = function(self)
