@@ -98,7 +98,7 @@ The larger the value, the bigger things must be.
 Some benchmarks:
 100 - The size of an action button
 80  - The size of a class or pet action button
-55  - The size of a Blizzard target frame buff]]
+55  - The size of a target frame buff]]
 
 L.MinEffectDurationTip =
 [[Determines how long a

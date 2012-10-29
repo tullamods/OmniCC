@@ -2,6 +2,7 @@
 	OmniCC configuration interface localization - Portuguese
 --]]
 
+if GetLocale() ~= 'ptBR' then return end
 local L = OMNICC_LOCALS
 
 L.GeneralSettings = "Display"

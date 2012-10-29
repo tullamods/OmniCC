@@ -313,10 +313,18 @@ end
 function GeneralOptions:CreateFinishEffectPicker()
 	local parent = self
 	local dd = OmniCCOptions.Dropdown:New(L.FinishEffect, parent, 120)
+	local effects = {}
 
-	local effects = OmniCC:ForEachEffect(function(effect) return {name = effect.name, value = effect.id, tooltip = effect.desc} end)
+	for id, effect in pairs(OmniCC.effects) do
+		tinsert(effects, {
+			name = effect.name,
+			tooltip = effect.desc,
+			value = id
+		})
+	end
+
 	table.sort(effects, function(e1, e2) return e1.name < e2.name end)
-	table.insert(effects, 1, {name = NONE, value = 'none'})
+	tinsert(effects, 1, {name = NONE, value = 'none'})
 
 	dd.SetSavedValue = function(self, value)
 		parent:GetGroupSets().effect = value

@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Include file="widgets\tabPanelArea.xml"/>
+	<Include file="tabPanelArea.xml"/>
 
 	<!-- basic widgets -->
 	<Script file="group.lua"/>
