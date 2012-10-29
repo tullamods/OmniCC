@@ -38,8 +38,8 @@ function Cooldown:Stop()
 	end
 end
 
-function Cooldown:CanShow(start, duration, charges, maxCharges)
-	if self.noCooldownCount or not (start and duration) or charges > 0 then
+function Cooldown:CanShow(start, duration, charges)
+	if self.noCooldownCount or not (start and duration) or charges ~= 0 then
 		return false
 	end
 	
