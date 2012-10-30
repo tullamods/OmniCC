@@ -1,5 +1,9 @@
+====== 5.0.7 (beta)
+* Fixed bug preventing OmniCC from working with addons that do not support spell charges (ex: Ion).
+
 ====== 5.0.6 (beta)
 * Fixed bug preventing OmniCC from working with addons such as Bartender. 
+* Fixed settings migration issue.
 
 ====== 5.0.5 (beta)
 * Optimized the most important bottleneck in OmniCC, for better performance in intense battles.
