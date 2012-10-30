@@ -1,5 +1,9 @@
-====== 5.0.5
+====== 5.0.6 (beta)
+* Fixed bug preventing OmniCC from working with addons such as Bartender. 
+
+====== 5.0.5 (beta)
 * Optimized the most important bottleneck in OmniCC, for better performance in intense battles.
+** Hopefully, this will prevent most of the "script ran for too long" issues.
 * Rebuilt OmniCC from the ground-up, for easier bug-fixing and feature addition.
 
 ====== 5.0.4

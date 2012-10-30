@@ -32,7 +32,7 @@ end
 function OmniCC:SetupHooks()
 	local class = getmetatable(ActionButton1Cooldown).__index
 	
-	hooksecurefunc(class, 'SetCooldown', self.Cooldown.Show)
+	hooksecurefunc(class, 'SetCooldown', self.Cooldown.Start)
 	hooksecurefunc('SetActionUIButton', self.Actions.Add)
 end
 
