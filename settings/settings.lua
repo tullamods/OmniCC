@@ -6,7 +6,7 @@
 local Settings = 'OmniCC4Config'
 local function CopyTable(target, source)
 	for k, v in pairs(source) do
-		if type(value) == 'table' then
+		if type(v) == 'table' then
 			target[k] = CopyTable(target[k] or {}, v)
 			
 		elseif target[k] == nil then
@@ -31,7 +31,7 @@ function OmniCC:UpgradeSettings()
 	local version = self:GetVersionID()
 	if version < 40000 then
 		self.sets = self:GetDefaults()
-	elseif version < 50005 then
+	elseif version < 50006 then
 		self.sets.engine = 'AniUpdater'
 		self.sets.updaterEngine = nil
 		
@@ -75,11 +75,11 @@ function OmniCC:GetGroupDefaults()
 		anchor = 'CENTER',
 		styles = {
 			soon = {
-				r = 1, g = 0, b= 0, a = 1,
+				r = 1, g = .1, b = .1, a = 1,
 				scale = 1.5
 			},
 			seconds = {
-				r = 1, g = 1, b= 0, a = 1,
+				r = 1, g = 1, b = .1, a = 1,
 				scale = 1
 			},
 			minutes = {
