@@ -22,7 +22,8 @@ OmniCC:RegisterEffect({
 	id = 'activate',
 	name = L.Activate,
 	desc = L.ActivateTip,
-	Setup = function() end,
+	Setup = function(self, cooldown)
+	end,
 	
 	Run = function(self, cooldown)
 		local button = cooldown:GetParent()

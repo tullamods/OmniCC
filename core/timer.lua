@@ -124,7 +124,7 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 	else
 		if self.duration >= self:GetSettings().minEffectDuration then
-			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown)
+			OmniCC:TriggerEffect(self.cooldown)
 		end
 		
 		self:Stop()

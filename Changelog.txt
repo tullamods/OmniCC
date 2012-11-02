@@ -1,3 +1,6 @@
+====== 5.0.8 (beta)
+* Fixed bug preventing thr "None" effect from working.
+
 ====== 5.0.7 (beta)
 * Fixed bug preventing OmniCC from working with addons that do not support spell charges (ex: Ion).
 

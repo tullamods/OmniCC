@@ -6,4 +6,5 @@
 	<Script file="pulse.lua"/>
 	<Script file="shine.lua"/>
 	<Script file="flare.lua"/>
+	<Script file="none.lua"/>
 </Ui>
