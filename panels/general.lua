@@ -323,8 +323,9 @@ function GeneralOptions:CreateFinishEffectPicker()
 		})
 	end
 
-	table.sort(effects, function(e1, e2) return e1.name < e2.name end)
-	tinsert(effects, 1, {name = NONE, value = 'none'})
+	table.sort(effects, function(a, b)
+		return a.name < b.name
+	end)
 
 	dd.SetSavedValue = function(self, value)
 		parent:GetGroupSets().effect = value
