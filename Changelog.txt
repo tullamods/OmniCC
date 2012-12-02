@@ -1,5 +1,15 @@
+====== 5.1.1
+* Fixed bug causing french to be the default language.
+
+====== 5.1.0
+* Updated for patch 5.1: Landfall!
+
+====== 5.0.9 (beta)
+* OmniCC is now fully localized in french! (by Noaah)
+
 ====== 5.0.8 (beta)
-* Fixed bug preventing thr "None" effect from working.
+* Fixed bug preventing the "None" effect from working properly.
+* Fixed several issues in the rules panel.
 
 ====== 5.0.7 (beta)
 * Fixed bug preventing OmniCC from working with addons that do not support spell charges (ex: Ion).
@@ -293,4 +303,4 @@
 ====== 2.0.9
 * Updated to LSM 3
 * Unthrottled the updates for cooldowns with durations > 1 minute.  This is to (hopefully) prevent an issue with the rogue ability Preparation.
-* Reimplemented the slash commands* Reimplemented the slash commands
+* Reimplemented the slash commands* Reimplemented the slash commandsnds
