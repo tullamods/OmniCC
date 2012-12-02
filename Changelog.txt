@@ -1,3 +1,6 @@
+====== 5.1.2
+* Fixed issue causing the script engine to not be loaded properly.
+
 ====== 5.1.1
 * Fixed bug causing french to be the default language.
 

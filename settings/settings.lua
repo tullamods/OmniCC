@@ -17,6 +17,10 @@ local function CopyTable(target, source)
 	return target
 end
 
+local function ToNumber(number)
+	return tonumber(number) or 0
+end
+
 
 --[[ Startup ]]--
 
@@ -100,7 +104,7 @@ function OmniCC:GetVersionID()
 	local version = self.sets.version or self:GetVersion()
 	local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%w+)')
 	
-	return tonumber(expansion) * 10000 + tonumber(patch) * 100 + tonumber(release)
+	return ToNumber(expansion) * 10000 + ToNumber(patch) * 100 + ToNumber(release)
 end
 
 function OmniCC:GetVersion()
