@@ -42,7 +42,7 @@ StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 		_G[self:GetName()..'EditBox']:SetText('')
 	end,
 	
-	timeout = 0, exclusive = 1, hideOnEscape = 1, preferredIndex = 3
+	timeout = 0, exclusive = 1, hideOnEscape = 1, preferredIndex = STATICPOPUP_NUMDIALOGS
 }
 
 --[[ utility functions of champions ]]--
