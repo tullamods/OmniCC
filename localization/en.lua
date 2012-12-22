@@ -88,7 +88,7 @@ L.MinDurationTip =
 must be in order to show text.
 
 This setting is mainly used to
-filter out the GCD.]]
+filter out the global cooldown.]]
 
 L.MinSizeTip =
 [[Determines how big a frame must be to display text.
