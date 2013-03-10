@@ -1,8 +1,4 @@
---[[
-	OmniCC localization - English
---]]
-
-OMNICC_LOCALS = {} --should be done in the US locale file, only
+OMNICC_LOCALS = {} -- should be done in the US locale file, only
 local L = OMNICC_LOCALS
 
 -- effect names
@@ -13,7 +9,7 @@ L.Alert = "Alert"
 L.Activate = "Activate"
 L.Flare = "Flare"
 
---effect tooltips
+-- effect tooltips
 L.ActivateTip = [[Mimics the default effect that shows on
 action buttons when an ability "procs".]]
 L.AlertTip = [[Pulses the finished cooldown icon

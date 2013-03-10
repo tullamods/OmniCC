@@ -1,11 +1,24 @@
+====== 5.2.2
+* Fixed bug affecting new users on first login.
+
+====== 5.2.1
+* Fixed bug causing settings to reset at login.
+* New option: spiral opacity! Now, instead of only being able to toggle them on/off, you can set how transparent they should look. Setting to 0% will hide them.
+
+===== 5.2.0
+* Updated for patch 5.2: The Thunder King
+
+====== 5.1.3
+* Fixed issue causing problems to users coming from extremely outdated versions (pankake and before).
+
 ====== 5.1.2
 * Fixed issue causing the script engine to not be loaded properly.
 
 ====== 5.1.1
 * Fixed bug causing french to be the default language.
 
-====== 5.1.0
-* Updated for patch 5.1: Landfall!
+===== 5.1.0
+* Updated for patch 5.1: Landfall.
 
 ====== 5.0.9 (beta)
 * OmniCC is now fully localized in french! (by Noaah)
@@ -306,4 +319,4 @@
 ====== 2.0.9
 * Updated to LSM 3
 * Unthrottled the updates for cooldowns with durations > 1 minute.  This is to (hopefully) prevent an issue with the rogue ability Preparation.
-* Reimplemented the slash commands* Reimplemented the slash commandsnds
+* Reimplemented the slash commands* Reimplemented the slash commandsndssssss
