@@ -9,6 +9,18 @@ local Timer = OmniCC.Timer
 
 --[[ Control ]]--
 
+function Cooldown:Start(...)
+	local timer = Timer:Get(self) or Timer:New(self)
+	timer:UpdateOpacity()
+
+	if Cooldown.CanShow(self, ...) then
+		Cooldown.Setup(self)
+		timer:Start(...)
+	else
+		Cooldown.Stop(self)
+	end
+end
+
 function Cooldown:Setup()
 	if not self.omnicc then
 		self:HookScript('OnShow', Cooldown.OnShow)
@@ -18,17 +30,6 @@ function Cooldown:Setup()
 	end
 	
 	OmniCC:SetupEffect(self)
-end
-
-function Cooldown:Start(...)
-	if Cooldown.CanShow(self, ...) then
-		Cooldown.Setup(self)
-
-		local timer = Timer:Get(self) or Timer:New(self)
-		timer:Start(...)
-	else
-		Cooldown.Stop(self)
-	end
 end
 
 function Cooldown:Stop()
@@ -44,8 +45,6 @@ function Cooldown:CanShow(start, duration, charges)
 	end
 	
 	local sets = OmniCC:GetGroupSettingsFor(self) 
-	self:SetAlpha(sets.showCooldownModels and 1 or 0)
-	
 	return start > 0 and duration >= sets.minDuration and sets.enabled
 end
 

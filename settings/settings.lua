@@ -33,14 +33,21 @@ end
 
 function OmniCC:UpgradeSettings()
 	local version = self:GetVersionID()
+	local groups = self.sets.groupSettings
+
 	if version < 40000 then
 		self.sets = self:GetDefaults()
 	elseif version < 50006 then
 		self.sets.engine = 'AniUpdater'
 		self.sets.updaterEngine = nil
 		
-		for _, group in pairs(self.sets.groupSettings) do
+		for _, group in pairs(groups) do
 			CopyTable(group, self:GetGroupDefaults())
+		end
+	elseif version < 50201 then
+		for _, group in pairs(groups) do
+			group.showCooldownModels = nil
+			group.spiralOpacity = 1
 		end
 	end
 
@@ -64,7 +71,7 @@ function OmniCC:GetGroupDefaults()
 	return {
 		enabled = true,
 		scaleText = true,
-		showCooldownModels = true,
+		spiralOpacity = 1,
 		fontFace = STANDARD_TEXT_FONT,
 		fontSize = 18,
 		fontOutline = 'OUTLINE',
@@ -102,7 +109,7 @@ end
 
 function OmniCC:GetVersionID()
 	local version = self.sets.version or self:GetVersion()
-	local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%w+)')
+	local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%d+)')
 	
 	return ToNumber(expansion) * 10000 + ToNumber(patch) * 100 + ToNumber(release)
 end
