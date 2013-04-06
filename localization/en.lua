@@ -1,5 +1,5 @@
 --[[
-	OmniCC configuration interface localization - English
+	OmniCC configuration localization - English
 --]]
 
 local L = OMNICC_LOCALS
@@ -38,7 +38,7 @@ L.Color_seconds = "Under a minute"
 L.Color_minutes = "Under an hour"
 L.Color_hours = "One hour or more"
 
-L.ShowCooldownModels = "Show cooldown models"
+L.SpiralOpacity = "Spiral transparency"
 L.UseAniUpdater = "Optimize performance"
 
 --text positioning
@@ -71,12 +71,9 @@ L.ScaleTextTip =
 cause text to shrink to fit within
 frames that are too small.]]
 
-L.ShowCooldownModelsTip =
-[[Toggles the display of cooldown
-models.]]
-
-L.ShowCooldownModelsSmallTip = [[(The dark spiral you normally
-see on a button when on cooldown)]]
+L.SpiralOpacityTip =
+ [[Sets the opacity of the dark spirals you normally
+see on buttons when on cooldown.]]
 
 L.UseAniUpdaterTip =
 [[Optimizes CPU performance, but may

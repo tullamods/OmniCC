@@ -46,8 +46,6 @@ L.Color_seconds = "Unter einer Minute"
 L.Color_minutes = "Unter einer Stunde"
 L.Color_hours = "Eine Stunde und mehr"
 
-L.ShowCooldownModels = "Zeige Cooldown Spirale"
-
 L.Sec = " Sek."
 
 --[[ Tooltips ]]--
@@ -56,11 +54,6 @@ L.ScaleTextTip =
 [[Verkleinert den Text, so
 dass er auch in Frames passt,
 die zu klein sind.]]
-
-L.ShowCooldownModelsTip =
-[[Zeigt die dunkle Spirale,
-die man normalerweise sieht,
-wenn etwas Cooldown hat.]]
 
 L.MinDurationTip =
 [[Bestimmt, wie lang ein Cooldown

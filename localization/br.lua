@@ -1,5 +1,5 @@
 --[[
-	OmniCC configuration interface localization - Portuguese
+	OmniCC configuration localization - Portuguese
 --]]
 
 if GetLocale() ~= 'ptBR' then return end
@@ -38,7 +38,7 @@ L.Color_seconds = "Menos de um minuto"
 L.Color_minutes = "Menos de uma hora"
 L.Color_hours = "Mais de uma hora"
 
-L.ShowCooldownModels = "Exibir espirais"
+L.SpiralOpacity = "Transparência das espirais"
 L.UseAniUpdater = "Otimizar desempenho"
 
 --text positioning
@@ -71,10 +71,9 @@ L.ScaleTextTip =
 texto a encolher para caber dentro dos
 elementos que são muito pequenos.]]
 
-L.ShowCooldownModelsTip = [[Ativa a exibição das espirais padrão.]]
-L.ShowCooldownModelsSmallTip =
-[[(As espirais negras que normalmente
-são exibidas em botões em cooldown)]]
+L.SpiralOpacityTip =
+[[Define a transparência ds espirais negras que normalmente
+são exibidas em botões em cooldown]]
 
 L.UseAniUpdaterTip =
 [[Otimiza o desempenho do processador, mas pode

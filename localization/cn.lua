@@ -1,5 +1,5 @@
 --[[
-	OmniCC configuration interface localization - Chinese Simplified
+	OmniCC configuration localization - Chinese Simplified
 --]]
 
 if GetLocale() ~= 'zhCN' then return end
@@ -10,14 +10,6 @@ L.GeneralSettings = "显示"
 L.FontSettings = "文字风格"
 L.RuleSettings = "规则"
 L.PositionSettings = "文字位置"
-
---L.GeneralSettingsTitle = "一般的设定"
---L.FontSettingsTitle = "你知道你和我之间的差别？我令这个看起来更好看"
---L.BlacklistSettings = "黑名单设定"
---L.BlacklistSettingsTitle = "嘿，不要在这里显示文字!"
---L.UseWhitelist = "只在注册了的框格显示文字"
---L.UseBlacklist = "只在框格但不在黑名单上显示文字"
---L.Blacklist = "黑名单"
 
 L.Font = "字体"
 L.FontSize = "默认字体大小"
@@ -46,8 +38,6 @@ L.Color_soon = "即将到期"
 L.Color_seconds = "少于1分钟"
 L.Color_minutes = "少于1小时"
 L.Color_hours = "1小时或以上"
-
-L.ShowCooldownModels = "冷却时间显示模式"
 
 -- 文字定位
 L.XOffset = "X 偏移"
@@ -78,11 +68,6 @@ L.ScaleTextTip =
 [[当启用时，此设置 
 会令文字缩小来适应
 太小的框架]]
-
-L.ShowCooldownModelsTip =
-[[控制冷却时间的显示模式
-（你通常在冷却的按钮看到
-的黑暗螺旋）]]
 
 L.MinDurationTip =
 [[确定多长的冷却时间才显示文字

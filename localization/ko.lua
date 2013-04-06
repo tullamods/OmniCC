@@ -39,8 +39,6 @@ L.Color_seconds = "1분 이하"
 L.Color_minutes = "1시간 이하"
 L.Color_hours = "1시간 또는 이상"
 
-L.ShowCooldownModels = "재사용 대기시간 모델 표시"
-
 --text positioning
 L.XOffset = "X 간격"
 L.YOffset = "Y 간격"
@@ -68,10 +66,6 @@ L.AddGroup = '그룹 추가...'
 
 L.ScaleTextTip =
 [[활성화 되면, 프레임이 너무 작을 경우 그 프레임에 맞춰 문자를 축소시킵니다.]]
-
-L.ShowCooldownModelsTip =
-[[재사용 대기시간 모델을 표시합니다.
-(재사용 대기시간일때 어두운 나선형 버튼이 표시됩니다.)]]
 
 L.MinDurationTip =
 [[재사용 대기시간 문자 표시시간을 설정합니다.

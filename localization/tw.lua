@@ -39,7 +39,6 @@ L.Color_seconds = "少於1分鐘"
 L.Color_minutes = "少於1小時"
 L.Color_hours = "1小時或以上"
 
-L.ShowCooldownModels = "冷卻時間顯示模式"
 L.UseAniUpdater = "優化效能"
 
 -- 文字定位
@@ -69,12 +68,6 @@ L.AddGroup = '新增分組...'
 
 L.ScaleTextTip =
 [[當啟用時，此設定會令文字縮小來適應太小的框架]]
-
-L.ShowCooldownModelsTip =
-[[控制冷卻時間的顯示模式]]
-
-L.ShowCooldownModelsSmallTip = 
-[[(你通常在冷卻的按鈕看到的黑暗螺旋)]]
 
 L.UseAniUpdaterTip =
 [[優化CPU效能，但是在某些環境可能造成崩潰。

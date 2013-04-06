@@ -32,19 +32,20 @@ function GeneralOptions:AddWidgets()
 	local scaleText = self:CreateScaleTextCheckbox()
 	scaleText:SetPoint('TOPLEFT', enableCDText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 
-	local showModels = self:CreateShowCooldownModelsCheckbox()
-	showModels:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
-
     local aniUpdate = self:CreateUseAniUpdaterCheckbox()
-    aniUpdate:SetPoint('TOPLEFT', showModels, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
+    aniUpdate:SetPoint('TOPLEFT', scaleText, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 
 	local finishEffect = self:CreateFinishEffectPicker()
 	finishEffect:SetPoint('TOPLEFT', aniUpdate, 'BOTTOMLEFT', -16, -(BUTTON_SPACING + 16))
 
 	--sliders
+	local spiralOpacity = self:CreateSpiralOpacitySlider()
+	spiralOpacity:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
+	spiralOpacity:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
+
 	local minEffectDuration = self:CreateMinEffectDurationSlider()
-	minEffectDuration:SetPoint('BOTTOMLEFT', self, 'BOTTOMLEFT', 16, 10)
-	minEffectDuration:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 10)
+	minEffectDuration:SetPoint('BOTTOMLEFT', spiralOpacity, 'TOPLEFT', 0, SLIDER_SPACING)
+	minEffectDuration:SetPoint('BOTTOMRIGHT', spiralOpacity, 'TOPRIGHT', 0, SLIDER_SPACING)
 
 	local mmSSDuration = self:CreateMMSSSlider()
 	mmSSDuration:SetPoint('BOTTOMLEFT', minEffectDuration, 'TOPLEFT', 0, SLIDER_SPACING)
@@ -128,26 +129,6 @@ function GeneralOptions:CreateScaleTextCheckbox()
 	end
 
 	b.tooltip = L.ScaleTextTip
-
-	return b
-end
-
---show cooldown models
-function GeneralOptions:CreateShowCooldownModelsCheckbox()
-	local parent = self
-	local b = self:NewCheckbox(L.ShowCooldownModels)
-
-	b.OnEnableSetting = function(self, enable)
-		parent:GetGroupSets().showCooldownModels = enable
-		Timer:ForAllShown('UpdateCooldownShown')
-	end
-
-	b.IsSettingEnabled = function(self)
-		return parent:GetGroupSets().showCooldownModels
-	end
-
-	b.tooltip = L.ShowCooldownModelsTip
-    b.smallTip = L.ShowCooldownModelsSmallTip
 
 	return b
 end
@@ -306,6 +287,26 @@ function GeneralOptions:CreateTenthsSlider()
 	return s
 end
 
+function GeneralOptions:CreateSpiralOpacitySlider()
+	local parent = self
+	local s = self:NewSlider(L.SpiralOpacity, 0, 1, .01)
+
+	s.SetSavedValue = function(self, value)
+		parent:GetGroupSets().spiralOpacity = value
+		Timer:ForAllShown('UpdateOpacity')
+	end
+
+	s.GetSavedValue = function(self)
+		return parent:GetGroupSets().spiralOpacity
+	end
+
+	s.GetFormattedText = function(self, value)
+		return floor(value * 100) .. '%'
+	end
+
+	s.tooltip = L.SpiralOpacityTip
+	return s
+end
 
 
 --[[ Dropdown ]]--
