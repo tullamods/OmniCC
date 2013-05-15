@@ -6,7 +6,8 @@
 
 --[[ Effects ]]--
 
-function OmniCC:TriggerEffect(id, cooldown)
+function OmniCC:TriggerEffect(cooldown)
+	local id = self:GetGroupSettingsFor(cooldown).effect
 	self:GetEffect(id):Run(cooldown)
 end
 
@@ -17,6 +18,7 @@ end
 
 function OmniCC:RegisterEffect(effect)
 	self.effects[effect.id] = effect
+	return effect
 end
 
 function OmniCC:GetEffect(id)

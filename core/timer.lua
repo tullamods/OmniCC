@@ -69,10 +69,6 @@ function Timer:ScheduleUpdate(delay)
 	updater:ScheduleUpdate(delay)
 end
 
-function Timer:OnScheduledUpdate()
-	self:UpdateText()
-end
-
 function Timer:CancelUpdate()
 	local engine = OmniCC:GetUpdateEngine()
 	local updater = engine:GetActive(self)
@@ -124,7 +120,7 @@ function Timer:UpdateText(forceStyleUpdate)
 		end
 	else
 		if self.duration >= self:GetSettings().minEffectDuration then
-			OmniCC:TriggerEffect(self:GetSettings().effect, self.cooldown)
+			OmniCC:TriggerEffect(self.cooldown)
 		end
 		
 		self:Stop()
@@ -169,8 +165,8 @@ function Timer:UpdateShown()
 	end
 end
 
-function Timer:UpdateCooldownShown()
-	self.cooldown:SetAlpha(self:GetSettings().showCooldownModels and 1 or 0)
+function Timer:UpdateOpacity()
+	self.cooldown:SetAlpha(self:GetSettings().spiralOpacity)
 end
 
 

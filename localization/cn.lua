@@ -1,12 +1,8 @@
---[[
-	OmniCC localization - zhCN
---]]
-
 if GetLocale() ~= 'zhCN' then return end
-
 local L = OMNICC_LOCALS
 
 -- effect names
+<<<<<<< HEAD
 L.None = NONE
 L.Pulse = "搏动"
 L.Shine = "闪亮"
@@ -23,3 +19,8 @@ L.PulseTip = [[结束冷却的图标将发生搏动。]]
 -- other
 L.ConfigMissing = '%s无法被载入，因为该插件%s'
 L.Version = '你正在使用|cffFCF75EOmniCC 版本(%s)|r'
+=======
+L.Updated = "升级至 v%s"
+L.Pulse = "脉冲"
+L.Shine = "闪亮"
+>>>>>>> Jaliborc

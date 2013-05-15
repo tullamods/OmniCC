@@ -41,7 +41,7 @@ end
 
 function ScriptUpdater:OnFinished()
 	self:Cleanup()
-	self.frame:OnScheduledUpdate()
+	self.frame:UpdateText()
 end
 
 

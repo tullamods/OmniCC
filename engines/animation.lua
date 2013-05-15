@@ -62,5 +62,5 @@ end
 
 function AniUpdater:OnFinished()
 	self:Hide()
-	self.frame:OnScheduledUpdate()
+	self.frame:UpdateText()
 end
