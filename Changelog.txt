@@ -1,3 +1,6 @@
+====== 5.2.3
+* Fixed "Activate" effect incompatibility with some addons.
+
 ====== 5.2.2
 * Fixed bug affecting new users on first login.
 

@@ -69,10 +69,6 @@ function Timer:ScheduleUpdate(delay)
 	updater:ScheduleUpdate(delay)
 end
 
-function Timer:OnScheduledUpdate()
-	self:UpdateText()
-end
-
 function Timer:CancelUpdate()
 	local engine = OmniCC:GetUpdateEngine()
 	local updater = engine:GetActive(self)
