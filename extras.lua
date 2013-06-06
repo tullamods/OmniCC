@@ -39,7 +39,7 @@ function OmniCC:OnCommand(command)
 		print(L.Version:format(self:GetVersion()))
 	else
 		if LoadAddOn(Config) then
-			InterfaceOptionsFrame_OpenToCategory(Config)
+			InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end
 	end
 end

@@ -1,3 +1,6 @@
+====== 5.3.0
+* Updated for patch Escalation.
+
 ====== 5.2.3
 * Fixed "Activate" effect incompatibility with some addons.
 
@@ -322,4 +325,4 @@
 ====== 2.0.9
 * Updated to LSM 3
 * Unthrottled the updates for cooldowns with durations > 1 minute.  This is to (hopefully) prevent an issue with the rogue ability Preparation.
-* Reimplemented the slash commands* Reimplemented the slash commandsndssssss
+* Reimplemented the slash commands

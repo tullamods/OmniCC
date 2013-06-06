@@ -1,9 +1,9 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: |cffE32929OmniCC|r
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트
 ## Author: Tuller
-## Version: 5.2.3
+## Version: 5.3.0
 ## SavedVariables: OmniCC4Config
 
 libs\libs.xml
