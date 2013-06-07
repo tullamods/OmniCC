@@ -9,7 +9,6 @@ local L = OMNICC_LOCALS
 function OmniCC:SetupConfig()
 	local config = CreateFrame('Frame', Config)
 	config.name = 'OmniCC'
-
 	config:SetScript('OnShow', function()
 		local loaded, reason = LoadAddOn(Config)
 		if not loaded then
@@ -37,10 +36,9 @@ end
 function OmniCC:OnCommand(command)
 	if comand == 'version' then
 		print(L.Version:format(self:GetVersion()))
-	else
-		if LoadAddOn(Config) then
-			InterfaceOptionsFrame_OpenToCategory('OmniCC')
-		end
+	elseif LoadAddOn(Config) then
+		InterfaceOptionsFrame_OpenToCategory('OmniCC')
+		InterfaceOptionsFrame_OpenToCategory('OmniCC')
 	end
 end
 
