@@ -64,10 +64,8 @@ end
 --[[ Color Picker ]]--
 
 function FontOptions:CreateColorPickerFrame(name)
-	local parent = self
-
-	local f = OmniCCOptions.Group:New(name, parent)
-	f.GetGroupSets = function(self) return parent:GetGroupSets() end
+	local f = OmniCCOptions.Group:New(name, self)
+	f.GetGroupSets = function(self) return self:GetGroupSets() end
 
 	local soon = self:CreateStylePicker('soon', f)
 	soon:SetPoint('TOPLEFT', 8, -(BUTTON_SPACING + 4))
@@ -84,6 +82,10 @@ function FontOptions:CreateColorPickerFrame(name)
 	local hours = self:CreateStylePicker('hours', f)
 	hours:SetPoint('TOPLEFT', seconds, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
 	hours:SetPoint('TOPRIGHT', seconds, 'BOTTOMRIGHT', 0, -BUTTON_SPACING)
+
+	local charging = self:CreateStylePicker('charging', f)
+	charging:SetPoint('TOPLEFT', minutes, 'BOTTOMLEFT', 0, -BUTTON_SPACING)
+	charging:SetPoint('TOPRIGHT', minutes, 'BOTTOMRIGHT', 0, -BUTTON_SPACING)
 
 	return f
 end
