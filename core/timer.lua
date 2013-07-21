@@ -43,10 +43,10 @@ end
 
 --[[ Controls ]]--
 
-function Timer:Start(start, duration)
-	self.start = start
+function Timer:Start(start, duration, charges)
+	self.start, self.duration, self.charges = start, duration, charges
 	self.visible = self.cooldown:IsVisible()
-	self.duration = duration
+	self.finish = start + duration
 	self.textStyle = nil
 	self.enabled = true
 
@@ -173,11 +173,13 @@ end
 --[[ Accessors ]]--
 
 function Timer:GetRemain()
-	return self.duration - (GetTime() - self.start)
+	return self.finish - GetTime()
 end
 
 function Timer:GetTextStyle(remain)
-	if remain < Soonish then
+	if self.charges > 0 then
+		return 'charging'
+	elseif remain < Soonish then
 		return 'soon'
 	elseif remain < Minuteish then
 		return 'seconds'
