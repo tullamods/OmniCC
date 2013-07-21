@@ -5,35 +5,36 @@
 
 local Cooldown = OmniCC:New('Cooldown')
 local Timer = OmniCC.Timer
+local Cooldowns = {}
 
 
 --[[ Control ]]--
 
 function Cooldown:Start(...)
-	local timer = Timer:Get(self) or Timer:New(self)
-	timer:UpdateOpacity()
+	Cooldowns[self] = true
+	Cooldown.UpdateOpacity(self)
 
 	if Cooldown.CanShow(self, ...) then
-		Cooldown.Setup(self)
-		timer:Start(...)
+		Cooldown.Start(self, ...)
 	else
 		Cooldown.Stop(self)
 	end
 end
 
-function Cooldown:Setup()
+function Cooldown:Start(...)
 	if not self.omnicc then
 		self:HookScript('OnShow', Cooldown.OnShow)
 		self:HookScript('OnHide', Cooldown.OnHide)
 		self:HookScript('OnSizeChanged', Cooldown.OnSizeChanged)
-		self.omnicc = true
+		self.omnicc = Timer:New(self)
 	end
 	
 	OmniCC:SetupEffect(self)
+	self.omnicc:Start(...)
 end
 
 function Cooldown:Stop()
-	local timer = Timer:Get(self)
+	local timer = self.omnicc
 	if timer and timer.enabled then
 		timer:Stop()
 	end
@@ -50,7 +51,7 @@ end
 --[[ Frame Events ]]--
 
 function Cooldown:OnShow()
-	local timer = Timer:Get(self)
+	local timer = self.omnicc
 	if timer and timer.enabled then
 		if timer:GetRemain() > 0 then
 			timer.visible = true
@@ -62,7 +63,7 @@ function Cooldown:OnShow()
 end
 
 function Cooldown:OnHide()
-	local timer = Timer:Get(self)
+	local timer = self.omnicc
 	if timer and timer.enabled then
 		timer.visible = nil
 		timer:Hide()
@@ -73,9 +74,34 @@ function Cooldown:OnSizeChanged(width, ...)
 	if self.omniWidth ~= width then
 		self.omniWidth = width
 		
-		local timer = Timer:Get(self)
+		local timer = self.omnicc
 		if timer then
 			timer:UpdateFontSize(width, ...)
 		end
 	end
+end
+
+
+--[[ Updating ]]--
+
+function Cooldown:ForAll(func, ...)
+	func = self[func]
+
+	for cooldown in pairs(Cooldowns) do
+		func(cooldown, ...)
+	end
+end
+
+function Cooldown:ForAllTimers(func, ...)
+	func = Timer[func]
+
+	for cooldown in pairs(Cooldowns) do
+		if cooldown.omnicc then
+			func(cooldown.omnicc, ...)
+		end
+	end
+end
+
+function Cooldown:UpdateOpacity()
+	self:SetAlpha(OmniCC:GetGroupSettingsFor(self).spiralOpacity)
 end

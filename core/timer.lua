@@ -3,9 +3,8 @@
 		Displays countdowns on widgets
 --]]
 
-local Addon = ...
+local OmniCC, GetTime = OmniCC, GetTime
 local Timer = OmniCC:New('Timer')
-local timers = {}
 
 local IconSize = 36
 local Padding = 0
@@ -16,7 +15,6 @@ local HalfDayish, HalfHourish, HalfMinuteish = Day/2 + 0.5, Hour/2 + 0.5, Minute
 
 local floor, min, type = floor, min, type
 local round = function(x) return floor(x + 0.5) end
-local OmniCC, GetTime = OmniCC, GetTime
 
 
 --[[ Constructor ]]--
@@ -31,13 +29,7 @@ function Timer:New(cooldown)
 
 	timer:SetPoint('CENTER', cooldown)
 	timer:UpdateFontSize(cooldown:GetSize())
-
-	timers[cooldown] = timer
 	return timer
-end
-
-function Timer:Get(cooldown)
-	return timers[cooldown]
 end
 
 
@@ -165,10 +157,6 @@ function Timer:UpdateShown()
 	end
 end
 
-function Timer:UpdateOpacity()
-	self.cooldown:SetAlpha(self:GetSettings().spiralOpacity)
-end
-
 
 --[[ Accessors ]]--
 
@@ -261,31 +249,6 @@ function Timer:ShouldShow()
 	end
 
 	return sets.enabled
-end
-
-
---[[ Static Functions ]]--
-
-function Timer:ForAll(f, ...)
-	if type(f) == 'string' then
-		f = self[f]
-	end
-
-	for _, timer in pairs(timers) do
-		f(timer, ...)
-	end
-end
-
-function Timer:ForAllShown(f, ...)
-	if type(f) == 'string' then
-		f = self[f]
-	end
-
-	for _, timer in pairs(timers) do
-		if timer:IsShown() then
-			f(timer, ...)
-		end
-	end
 end
 
 

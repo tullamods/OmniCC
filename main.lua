@@ -3,7 +3,6 @@
 		initializes OmniCC
 --]]
 
-local Addon = ...
 local OmniCC = CreateFrame('Frame', 'OmniCC')
 local Classy = LibStub('Classy-1.0')
 
@@ -47,7 +46,7 @@ function OmniCC:ACTIONBAR_UPDATE_COOLDOWN()
 end
 
 function OmniCC:PLAYER_ENTERING_WORLD()
-	self.Timer:ForAllShown('UpdateText')
+	self.Cooldown:ForAllTimers('UpdateText')
 end
 
 
