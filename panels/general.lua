@@ -2,7 +2,7 @@
 	General configuration settings for OmniCC
 --]]
 
-local Cooldown = OmniCC.Cooldown
+local Timer, Cooldown = OmniCC.Timer, OmniCC.Cooldown
 local Sets = OmniCC.sets
 local L = OMNICC_LOCALS
 
@@ -102,7 +102,7 @@ function GeneralOptions:CreateEnableTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().enabled = enable
-		Cooldown:ForAllTimers('UpdateShown')
+		Timer:ForAll('UpdateShown')
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -121,7 +121,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().scaleText = enable
-		Cooldown:ForAllTimers('UpdateText', true)
+		Timer:ForAll('UpdateText', true)
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -194,7 +194,7 @@ function GeneralOptions:CreateMinSizeSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().minSize = value/100
-		Cooldown:ForAllTimers('UpdateShown')
+		Timer:ForAll('UpdateShown')
 	end
 
 	s.GetSavedValue = function(self)
@@ -239,7 +239,7 @@ do
 			else
 				parent:GetGroupSets().mmSSDuration = 0
 			end
-			Cooldown:ForAllTimers('UpdateText')
+			Timer:ForAll('UpdateText')
 		end
 
 		s.GetSavedValue = function(self)
@@ -268,7 +268,7 @@ function GeneralOptions:CreateTenthsSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().tenthsDuration = value
-		Cooldown:ForAllTimers('UpdateText')
+		Timer:ForAll('UpdateText')
 	end
 
 	s.GetSavedValue = function(self)

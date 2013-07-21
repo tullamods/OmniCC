@@ -2,7 +2,7 @@
 	font.lua: the OmniCC font styles panel
 --]]
 
-local Cooldown = OmniCC.Cooldown
+local Timer = OmniCC.Timer
 local L = OMNICC_LOCALS
 local BUTTON_SPACING = 24
 
@@ -47,7 +47,7 @@ function FontOptions:CreateFontSelector(name)
 
 	f.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontFace = value
-		Cooldown:ForAllTimers('UpdateText', true)
+		Timer:ForAll('UpdateText', true)
 	end
 
 	f.GetSavedValue = function(self)
@@ -101,7 +101,7 @@ function FontOptions:CreateFontSizeSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().fontSize = value
-		Cooldown:ForAllTimers('UpdateText', true)
+		Timer:ForAll('UpdateText', true)
 	end
 
 	s.GetSavedValue = function(self)
@@ -133,7 +133,7 @@ do
 
 		s.SetSavedValue = function(self, value)
 			parent:GetGroupSets().fontOutline = toOutline(value)
-			Cooldown:ForAllTimers('UpdateText', true)
+			Timer:ForAll('UpdateText', true)
 		end
 
 		s.GetSavedValue = function(self)
@@ -161,7 +161,7 @@ function FontOptions:CreateStylePicker(timePeriod, parent)
 
 	slider.SetSavedValue = function(self, value)
 		parent:GetGroupSets().styles[timePeriod].scale = value
-		Cooldown:ForAllTimers('UpdateText', true)
+		Timer:ForAll('UpdateText', true)
 	end
 
 	slider.GetSavedValue = function(self)
@@ -179,7 +179,7 @@ function FontOptions:CreateStylePicker(timePeriod, parent)
 	picker.OnSetColor = function(self, r, g, b, a)
 		local style = parent:GetGroupSets().styles[timePeriod]
 		style.r, style.g, style.b, style.a = r, g, b, a
-		Cooldown:ForAllTimers('UpdateText', true)
+		Timer:ForAll('UpdateText', true)
 	end
 
 	picker.GetColor = function(self)
