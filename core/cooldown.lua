@@ -40,12 +40,10 @@ function Cooldown:Stop()
 end
 
 function Cooldown:CanShow(start, duration, charges)
-	if self.noCooldownCount or not (start and duration) or (charges or 0) ~= 0 then
-		return false
+	if not self.noCooldownCount and start and duration then
+		local sets = OmniCC:GetGroupSettingsFor(self) 
+		return start > 0 and duration >= sets.minDuration and sets.enabled
 	end
-	
-	local sets = OmniCC:GetGroupSettingsFor(self) 
-	return start > 0 and duration >= sets.minDuration and sets.enabled
 end
 
 
