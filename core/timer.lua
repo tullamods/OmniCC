@@ -252,7 +252,17 @@ function Timer:ShouldShow()
 end
 
 
---[[ Settings ]]--
+--[[ Utilities ]]--
+
+function Timer:ForAll(func, ...)
+	func = self[func]
+
+	for cooldown in pairs(OmniCC.Cache) do
+		if cooldown.omnicc then
+			func(cooldown.omnicc, ...)
+		end
+	end
+end
 
 function Timer:GetSettings()
 	return OmniCC:GetGroupSettingsFor(self.cooldown)

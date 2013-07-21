@@ -46,7 +46,7 @@ function OmniCC:ACTIONBAR_UPDATE_COOLDOWN()
 end
 
 function OmniCC:PLAYER_ENTERING_WORLD()
-	self.Cooldown:ForAllTimers('UpdateText')
+	self.Timer:ForAll('UpdateText')
 end
 
 

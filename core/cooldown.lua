@@ -5,13 +5,11 @@
 
 local Cooldown = OmniCC:New('Cooldown')
 local Timer = OmniCC.Timer
-local Cooldowns = {}
 
 
 --[[ Control ]]--
 
 function Cooldown:Start(...)
-	Cooldowns[self] = true
 	Cooldown.UpdateOpacity(self)
 
 	if Cooldown.CanShow(self, ...) then
@@ -87,18 +85,8 @@ end
 function Cooldown:ForAll(func, ...)
 	func = self[func]
 
-	for cooldown in pairs(Cooldowns) do
+	for cooldown in pairs(OmniCC.Cache) do
 		func(cooldown, ...)
-	end
-end
-
-function Cooldown:ForAllTimers(func, ...)
-	func = Timer[func]
-
-	for cooldown in pairs(Cooldowns) do
-		if cooldown.omnicc then
-			func(cooldown.omnicc, ...)
-		end
 	end
 end
 

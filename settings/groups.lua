@@ -3,7 +3,7 @@
 		manages group behaviour
 --]]
 
-local Cache = {}
+OmniCC.Cache = {}
 
 
 --[[ Queries ]]--
@@ -18,10 +18,10 @@ function OmniCC:GetGroupSettings(group)
 end
 
 function OmniCC:GetGroup(cooldown)
-	local id = Cache[cooldown]
+	local id = self.Cache[cooldown]
 	if not id then
 		id = self:FindGroup(cooldown)
-		Cache[cooldown] = id
+		self.Cache[cooldown] = id
 	end
 
 	return id
@@ -79,17 +79,16 @@ function OmniCC:RemoveGroup(id)
 end
 
 function OmniCC:UpdateGroups()
-	for cooldown, group in pairs(Cache) do
+	for cooldown, group in pairs(self.Cache) do
 		local newGroup = self:FindGroup(cooldown)
 		if group ~= newGroup then
-			Cache[cooldown] = newGroup
+			self.Cache[cooldown] = newGroup
+			self.Cooldown.UpdateOpacity(cooldown)
 
 			local timer = cooldown.omnicc
 			if timer and timer.visible then
 				timer:UpdateText(true)
 			end
-
-			self.Cooldown.UpdateOpacity(cooldown)
 		end
 	end
 end
