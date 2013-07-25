@@ -258,7 +258,7 @@ function Timer:ForAll(func, ...)
 	func = self[func]
 
 	for cooldown in pairs(OmniCC.Cache) do
-		if cooldown.omnicc then
+		if cooldown.omnicc and cooldown.omnicc:IsShown() then
 			func(cooldown.omnicc, ...)
 		end
 	end

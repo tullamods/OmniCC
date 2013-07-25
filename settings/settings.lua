@@ -11,7 +11,7 @@ local GROUP_DEFAULTS = {
 	fontFace = STANDARD_TEXT_FONT,
 	fontSize = 18,
 	fontOutline = 'OUTLINE',
-	minDuration = 3,
+	minDuration = 2,
 	minSize = 0.5,
 	effect = 'pulse',
 	minEffectDuration = 30,
@@ -38,8 +38,8 @@ local GROUP_DEFAULTS = {
 			scale = .75
 		},
 		charging = {
-			r = .8, g = .8, b = .8, a = .7,
-			scale = .75
+			r = 1, g = .98, b = .4, a = .8,
+			scale = .65
 		}
 	}
 }
@@ -101,7 +101,7 @@ function OmniCC:UpgradeSettings()
 			end
 		end
 
-		if version < 50301 then
+		if version < 50302 then
 			for _, group in pairs(groups) do
 				group.styles.charging = GROUP_DEFAULTS.styles.charging
 			end

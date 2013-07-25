@@ -13,13 +13,14 @@ function Cooldown:Start(...)
 	Cooldown.UpdateOpacity(self)
 
 	if Cooldown.CanShow(self, ...) then
-		Cooldown.Start(self, ...)
+		Cooldown.Setup(self)
+		self.omnicc:Start(...)
 	else
 		Cooldown.Stop(self)
 	end
 end
 
-function Cooldown:Start(...)
+function Cooldown:Setup()
 	if not self.omnicc then
 		self:HookScript('OnShow', Cooldown.OnShow)
 		self:HookScript('OnHide', Cooldown.OnHide)
@@ -28,7 +29,6 @@ function Cooldown:Start(...)
 	end
 	
 	OmniCC:SetupEffect(self)
-	self.omnicc:Start(...)
 end
 
 function Cooldown:Stop()
