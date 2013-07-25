@@ -105,10 +105,22 @@ OmniCCOptions.FontSelector = FontSelector
 
 function FontSelector:New(title, parent, width, height)
 	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
-	f.scrollWidth = width
-	f.scrollHeight = height
-	f:SetScript('OnShow', f.Load)
+	local scrollFrame = f:CreateScrollFrame()
+	scrollFrame:SetPoint('TOPLEFT', 8, -8)
+	f.scrollFrame = scrollFrame
 
+	local scrollChild = f:CreateScrollChild()
+	scrollFrame:SetScrollChild(scrollChild)
+	f.scrollChild = scrollChild
+
+	local scrollBar = f:CreateScrollBar()
+	scrollBar:SetPoint('TOPRIGHT', -8, -8)
+	scrollBar:SetPoint('BOTTOMRIGHT', -8, 6)
+	scrollBar:SetWidth(16)
+	scrollFrame:SetSize(width, height)
+	f.scrollBar = scrollBar
+
+	f:SetScript('OnShow', f.OnShow)
 	return f
 end
 
@@ -197,7 +209,7 @@ function FontSelector:CreateScrollChild()
 				f:SetPoint('TOPRIGHT', buttons[i-2], 'BOTTOMRIGHT', 0, -PADDING)
 			end
 
-			table.insert(buttons, f)
+			tinsert(buttons, f)
 		end
 	end
 
@@ -211,27 +223,6 @@ end
 
 function FontSelector:OnShow()
 	self:UpdateSelected()
-end
-
-function FontSelector:Load()
-	local scrollFrame = self:CreateScrollFrame()
-	scrollFrame:SetPoint('TOPLEFT', 8, -8)
-	self.scrollFrame = scrollFrame
-
-	local scrollChild = self:CreateScrollChild()
-	scrollFrame:SetScrollChild(scrollChild)
-	self.scrollChild = scrollChild
-
-	local scrollBar = self:CreateScrollBar()
-	scrollBar:SetPoint('TOPRIGHT', -8, -8)
-	scrollBar:SetPoint('BOTTOMRIGHT', -8, 6)
-	scrollBar:SetWidth(16)
-	self.scrollBar = scrollBar
-
-	scrollFrame:SetSize(self.scrollWidth, self.scrollHeight)
-
-	self:SetScript('OnShow', self.OnShow)
-	self:OnShow()
 end
 
 function FontSelector:Select(value)

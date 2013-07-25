@@ -2,16 +2,10 @@
 	font.lua: the OmniCC font styles panel
 --]]
 
+local FontOptions = CreateFrame('Frame', 'OmniCCOptions_Font')
 local Timer = OmniCC.Timer
 local L = OMNICC_LOCALS
 local BUTTON_SPACING = 24
-
-local FontOptions = CreateFrame('Frame', 'OmniCCOptions_Font')
-FontOptions:SetScript('OnShow', function(self) self:AddWidgets(); self:SetScript('OnShow', nil) end)
-
-function FontOptions:GetGroupSets()
-	return OmniCCOptions:GetGroupSets()
-end
 
 --[[ Events ]]--
 
@@ -19,13 +13,13 @@ function FontOptions:AddWidgets()
 	--add font selector
 	local fontSelector = self:CreateFontSelector(L.Font)
 	fontSelector:SetPoint('TOPLEFT', self, 'TOPLEFT', 12, -20)
-	fontSelector:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 96*2)
+	fontSelector:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -16, 240)
 
 	--add color picker
 	local colorPicker = self:CreateColorPickerFrame(L.ColorAndScale)
 	colorPicker:SetPoint('TOPLEFT', fontSelector, 'BOTTOMLEFT', 0, -16)
 	colorPicker:SetPoint('TOPRIGHT', fontSelector, 'BOTTOMRIGHT', 0, -16)
-	colorPicker:SetHeight(20 + BUTTON_SPACING*3)
+	colorPicker:SetHeight(BUTTON_SPACING*6 - 4)
 
 	--add font outline picker
 	local outlinePicker = self:CreateFontOutlinePicker()
@@ -42,16 +36,15 @@ end
 --[[ Font Selector ]]--
 
 function FontOptions:CreateFontSelector(name)
-	local parent = self
-	local f = OmniCCOptions.FontSelector:New(name, self, 552, 280)
+	local f = OmniCCOptions.FontSelector:New(name, self, 552, 232)
 
 	f.SetSavedValue = function(self, value)
-		parent:GetGroupSets().fontFace = value
+		OmniCCOptions:GetGroupSets().fontFace = value
 		Timer:ForAll('UpdateText', true)
 	end
 
 	f.GetSavedValue = function(self)
-		return parent:GetGroupSets().fontFace
+		return OmniCCOptions:GetGroupSets().fontFace
 	end
 
 	return f
@@ -62,7 +55,6 @@ end
 
 function FontOptions:CreateColorPickerFrame(name)
 	local f = OmniCCOptions.Group:New(name, self)
-	f.GetGroupSets = function(self) return self:GetGroupSets() end
 
 	local soon = self:CreateStylePicker('soon', f)
 	soon:SetPoint('TOPLEFT', 8, -(BUTTON_SPACING + 4))
@@ -96,16 +88,15 @@ function FontOptions:NewSlider(name, low, high, step)
 end
 
 function FontOptions:CreateFontSizeSlider()
-	local parent = self
 	local s = self:NewSlider(L.FontSize, 2, 48, 1)
 
 	s.SetSavedValue = function(self, value)
-		parent:GetGroupSets().fontSize = value
+		OmniCCOptions:GetGroupSets().fontSize = value
 		Timer:ForAll('UpdateText', true)
 	end
 
 	s.GetSavedValue = function(self)
-		return parent:GetGroupSets().fontSize
+		return OmniCCOptions:GetGroupSets().fontSize
 	end
 
 	s.tooltip = L.FontSizeTip
@@ -128,16 +119,15 @@ do
 	end
 
 	function FontOptions:CreateFontOutlinePicker()
-		local parent = self
 		local s = self:NewSlider(L.FontOutline, 1, #fontOutlines, 1)
 
 		s.SetSavedValue = function(self, value)
-			parent:GetGroupSets().fontOutline = toOutline(value)
+			OmniCCOptions:GetGroupSets().fontOutline = toOutline(value)
 			Timer:ForAll('UpdateText', true)
 		end
 
 		s.GetSavedValue = function(self)
-			return toIndex(parent:GetGroupSets().fontOutline)
+			return toIndex(OmniCCOptions:GetGroupSets().fontOutline)
 		end
 
 		s.GetFormattedText = function(self, value)
@@ -160,12 +150,12 @@ function FontOptions:CreateStylePicker(timePeriod, parent)
 	 _G[slider:GetName() .. 'Text']:Hide()
 
 	slider.SetSavedValue = function(self, value)
-		parent:GetGroupSets().styles[timePeriod].scale = value
+		OmniCCOptions:GetGroupSets().styles[timePeriod].scale = value
 		Timer:ForAll('UpdateText', true)
 	end
 
 	slider.GetSavedValue = function(self)
-		return parent:GetGroupSets().styles[timePeriod].scale
+		return OmniCCOptions:GetGroupSets().styles[timePeriod].scale
 	end
 
 	slider.GetFormattedText = function(self, value)
@@ -177,13 +167,13 @@ function FontOptions:CreateStylePicker(timePeriod, parent)
 	picker:SetPoint('BOTTOMLEFT', slider, 'TOPLEFT')
 
 	picker.OnSetColor = function(self, r, g, b, a)
-		local style = parent:GetGroupSets().styles[timePeriod]
+		local style = OmniCCOptions:GetGroupSets().styles[timePeriod]
 		style.r, style.g, style.b, style.a = r, g, b, a
 		Timer:ForAll('UpdateText', true)
 	end
 
 	picker.GetColor = function(self)
-		local style = parent:GetGroupSets().styles[timePeriod]
+		local style = OmniCCOptions:GetGroupSets().styles[timePeriod]
 		return style.r, style.g, style.b, style.a
 	end
 
@@ -196,4 +186,5 @@ end
 
 --[[ Load the thing ]]--
 
+FontOptions:AddWidgets()
 OmniCCOptions:AddTab('font', L.FontSettings, FontOptions)
