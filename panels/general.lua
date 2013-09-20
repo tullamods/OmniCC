@@ -2,6 +2,7 @@
 	General configuration settings for OmniCC
 --]]
 
+local GeneralOptions = CreateFrame('Frame', 'OmniCCOptions_General')
 local Timer, Cooldown = OmniCC.Timer, OmniCC.Cooldown
 local Sets = OmniCC.sets
 local L = OMNICC_LOCALS
@@ -9,21 +10,8 @@ local L = OMNICC_LOCALS
 local BUTTON_SPACING = 8
 local SLIDER_SPACING = 24
 
-local GeneralOptions = CreateFrame('Frame', 'OmniCCOptions_General')
-GeneralOptions:SetScript('OnShow', function(self)
-	self:AddWidgets()
-	self:UpdateValues()
-	self:SetScript('OnShow', nil)
-end)
 
-function GeneralOptions:GetGroupSets()
-	return OmniCCOptions:GetGroupSets()
-end
-
-
---[[
-	Widgets
---]]
+--[[ Panel ]]--
 
 function GeneralOptions:AddWidgets()
 	local enableCDText = self:CreateEnableTextCheckbox()
@@ -82,6 +70,10 @@ function GeneralOptions:UpdateValues()
 			dd:UpdateValue()
 		end
 	end
+end
+
+function GeneralOptions:GetGroupSets()
+	return OmniCCOptions:GetGroupSets()
 end
 
 
@@ -359,3 +351,5 @@ end
 --[[ Load the thing ]]--
 
 OmniCCOptions:AddTab('general', L.GeneralSettings, GeneralOptions)
+GeneralOptions:AddWidgets()
+GeneralOptions:UpdateValues()

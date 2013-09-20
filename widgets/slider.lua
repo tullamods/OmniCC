@@ -47,6 +47,10 @@ function Slider:OnShow()
 end
 
 function Slider:OnValueChanged(value)
+	local min = self:GetMinMaxValues()
+	local step = self:GetValueStep()
+	local value = min + ceil((value - min) / step) * step
+
 	self:SetSavedValue(value)
 	self:UpdateText(self:GetSavedValue())
 end
@@ -57,9 +61,9 @@ function Slider:OnMouseWheel(direction)
 	local minVal, maxVal = self:GetMinMaxValues()
 
 	if step > 0 then
-		self:SetValue(math.min(value+step, maxVal))
+		self:SetValue(min(value+step, maxVal))
 	else
-		self:SetValue(math.max(value+step, minVal))
+		self:SetValue(max(value+step, minVal))
 	end
 end
 

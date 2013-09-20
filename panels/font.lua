@@ -127,7 +127,7 @@ do
 		end
 
 		s.GetSavedValue = function(self)
-			return toIndex(OmniCCOptions:GetGroupSets().fontOutline)
+			return toIndex(OmniCCOptions:GetGroupSets().fontOutline) or 1
 		end
 
 		s.GetFormattedText = function(self, value)
