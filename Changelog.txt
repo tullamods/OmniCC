@@ -1,5 +1,14 @@
+====== 5.4.1
+* Now prevents bugs caused due to incorrect usage of the API by some addons (eg: PlateBuffs)
+* Fixed issue preventing configuration sliders from behaving properly (ex: font outline)
+* Fixed issue preventing configuration sliders from being shown immediately.
+
+====== 5.4.0
+* Updated for Siege of Ogrimmar.
+
 ====== 5.3.2 (beta)
 * Now displays timers for abilities with charges.
+* Fixed issue with Ion.
 
 ====== 5.3.1
 * Fixed bug preventing slash commands from working properly.

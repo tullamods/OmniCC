@@ -36,7 +36,7 @@ end
 --[[ Controls ]]--
 
 function Timer:Start(start, duration, charges)
-	self.start, self.duration, self.charges = start, duration, charges or 0
+	self.start, self.duration, self.charges = start, duration, tonumber(charges) or 0
 	self.visible = self.cooldown:IsVisible()
 	self.finish = start + duration
 	self.textStyle = nil
