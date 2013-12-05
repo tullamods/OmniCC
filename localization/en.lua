@@ -138,5 +138,3 @@ offset of text.]]
 L.YOffsetTip =
 [[Controls the vertical
 offset of text.]]
-
-newproxy(true)

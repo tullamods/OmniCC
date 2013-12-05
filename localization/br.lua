@@ -5,8 +5,8 @@
 if GetLocale() ~= 'ptBR' then return end
 local L = OMNICC_LOCALS
 
-L.GeneralSettings = "Display"
-L.FontSettings = "Texto"
+L.GeneralSettings = "Geral"
+L.FontSettings = "Aspecto do Texto"
 L.RuleSettings = "Regras"
 L.PositionSettings = "Posição do Texto"
 
@@ -14,9 +14,9 @@ L.Font = "Fonte"
 L.FontSize = "Tamanho do Texto"
 L.FontOutline = "Contorno do Texto"
 
-L.Outline_NONE = NONE
 L.Outline_OUTLINE = "Fino"
 L.Outline_THICKOUTLINE = "Espesso"
+L.Outline_OUTLINEMONOCHROME = "Monocromático"
 
 L.MinDuration = "Duração mínima para exibir texto"
 L.MinSize = "Tamanho mínimo para exibir texto"
@@ -46,21 +46,20 @@ L.XOffset = "X"
 L.YOffset = "Y"
 
 L.Anchor = 'Posicionar'
-L.Anchor_LEFT = 'À Esquerda'
-L.Anchor_CENTER = 'Ao Centro'
-L.Anchor_RIGHT = 'À Direita'
-L.Anchor_TOPLEFT = 'No Topo Esquerdo'
-L.Anchor_TOP = 'No Topo'
-L.Anchor_TOPRIGHT = 'No Topo Direito'
-L.Anchor_BOTTOMLEFT = 'No Fundo Esquerdo'
-L.Anchor_BOTTOM = 'No Fundo'
-L.Anchor_BOTTOMRIGHT = 'No Fundo Direito'
+L.Anchor_LEFT = 'Esquerda'
+L.Anchor_CENTER = 'Centro'
+L.Anchor_RIGHT = 'Direita'
+L.Anchor_TOPLEFT = 'Topo Esquerdo'
+L.Anchor_TOP = 'Topo'
+L.Anchor_TOPRIGHT = 'Topo Direito'
+L.Anchor_BOTTOMLEFT = 'Fundo Esquerdo'
+L.Anchor_BOTTOM = 'Fundo'
+L.Anchor_BOTTOMRIGHT = 'Fundo Direito'
 
 --groups
 L.Groups = 'Grupos'
 L.Group_base = 'Padrão'
 L.Group_action = 'Ações'
-L.Group_aura = 'Auras'
 L.Group_pet = 'Ações do Animal'
 L.AddGroup = 'Adicionar Grupo...'
 
@@ -68,12 +67,12 @@ L.AddGroup = 'Adicionar Grupo...'
 
 L.ScaleTextTip =
 [[Quando ativada, esta opção faz o
-texto a encolher para caber dentro dos
-elementos que são muito pequenos.]]
+texto a encolher para caber dentro de
+elementos que sejam pequenos.]]
 
 L.SpiralOpacityTip =
-[[Define a transparência ds espirais negras que normalmente
-são exibidas em botões em cooldown]]
+[[Define a transparência das espirais negras que normalmente
+são exibidas em botões em cooldown.]]
 
 L.UseAniUpdaterTip =
 [[Otimiza o desempenho do processador, mas pode
@@ -88,8 +87,7 @@ Esta configuração é usada maioritariamente para
 filtrar o GCD.]]
 
 L.MinSizeTip =
-[[Determina quão grande um elemento tem de ser para exibir texto.
-Quanto menor o valor, mais pequenos poderão ser os elementos para o exibir.
+[[Determina o tamanho mínimo que elementos têm de ter para exibir texto.
 
 Alguns exemplos:
 100 - O tamanho de um botão de ação
