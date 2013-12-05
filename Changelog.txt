@@ -1,3 +1,6 @@
+====== 5.4.2
+* Now available in italian and spanish: OmniCC now supports every client language!
+
 ====== 5.4.1
 * Now prevents bugs caused due to incorrect usage of the API by some addons (eg: PlateBuffs)
 * Fixed issue preventing configuration sliders from behaving properly (ex: font outline)

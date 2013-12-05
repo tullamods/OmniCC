@@ -1,4 +1,4 @@
-if not strmatch(GetLocale(), "^es") then return end
+if not strfind(GetLocale(), "^es") then return end
 local L = OMNICC_LOCALS
 
 -- effect names
