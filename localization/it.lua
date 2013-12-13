@@ -2,6 +2,7 @@
 	OmniCC configuration localization - Italian
 --]]
 
+if GetLocale() ~= 'itIT' then return end
 local L = OMNICC_LOCALS
 
 L.GeneralSettings = "Visualizzazione"
