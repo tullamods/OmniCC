@@ -285,7 +285,7 @@ function GeneralOptions:CreateSpiralOpacitySlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().spiralOpacity = value
-		Cooldown:ForAll('UpdateOpacity')
+		Cooldown:ForAll('UpdateAlpha')
 	end
 
 	s.GetSavedValue = function(self)
