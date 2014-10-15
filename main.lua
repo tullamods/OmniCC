@@ -32,6 +32,7 @@ function OmniCC:SetupHooks()
 	local class = getmetatable(ActionButton1Cooldown).__index
 	
 	hooksecurefunc(class, 'SetCooldown', self.Cooldown.Start)
+	hooksecurefunc(class, 'SetSwipeColor', self.Cooldown.OnColorSet)
 	hooksecurefunc('SetActionUIButton', self.Actions.Add)
 end
 

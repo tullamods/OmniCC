@@ -1,3 +1,6 @@
+====== 6.0.0
+* Updated for The Iron Tide.
+
 ====== 5.4.3
 * Fixed issue causing all clients to show option menus in italian. /facepalm
 
