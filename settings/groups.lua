@@ -59,7 +59,7 @@ end
 
 function OmniCC:AddGroup(id)
 	if not self:GetGroupIndex(id) then
-		self.sets.groupSettings[id] = CopyTable(self.sets.groupSettings['base'])
+		self.sets.groupSettings[id] = self:StartupGroup(CopyTable(self.sets.groupSettings['base']))
 		tinsert(self.sets.groups, {id = id, rules = {}, enabled = true})
 
 		self:UpdateGroups()
