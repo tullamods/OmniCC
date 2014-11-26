@@ -149,8 +149,8 @@ end
 local ListEditor = Classy:New('Frame')
 OmniCCOptions.ListEditor = ListEditor
 
-function ListEditor:New(title, parent)
-	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
+function ListEditor:New(name, parent)
+	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. name, parent))
 	f:SetScript('OnShow', f.Load)
 	return f
 end

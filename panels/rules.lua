@@ -33,9 +33,10 @@ end
 
 function RuleOptions:AddWidgets()
 	self.rules = self:AddRulesEditor()
-	self.rules:SetPoint('TOPLEFT', 12, -24)
-	self.rules:SetPoint('TOPRIGHT', -12, -24)
+	self.rules:SetPoint('TOPLEFT', 12, -12)
+	self.rules:SetPoint('TOPRIGHT', -12, -12)
 	self.rules:SetHeight(332)
+	self.rules:Load()
 end
 
 function RuleOptions:UpdateValues()
@@ -44,7 +45,7 @@ end
 
 function RuleOptions:AddRulesEditor()
 	local parent = self
-	local editor = OmniCCOptions.ListEditor:New('Adjust Group Rules', parent)
+	local editor = OmniCCOptions.ListEditor:New('List', parent)
 
 	editor.OnAddItem = function(self, ruleToAdd)
 		table.insert(parent:GetGroupRules(), ruleToAdd)
