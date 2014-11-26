@@ -12,6 +12,7 @@ local function createGroup(groupId)
 	end
 end
 
+InterfaceOptionsActionBarsPanelCountdownCooldowns:Disable()
 StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 	text = 'Enter Group Name',
 	button1 = ACCEPT,
