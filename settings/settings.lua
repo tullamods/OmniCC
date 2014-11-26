@@ -3,17 +3,6 @@
 		handles OmniCC saved variables
 --]]
 
-local function SetDefaults(target, defaults)
-	for k, v in pairs(defaults) do
-		if type(v) == 'table' then
-			target[k] = SetDefaults(target[k] or {}, v)
-		end
-	end
-	
-	defaults.__index = defaults
-	return setmetatable(target, defaults)
-end
-
 local function ToNumber(number)
 	return tonumber(number) or 0
 end
@@ -22,32 +11,28 @@ end
 --[[ Startup ]]--
 
 function OmniCC:StartupSettings()
-	OmniCC4Config = SetDefaults(OmniCC4Config or {}, {
-		engine = 'AniUpdater',
-		groupSettings = {base = {}},
-		groups = {}
-	})
+	local version = self:GetSettingsVersion()
+	if version < 50201 then
+		OmniCC4Config = {
+			engine = 'AniUpdater',
+			groupSettings = {base = self:DefaultGroup()},
+			groups = {}
+		}
+	end
 
 	self.sets = OmniCC4Config
-	self:UpgradeSettings()
-	
-	for id, group in pairs(self.sets.groupSettings) do
-		self:StartupGroup(group)
-	end
-end
-
-function OmniCC:UpgradeSettings()
-	local version = self:GetVersionID()
-	if version < 50201 then
-		OmniCC4Config = nil
-		self:StartupSettings()
-	end
-
 	self.sets.version = self:GetVersion()
+
+	if version < 60007 then
+		if self:AddGroup('Ignore') then
+			self.sets.groupSettings['Ignore'].enabled = false
+			self.sets.groups[#self.sets.groups].rules = {'LossOfControl', 'TotemFrame'}
+		end
+	end
 end
 
-function OmniCC:StartupGroup(group)
-	return SetDefaults(group or {}, {
+function OmniCC:DefaultGroup()
+	return {
 		enabled = true,
 		scaleText = true,
 		spiralOpacity = 1,
@@ -89,19 +74,22 @@ function OmniCC:StartupGroup(group)
 				scale = 1.5
 			},
 		}
-	})
+	}
 end
 
 
 --[[ Version ]]--
 
-function OmniCC:GetVersionID()
-	local version = self.sets.version or self:GetVersion()
-	local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%d+)')
-	
-	return ToNumber(expansion) * 10000 + ToNumber(patch) * 100 + ToNumber(release)
-end
-
 function OmniCC:GetVersion()
 	return GetAddOnMetadata('OmniCC', 'Version')
+end
+
+function OmniCC:GetSettingsVersion()
+	local version = OmniCC4Config and OmniCC4Config.version
+	if version then
+		local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%d+)')
+		return ToNumber(expansion) * 10000 + ToNumber(patch) * 100 + ToNumber(release)
+	end
+
+	return 0
 end

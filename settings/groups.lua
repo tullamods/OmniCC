@@ -28,7 +28,8 @@ function OmniCC:GetGroup(cooldown)
 end
 
 function OmniCC:FindGroup(cooldown)
-	local name = cooldown:GetName()
+	local parent = cooldown:GetParent()
+	local name = cooldown:GetName() or (parent and parent:GetName())
 	if name then
 		local groups = self.sets.groups
 		for i = #groups, 1, -1 do
@@ -58,7 +59,7 @@ end
 
 function OmniCC:AddGroup(id)
 	if not self:GetGroupIndex(id) then
-		self.sets.groupSettings[id] = self:StartupGroup(CopyTable(self.sets.groupSettings['base']))
+		self.sets.groupSettings[id] = CopyTable(self.sets.groupSettings['base'])
 		tinsert(self.sets.groups, {id = id, rules = {}, enabled = true})
 
 		self:UpdateGroups()

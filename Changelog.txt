@@ -1,3 +1,17 @@
+====== 6.0.7
+* Added new default group *Ignore*
+** This group disable cooldown text on the player frame totem icons and the loss of control frame.
+** It also serves to illustrate how to use the grouping features.
+* Rules tab:
+** Now properly loads when opened for the first time.
+** Slight redesign.
+* Now is able to properly detect the name of some cooldowns that have not been properly identified by developers (ex: loss of control), which was preventing them from being grouped.
+
+====== 6.0.6
+* Config option is no longer displayed multiple times in the configuration panel.
+* Hopefully fixed flickering issue that could happen in weird situations with WeakAuras.
+* Default actions option is now forced to be disabled.
+
 ====== 6.0.5
 * Config option now loads properly on first try.
 
