@@ -35,8 +35,10 @@ end
 
 --[[ Controls ]]--
 
-function Timer:Start(start, duration, charges)
-	self.start, self.duration, self.charges = start, duration, tonumber(charges) or 0
+function Timer:Start(start, duration)
+	self.start, self.duration = start, duration
+	self.controlled = self.cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL
+	self.charging = self.cooldown:GetDrawEdge()
 	self.visible = self.cooldown:IsVisible()
 	self.finish = start + duration
 	self.textStyle = nil
@@ -165,7 +167,9 @@ function Timer:GetRemain()
 end
 
 function Timer:GetTextStyle(remain)
-	if self.charges > 0 then
+	if self.controlled then
+		return 'controlled'
+	elseif self.charging then
 		return 'charging'
 	elseif remain < Soonish then
 		return 'soon'
@@ -218,21 +222,16 @@ function Timer:GetTimeText(remain)
 
 	if remain < sets.tenthsDuration then
 		return '%.1f', remain
-		
 	elseif remain < Minuteish then
 		local seconds = round(remain)
 		return seconds ~= 0 and seconds or ''
-		
 	elseif remain < sets.mmSSDuration then
 		local seconds = round(remain)
 		return '%d:%02d', seconds/Minute, seconds%Minute
-		
 	elseif remain < Hourish then
 		return '%dm', round(remain/Minute)
-		
 	elseif remain < Dayish then
 		return '%dh', round(remain/Hour)
-
 	else
 		return '%dd', round(remain/Day)
 	end

@@ -58,9 +58,8 @@ end
 
 function OmniCC:AddGroup(id)
 	if not self:GetGroupIndex(id) then
-		local sets = self.sets
-		sets.groupSettings[id] = CopyTable(sets.groupSettings['base'])
-		tinsert(sets.groups, {id = id, rules = {}, enabled = true})
+		self.sets.groupSettings[id] = self:StartupGroup(CopyTable(self.sets.groupSettings['base']))
+		tinsert(self.sets.groups, {id = id, rules = {}, enabled = true})
 
 		self:UpdateGroups()
 		return true
@@ -83,7 +82,7 @@ function OmniCC:UpdateGroups()
 		local newGroup = self:FindGroup(cooldown)
 		if group ~= newGroup then
 			self.Cache[cooldown] = newGroup
-			self.Cooldown.UpdateOpacity(cooldown)
+			self.Cooldown.UpdateAlpha(cooldown)
 
 			local timer = cooldown.omnicc
 			if timer and timer.visible then

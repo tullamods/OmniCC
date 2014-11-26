@@ -1,3 +1,21 @@
+====== 6.0.5
+* Config option now loads properly on first try.
+
+====== 6.0.4
+* Now you can configure the text style of timers while CC-ed separately.  
+* Spiral opacity now works with addons like Bartender and Dominos.
+* Changed how default settings are loaded.
+* Bugixes of group configuration.
+
+====== 6.0.3
+* Fixed issue with restoring charges.
+
+====== 6.0.2
+* Fixed taint issue.
+
+====== 6.0.1
+* Fixed minor issue causing spiral opacity setting not to work.
+
 ====== 6.0.0
 * Updated for The Iron Tide.
 

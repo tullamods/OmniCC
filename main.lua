@@ -5,17 +5,21 @@
 
 local OmniCC = CreateFrame('Frame', 'OmniCC')
 local Classy = LibStub('Classy-1.0')
+local L = OMNICC_LOCALS
 
 
 --[[ Startup ]]--
 
 function OmniCC:Startup()
+	self.effects = {}
+	self:SetupConfig()
+	self:SetupCommands()
+	self:RegisterEvent('VARIABLES_LOADED')
 	self:SetScript('OnEvent', function(self, event)
 		self[event](self)
 	end)
 	
-	self:RegisterEvent('VARIABLES_LOADED')
-	self.effects = {}
+	SetCVar('countdownForCooldowns', 0)
 end
 
 function OmniCC:VARIABLES_LOADED()
@@ -26,11 +30,11 @@ function OmniCC:VARIABLES_LOADED()
 end
 
 
---[[ Callbacks ]]--
+--[[ Setup ]]--
 
 function OmniCC:SetupHooks()
 	local class = getmetatable(ActionButton1Cooldown).__index
-	
+
 	hooksecurefunc(class, 'SetCooldown', self.Cooldown.Start)
 	hooksecurefunc(class, 'SetSwipeColor', self.Cooldown.OnColorSet)
 	hooksecurefunc('SetActionUIButton', self.Actions.Add)
@@ -41,6 +45,42 @@ function OmniCC:SetupEvents()
 	self:RegisterEvent('ACTIONBAR_UPDATE_COOLDOWN')
 	self:RegisterEvent('PLAYER_ENTERING_WORLD')
 end
+
+function OmniCC:SetupConfig()
+	local config = CreateFrame('Frame', 'OmniCC_Config', InterfaceOptionsFrame)
+	config.name = 'OmniCC'
+	config:SetScript('OnShow', function()
+		local loaded, reason = LoadAddOn('OmniCC_Config')
+		if not loaded then
+			local string = config:CreateFontString(nil, nil, 'GameFontHighlight')
+			local reason = _G['ADDON_'..reason]:lower()
+			
+			string:SetText(L.ConfigMissing:format('OmniCC_Config', reason))
+			string:SetPoint('RIGHT', -40, 0)
+			string:SetPoint('LEFT', 40, 0)
+			string:SetHeight(30)
+		end 
+
+		InterfaceOptions_AddCategory(config)
+		config:SetScript('OnShow', nil)
+	end)
+end
+
+function OmniCC:SetupCommands()
+	SLASH_OmniCC1 = '/omnicc'
+	SLASH_OmniCC2 = '/occ'
+	SlashCmdList['OmniCC'] = function(...)
+		if comand == 'version' then
+			print(L.Version:format(self:GetVersion()))
+		elseif LoadAddOn(Config) then
+			InterfaceOptionsFrame:Show()
+			InterfaceOptionsFrame_OpenToCategory('OmniCC')
+		end
+	end
+end
+
+
+--[[ Events ]]--
 
 function OmniCC:ACTIONBAR_UPDATE_COOLDOWN()
 	self.Actions:Update()
