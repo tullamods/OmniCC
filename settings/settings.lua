@@ -3,50 +3,6 @@
 		handles OmniCC saved variables
 --]]
 
-local DEFAULT_GROUP = {
-	enabled = true,
-	scaleText = true,
-	spiralOpacity = 1,
-	fontFace = STANDARD_TEXT_FONT,
-	fontSize = 18,
-	fontOutline = 'OUTLINE',
-	minDuration = 2,
-	minSize = 0.5,
-	effect = 'pulse',
-	minEffectDuration = 30,
-	tenthsDuration = 0,
-	mmSSDuration = 0,
-	xOff = 0,
-	yOff = 0,
-	anchor = 'CENTER',
-	styles = {
-		soon = {
-			r = 1, g = .1, b = .1, a = 1,
-			scale = 1.5
-		},
-		seconds = {
-			r = 1, g = 1, b = .1, a = 1,
-			scale = 1
-		},
-		minutes = {
-			r = 1, g = 1, b = 1, a = 1,
-			scale = 1
-		},
-		hours = {
-			r = .7, g = .7, b = .7, a = 1,
-			scale = .75
-		},
-		charging = {
-			r = 0.8, g = 1, b = .3, a = .8,
-			scale = .75
-		},
-		controlled = {
-			r = 1, g = .1, b = .1, a = 1,
-			scale = 1.5
-		},
-	}
-}
-
 local function SetDefaults(target, defaults)
 	for k, v in pairs(defaults) do
 		if type(v) == 'table' then
@@ -93,7 +49,49 @@ function OmniCC:UpgradeSettings()
 end
 
 function OmniCC:StartupGroup(group)
-	return SetDefaults(group or {}, DEFAULT_GROUP)
+	return SetDefaults(group or {}, {
+		enabled = true,
+		scaleText = true,
+		spiralOpacity = 1,
+		fontFace = STANDARD_TEXT_FONT,
+		fontSize = 18,
+		fontOutline = 'OUTLINE',
+		minDuration = 2,
+		minSize = 0.5,
+		effect = 'pulse',
+		minEffectDuration = 30,
+		tenthsDuration = 0,
+		mmSSDuration = 0,
+		xOff = 0,
+		yOff = 0,
+		anchor = 'CENTER',
+		styles = {
+			soon = {
+				r = 1, g = .1, b = .1, a = 1,
+				scale = 1.5
+			},
+			seconds = {
+				r = 1, g = 1, b = .1, a = 1,
+				scale = 1
+			},
+			minutes = {
+				r = 1, g = 1, b = 1, a = 1,
+				scale = 1
+			},
+			hours = {
+				r = .7, g = .7, b = .7, a = 1,
+				scale = .75
+			},
+			charging = {
+				r = 0.8, g = 1, b = .3, a = .8,
+				scale = .75
+			},
+			controlled = {
+				r = 1, g = .1, b = .1, a = 1,
+				scale = 1.5
+			},
+		}
+	})
 end
 
 

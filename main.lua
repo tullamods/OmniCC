@@ -33,10 +33,10 @@ end
 --[[ Setup ]]--
 
 function OmniCC:SetupHooks()
-	local class = getmetatable(ActionButton1Cooldown).__index
+	self.Meta = getmetatable(ActionButton1Cooldown).__index
 
-	hooksecurefunc(class, 'SetCooldown', self.Cooldown.Start)
-	hooksecurefunc(class, 'SetSwipeColor', self.Cooldown.OnColorSet)
+	hooksecurefunc(self.Meta, 'SetCooldown', self.Cooldown.Start)
+	hooksecurefunc(self.Meta, 'SetSwipeColor', self.Cooldown.OnColorSet)
 	hooksecurefunc('SetActionUIButton', self.Actions.Add)
 end
 
@@ -72,7 +72,7 @@ function OmniCC:SetupCommands()
 	SlashCmdList['OmniCC'] = function(...)
 		if comand == 'version' then
 			print(L.Version:format(self:GetVersion()))
-		elseif LoadAddOn(Config) then
+		elseif LoadAddOn('OmniCC_Config') then
 			InterfaceOptionsFrame:Show()
 			InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end

@@ -1,3 +1,9 @@
+====== 6.0.10
+* Fixed issue with Bartender4 (and possibly other mods) in spiral opacity.
+
+====== 6.0.9
+* Slashcommand working again.
+
 ====== 6.0.8
 * Critical hotfix. Settings had to be reset. My fault.
 
