@@ -1,18 +1,21 @@
+--[[OmniCC Localization - Italian]]
+
 if GetLocale() ~= 'itIT' then return end
 local L = OMNICC_LOCALS
 
 -- effect names
-L.Pulse = "Pulsazione"
-L.Shine = "Risplendere"
+L.None = NONE
+L.Pulse = "Pulsante"
+L.Shine = "Splendente"
 L.Alert = "Avviso"
-L.Activate = "Attivazione"
-L.Flare = "Fiammata"
+L.Activate = "Attivato"
+L.Flare = "Bagliore"
 
 -- effect tooltips
-L.ActivateTip = [[Mima l'effetto predefinito che viene usato nelle barre delle azioni quando un'abilità "procca".]]
-L.AlertTip = [[L'icona del recupero lampeggia al centro dello schermo quando è terminata.]]
-L.PulseTip = [[L'icona del recupero lampeggia.]]
+L.ActivateTip = [[Mima l'effetto predefinito, che viene mostrato nelle barre delle azioni, quando un'abilità "procca".]]
+L.AlertTip = [[Terminato il periodo di recupero, l'icona pulsa al centro dello schermo.]]
+L.PulseTip = [[Concluso il periodo di recupero l'icona pulsa.]]
 
 -- other
-L.ConfigMissing = '%s non puù essere caricato perché %s'
-L.Version = 'Stai usando |cffFCF75EOmniCC Versione (%s)|r'
+L.ConfigMissing = "%s non può essere caricato perché l'addon è %s"
+L.Version = 'Stai utilizzando la versione |cffFCF75EOmniCC (%s)|r'
