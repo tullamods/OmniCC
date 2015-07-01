@@ -1,136 +1,109 @@
---[[
-	OmniCC configuration localization - Italian
---]]
+--[[OmniCC Config Localization - Italian]]
 
 if GetLocale() ~= 'itIT' then return end
 local L = OMNICC_LOCALS
 
 L.GeneralSettings = "Visualizzazione"
-L.FontSettings = "Stile Testo"
+L.FontSettings = "Stile del testo"
 L.RuleSettings = "Regole"
-L.PositionSettings = "Posizione Testo"
+L.PositionSettings = "Posizione del testo"
 
 L.Font = "Carattere"
-L.FontSize = "Dimensione Carattere Base"
-L.FontOutline = "Bordo CarattereFont Outline"
+L.FontSize = "Dimensione del carattere"
+L.FontOutline = "Bordo del carattere"
 
+L.Outline_NONE = NONE
 L.Outline_OUTLINE = "Sottile"
 L.Outline_THICKOUTLINE = "Spesso"
 L.Outline_OUTLINEMONOCHROME = "Monocromatico"
 
-L.MinDuration = "Durata minima di visualizzazione testo"
-L.MinSize = "Dimensione minima di visualizzazione testo"
-L.ScaleText = "Scala automaticamente il testo per adattarlo tra i frames"
-L.EnableText = "Abilita testo recupero"
+L.MinDuration = "Durata minima per mostrare il testo"
+L.MinSize = "Dimensione minima per mostrare il testo"
+L.ScaleText = "Scala automaticamente il testo per adattarlo ai riquadri"
+L.EnableText = "Abilita il testo di recupero"
 
 L.Add = "Aggiungi"
 L.Remove = "Rimuovi"
 
-L.FinishEffect = "Effetto Chiusura"
-L.MinEffectDuration = "Durata minima per visualizzare l'effetto di chiusura"
+L.FinishEffect = "Effetto conclusivo"
+L.MinEffectDuration = "Durata minima per mostrare l'effetto conclusivo"
 
 L.MMSSDuration = "Durata minima per mostrare il testo come MM:SS"
-L.TenthsDuration = "Durata minima per mostrare decimi di secondo"
+L.TenthsDuration = "Durata minima per mostrare i decimi di secondo"
 
-L.ColorAndScale = "Colore & Scalatura"
-L.Color_soon = "Sta per scadere tra poco"
-L.Color_seconds = "In meno di un minuto"
-L.Color_minutes = "In meno di un'ora"
+L.ColorAndScale = "Colore & Proporzione"
+L.Color_soon = "Prossimo alla scadenza"
+L.Color_seconds = "Meno di un minuto"
+L.Color_minutes = "Meno di un'ora"
 L.Color_hours = "Un'ora o più"
 L.Color_charging = "Ripristina cambiamenti"
+L.Color_controlled = "Perdita del controllo"
 
-L.SpiralOpacity = "Trasparenza spirale"
-L.UseAniUpdater = "Ottimizza performance"
+L.SpiralOpacity = "Trasparenza della spirale"
+L.UseAniUpdater = "Ottimizza le prestazioni"
 
 --text positioning
-L.XOffset = "X Offset"
-L.YOffset = "Y Offset"
+L.XOffset = "Asse X"
+L.YOffset = "Asse Y"
 
-L.Anchor = 'Ancoraggio'
-L.Anchor_LEFT = 'Sinistra'
-L.Anchor_CENTER = 'Centro'
-L.Anchor_RIGHT = 'Destra'
-L.Anchor_TOPLEFT = 'Alto Sinistra'
-L.Anchor_TOP = 'Alto'
-L.Anchor_TOPRIGHT = 'Alto Destra'
-L.Anchor_BOTTOMLEFT = 'Basso Sinistra'
-L.Anchor_BOTTOM = 'Basso'
-L.Anchor_BOTTOMRIGHT = 'Basso Destra'
+L.Anchor = 'Fissare'
+L.Anchor_LEFT = 'a Sinistra'
+L.Anchor_CENTER = 'al Centro'
+L.Anchor_RIGHT = 'a Destra'
+L.Anchor_TOPLEFT = 'in Alto a Sinistra'
+L.Anchor_TOP = 'in Alto'
+L.Anchor_TOPRIGHT = 'in Alto a Destra'
+L.Anchor_BOTTOMLEFT = 'in Basso a Sinistra'
+L.Anchor_BOTTOM = 'in Basso'
+L.Anchor_BOTTOMRIGHT = 'in Basso a Destra'
 
 --groups
 L.Groups = 'Gruppi'
-L.Group_base = 'Predefibito'
+L.Group_base = 'Predefinito'
 L.Group_action = 'Azioni'
-L.Group_aura = 'Auree'
-L.Group_pet = 'Azioni Famiglio'
-L.AddGroup = 'Aggiungi Gruppo...'
+L.Group_aura = 'Aure'
+L.Group_pet = 'Azioni del famiglio'
+L.AddGroup = 'Aggiungi un gruppo...'
 
 --[[ Tooltips ]]--
 
-L.ScaleTextTip =
-[[Quando abilitata, questa opzione restringerà 
-il testo per ridurlo in modo da stare 
-dentro frames che sono troppo piccoli.]]
+L.ScaleTextTip = [[Quando abilitata, questa opzione causerà il restringimento
+del testo per adattarlo ai riquadri che sono troppo piccoli.]]
 
-L.SpiralOpacityTip =
- [[Imposta l'opacità delle spirali oscure che vedresti
- sui pulsanti quando c'é un recupero.]]
+L.SpiralOpacityTip = [[Imposta l'opacità delle spirali scure, che normalmente vedi
+quando un'abilità ha un tempo di recupero.]]
 
-L.UseAniUpdaterTip =
-[[Ottimizza le performances della performance, ma
-potrebbe generare crash in alcune configurazioni.
-Disabilitare questa opzione risolverà i problemi.]]
+L.UseAniUpdaterTip = [[Ottimizza le prestazioni del processore, ma questo può causare instabilità su alcuni sistemi.
+Disabilitare questa opzione potrebbe risolvere il problema.]]
 
-L.MinDurationTip =
-[[Determina quanto deve essere lungo 
-un recupero per mostrare un testo.
+L.MinDurationTip = [[Determina quanto deve essere lungo un tempo di recupero al fine di mostrare il testo.
+Principalmente questa opzione viene utilizzata per filtrare il tempo di recupero globale.]]
 
-Questa impostazione è usata principalmente
-per filtrare il recupero globale.]]
+L.MinSizeTip = [[Determina quanto deve essere grande un riquadro per mostrare il testo.
+Minore è il valore, minore saranno le cose mostrate come testo.
+Maggiore è il valore, maggiori sono le cose mostrate.
 
-L.MinSizeTip =
-[[Determina quanto deve essere grande un frame per mostrare il testo.
-Più piccolo è il valore, meno cose sono mostrate come testo.
-Più grande è il valore, più cose sono mostrate come testo.
+Alcuni valori:
+100 - La grandezza di un bottone della barra azione
+80  - La grandezza della barra azione di classe o del famiglio
+55  - La grandezza delle aure nel riquadro dell'obiettivo]]
 
-Alcuni benchmarks:
-100 - Dimensione di un pulsante azione
-80  - Dimensione di una classe o di un pulsante d'azione di un famiglio
-55  - Dimensione di un beneficio per il frame di un target]]
+L.MinEffectDurationTip = [[Determina quanto deve essere lungo un tempo di recupero
+per poter mostrare l'effetto conclusivo (es: Pulsante, Splendente)]]
 
-L.MinEffectDurationTip =
-[[Determina quanto deve essere lungo un recupero
-perché mostri un effetto finale.
-(es, pulsazione/risplendenza)]]
+L.MMSSDurationTip = [[Determina la soglia per mostrare il tempo di recupero nel formato MM:SS.]]
 
-L.MMSSDurationTip =
-[[Determina il limite per mostrare
-il recupero nel formato MM:SS.]]
+L.TenthsDurationTip = [[Determina la soglia per mostrare i decimi di secondo.]]
 
-L.TenthsDurationTip =
-[[Determina il limite per mostrare
-i decimi di secondo.]]
+L.FontSizeTip = [[Controlla quanto deve essere largo il testo.]]
 
-L.FontSizeTip =
-[[Controlla la larghezza del testo.]]
+L.FontOutlineTip = [[Controlla lo spessore dei bordi attorno al testo.]]
 
-L.FontOutlineTip =
-[[Controlla lo spessore del bordo
-attorno al testo.]]
+L.UseBlacklistTip = [[Clicca qui per abilitare l'ausilio della lista nera.
+Quando attivo, qualsiasi riquadro con il nome corrispondente, inserito nella lista nera, non verrà mostrato il tempo di recupero sotto forma di testo.]]
 
-L.UseBlacklistTip =
-[[Clicca questo per attivare la lista nera.
-Quando attiva, qualsiasi frame che ha come nome uno inserito
-nella lista nera non mostrerà nessun recupero.]]
+L.FrameStackTip = [[Attiva la visualizzazione dei nomi nei riquadri al passaggio del mouse.]]
 
-L.FrameStackTip =
-[[Attiva la visualizzazione dei nomi
-dei frames quando punti il mouse sopra di loro.]]
+L.XOffsetTip = [[Controlla l'asse orizzontale del testo.]]
 
-L.XOffsetTip =
-[[Controlla l'offset orizzzontale
-del testo.]]
-
-L.YOffsetTip =
-[[Controlla l'offset verticale
-del testo.]]
+L.YOffsetTip = [[Controlla l'asse verticale del testo.]]
