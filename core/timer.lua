@@ -229,11 +229,11 @@ function Timer:GetTimeText(remain)
 		local seconds = round(remain)
 		return '%d:%02d', seconds/Minute, seconds%Minute
 	elseif remain < Hourish then
-		return '%dm', round(remain/Minute)
+		return _G["COOLDOWN_DURATION_MIN"], round(remain/Minute)
 	elseif remain < Dayish then
-		return '%dh', round(remain/Hour)
+		return _G["COOLDOWN_DURATION_HOURS"], round(remain/Hour)
 	else
-		return '%dd', round(remain/Day)
+		return _G["COOLDOWN_DURATION_DAYS"], round(remain/Day)
 	end
 end
 
