@@ -1,3 +1,7 @@
+====== 6.2.2
+* Day/Hour/Minute text format is now using Blizzard's localization format.
+* Workaround double countdown issue.
+
 ====== 6.2.1
 * Workaround blizzard issue with GetTime.
 
