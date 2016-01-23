@@ -15,16 +15,12 @@ local function SetDefaults(target, defaults)
 end
 
 
-local function ToNumber(number)
-	return tonumber(number) or 0
-end
-
-
 --[[ Startup ]]--
 
 function OmniCC:StartupSettings()
 	OmniCC4Config = SetDefaults(OmniCC4Config or {}, {
 		engine = 'AniUpdater',
+		version = self:GetVersion(),
 		groupSettings = {base = {}},
 		groups = {}
 	})
@@ -39,7 +35,9 @@ function OmniCC:StartupSettings()
 end
 
 function OmniCC:UpgradeSettings()
-	local version = self:GetSettingsVersion()
+	local expansion, patch, release = strsplit('.', self.sets.version)
+	local version = tonumber(expansion) * 10000 + tonumber(patch or 0) * 100 + tonumber(release or 0)
+
 	if version < 60007 then
 		if self:AddGroup('Ignore') then
 			self.sets.groupSettings['Ignore'].enabled = false
@@ -99,14 +97,4 @@ end
 
 function OmniCC:GetVersion()
 	return GetAddOnMetadata('OmniCC', 'Version')
-end
-
-function OmniCC:GetSettingsVersion()
-	local version = self.sets.version
-	if version then
-		local expansion, patch, release = version:match('(%d+)\.(%d+)\.(%d+)')
-		return ToNumber(expansion) * 10000 + ToNumber(patch) * 100 + ToNumber(release)
-	end
-
-	return 0
 end

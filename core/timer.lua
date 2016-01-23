@@ -87,8 +87,8 @@ function Timer:UpdateFontSize(width, height)
 end
 
 function Timer:UpdateText(forceStyleUpdate)
-	if self.start > GetTime() then
-		return self:ScheduleUpdate(self.start - GetTime())
+	if self.start > (GetTime() or 0) then
+		return self:ScheduleUpdate(self.start - (GetTime() or 0))
 	end
 
 	local remain = self:GetRemain()
@@ -163,7 +163,7 @@ end
 --[[ Accessors ]]--
 
 function Timer:GetRemain()
-	return self.finish - GetTime()
+	return self.finish - (GetTime() or 0)
 end
 
 function Timer:GetTextStyle(remain)
