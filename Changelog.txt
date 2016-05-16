@@ -1,3 +1,6 @@
+====== 6.2.3
+* Fixed issue with the new "ChargeTimer" overlays (so much for implementing timers in C++, Blizzard)
+
 ====== 6.2.2
 * Day/Hour/Minute text format is now using Blizzard's localization format.
 * Workaround double countdown issue.

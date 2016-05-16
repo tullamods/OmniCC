@@ -35,7 +35,7 @@ end
 
 --[[ Controls ]]--
 
-function Timer:Start(start, duration)
+function Timer:Start(start, duration, charge)
 	self.start, self.duration = start, duration
 	self.controlled = self.cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL
 	self.charging = self.cooldown:GetDrawEdge()
@@ -43,6 +43,14 @@ function Timer:Start(start, duration)
 	self.finish = start + duration
 	self.textStyle = nil
 	self.enabled = true
+
+	-- hotfix for ChargeCooldowns
+	local parent = self.cooldown:GetParent()
+	local charge = parent and parent.chargeCooldown
+	local chargeTimer = charge and charge.omnicc 
+	if chargeTimer and chargeTimer ~= self then
+		chargeTimer:Stop()
+	end
 
 	self:UpdateShown()
 end
