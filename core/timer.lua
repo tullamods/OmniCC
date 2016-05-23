@@ -9,6 +9,7 @@ local Timer = OmniCC:New('Timer')
 local IconSize = 36
 local Padding = 0
 
+local L = OMNICC_LOCALS
 local Day, Hour, Minute = 86400, 3600, 60
 local Dayish, Hourish, Minuteish, Soonish = 3600 * 23.5, 60 * 59.5, 59.5, 5.5
 local HalfDayish, HalfHourish, HalfMinuteish = Day/2 + 0.5, Hour/2 + 0.5, Minute/2 + 0.5
@@ -229,19 +230,19 @@ function Timer:GetTimeText(remain)
 	local sets = self:GetSettings()
 
 	if remain < sets.tenthsDuration then
-		return '%.1f', remain
+		return L.TenthDuration, remain
 	elseif remain < Minuteish then
 		local seconds = round(remain)
 		return seconds ~= 0 and seconds or ''
 	elseif remain < sets.mmSSDuration then
 		local seconds = round(remain)
-		return '%d:%02d', seconds/Minute, seconds%Minute
+		return L.MMSSDuration, seconds/Minute, seconds%Minute
 	elseif remain < Hourish then
-		return COOLDOWN_DURATION_MIN, round(remain/Minute)
+		return L.MinuteDuration, round(remain/Minute)
 	elseif remain < Dayish then
-		return COOLDOWN_DURATION_HOURS, round(remain/Hour)
+		return L.HourDuration, round(remain/Hour)
 	else
-		return COOLDOWN_DURATION_DAYS, round(remain/Day)
+		return L.DayDuration, round(remain/Day)
 	end
 end
 
