@@ -2,11 +2,11 @@ OMNICC_LOCALS = {} -- should be done in the US locale file, only
 local L = OMNICC_LOCALS
 
 -- timer formats
-L.TenthDuration = '%.1f'
-L.MMSSDuration = '%d:%02d'
-L.MinuteDuration = '%dm'
-L.HourDuration = '%dh'
-L.DayDuration = '%dd'
+L.TenthsFormat = '%.1f'
+L.MMSSFormat = '%d:%02d'
+L.MinuteFormat = '%dm'
+L.HourFormat = '%dh'
+L.DayFormat = '%dd'
 
 -- effect names
 L.None = NONE

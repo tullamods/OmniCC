@@ -1,3 +1,6 @@
+====== 6.2.4
+* Apparently Blizzard's cooldown formats are not appropriate on some locales. Reverting back to custom locales.
+
 ====== 6.2.3
 * Fixed issue with the new "ChargeTimer" overlays (so much for implementing timers in C++, Blizzard)
 
