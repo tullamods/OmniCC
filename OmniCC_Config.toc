@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: |cffE32929OmniCC Config|r
 ## Notes: OmniCC's configuration menu
 ## Notes-koKR: OmniCC의 설정 메뉴
