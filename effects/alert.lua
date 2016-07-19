@@ -18,24 +18,25 @@ Anims:SetScript('OnFinished', function()
   Frame:Hide()
 end)
 
-local function newAnim(type, change, order)
+local function newAnim(type, order, from, to)
   local anim = Anims:CreateAnimation(type)
   anim:SetDuration(0.3)
   anim:SetOrder(order)
 
   if type == 'Scale' then
     anim:SetOrigin('CENTER', 0, 0)
-    anim:SetScale(change, change)
+    anim:SetScale(from, from)
   else
-    anim:SetChange(change)
+    anim:SetFromAlpha(from)
+    anim:SetToAlpha(to)
   end
 end
 
-newAnim('Scale', 2.5, 1)
-newAnim('Alpha', .7, 1)
+newAnim('Scale', 1, 2.5)
+newAnim('Alpha', 1, 0, .7)
 
-newAnim('Scale', -2.5, 2)
-newAnim('Alpha', -.7, 2)
+newAnim('Scale', 2, -2.5)
+newAnim('Alpha', 2, .7, 0)
 
 OmniCC:RegisterEffect({
 	id = 'alert',

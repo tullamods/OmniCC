@@ -1,3 +1,12 @@
+====== 7.0.1
+* Tagging as release.
+
+===== 7.0.0 (beta)
+* Updated for Legion.
+
+====== 6.2.5
+* Hotfix of timer format.
+
 ====== 6.2.4
 * Apparently Blizzard's cooldown formats are not appropriate on some locales. Reverting back to custom locales.
 

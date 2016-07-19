@@ -230,7 +230,7 @@ function Timer:GetTimeText(remain)
 	local sets = self:GetSettings()
 
 	if remain < sets.tenthsDuration then
-		return L.TenthFormat, remain
+		return L.TenthsFormat, remain
 	elseif remain < Minuteish then
 		local seconds = round(remain)
 		return seconds ~= 0 and seconds or ''

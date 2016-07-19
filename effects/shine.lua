@@ -80,10 +80,11 @@ function Shine:CreateShineAnimation()
 	group:SetScript('OnFinished', self.OnAnimationFinished)
 	group:SetLooping('NONE')
 
-	local startTrans = group:CreateAnimation('Alpha')
-	startTrans:SetChange(-1)
-	startTrans:SetDuration(0)
-	startTrans:SetOrder(0)
+	local initiate = group:CreateAnimation('Alpha')
+	initiate:SetFromAlpha(1)
+	initiate:SetDuration(0)
+	initiate:SetToAlpha(0)
+	initiate:SetOrder(0)
 
 	local grow = group:CreateAnimation('Scale')
 	grow:SetOrigin('CENTER', 0, 0)
@@ -92,8 +93,9 @@ function Shine:CreateShineAnimation()
 	grow:SetOrder(1)
 
 	local brighten = group:CreateAnimation('Alpha')
-	brighten:SetChange(1)
 	brighten:SetDuration(self.duration / 2)
+	brighten:SetFromAlpha(0)
+	brighten:SetToAlpha(1)
 	brighten:SetOrder(1)
 
 	local shrink = group:CreateAnimation('Scale')
@@ -103,8 +105,9 @@ function Shine:CreateShineAnimation()
 	shrink:SetOrder(2)
 
 	local fade = group:CreateAnimation('Alpha')
-	fade:SetChange(-1)
 	fade:SetDuration(self.duration / 2)
+	fade:SetFromAlpha(1)
+	fade:SetToAlpha(0)
 	fade:SetOrder(2)
 
 	return group

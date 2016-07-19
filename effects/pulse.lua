@@ -89,11 +89,11 @@ do
 		g:SetScript('OnFinished', animation_OnFinished)
 
 		local grow = g:CreateAnimation('Scale')
-		grow:SetScale(PULSE_SCALE, PULSE_SCALE)
-		grow:SetOrigin('CENTER', 0, 0)
-		grow:SetDuration(PULSE_DURATION/2)
-		grow:SetOrder(0)
 		grow:SetScript('OnFinished', scale_OnFinished)
+		grow:SetScale(PULSE_SCALE, PULSE_SCALE)
+		grow:SetDuration(PULSE_DURATION/2)
+		grow:SetOrigin('CENTER', 0, 0)
+		grow:SetOrder(0)
 
 		return g
 	end
