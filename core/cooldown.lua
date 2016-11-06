@@ -38,9 +38,12 @@ function Cooldown:Stop()
 end
 
 function Cooldown:CanShow(start, duration)
-	if not self.noCooldownCount and start and duration then
+	if not self.noCooldownCount and duration and start and start > 0 then
 		local sets = OmniCC:GetGroupSettingsFor(self) 
-		return start > 0 and duration >= sets.minDuration and sets.enabled
+		if duration >= sets.minDuration and sets.enabled then
+			local globalstart, globalduration = GetSpellCooldown(61304)
+			return start ~= globalstart or duration ~= globalduration
+		 end
 	end
 end
 
