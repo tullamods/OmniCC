@@ -12,27 +12,31 @@ local Activate = OmniCC:RegisterEffect {
 }
 
 function Activate:Setup(cooldown)
-	if not self:Get(cooldown) then
-		local button = cooldown:GetParent()
-		local width, height = button:GetSize()
-		local overlay = CreateFrame('Frame', '$parentOmniCCActivate', button, 'ActionBarButtonSpellActivationAlert')
-
-		overlay:SetSize(width * 1.4, height * 1.4)
-		overlay:SetFrameLevel(overlay:GetFrameLevel() + 5)
-		overlay:SetPoint('TOPLEFT', button, 'TOPLEFT', -width * 0.2, height * 0.2)
-		overlay:SetPoint('BOTTOMRIGHT', button, 'BOTTOMRIGHT', width * 0.2, -height * 0.2)
-		overlay.animIn:HookScript('OnFinished', self.OnFinish)
-		cooldown.omniccActivate = overlay
+	if self:Get(cooldown) then
+		return
 	end
+
+	local button = cooldown:GetParent()
+	local width, height = button:GetSize()
+	local overlay = CreateFrame('Frame', '$parentOmniCCActivate', button, 'ActionBarButtonSpellActivationAlert')
+
+	overlay:SetSize(width * 1.4, height * 1.4)
+	overlay:SetFrameLevel(overlay:GetFrameLevel() + 5)
+	overlay:SetPoint('TOPLEFT', button, 'TOPLEFT', -width * 0.2, height * 0.2)
+	overlay:SetPoint('BOTTOMRIGHT', button, 'BOTTOMRIGHT', width * 0.2, -height * 0.2)
+	overlay.animIn:HookScript('OnFinished', self.OnFinish)
+	cooldown.omniccActivate = overlay
 end
 
 function Activate:Run(cooldown)
 	local overlay = self:Get(cooldown)
-	if overlay.animOut:IsPlaying() then
-		overlay.animOut:Stop()
-	end
+	if overlay then
+		if overlay.animOut:IsPlaying() then
+			overlay.animOut:Stop()
+		end
 
-	overlay.animIn:Play()
+		overlay.animIn:Play()
+	end
 end
 
 function Activate:OnFinish()

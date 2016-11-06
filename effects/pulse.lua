@@ -17,11 +17,13 @@ Pulse.active = {}
 --[[ Run ]]--
 
 function Pulse:Run(cooldown)
-	local button = cooldown:GetParent()
-	local icon = OmniCC:GetButtonIcon(button)
-	
-	if icon then
-		self.active[cooldown]:Start(icon)
+	if self.active[cooldown] then
+		local button = cooldown:GetParent()
+		local icon = OmniCC:GetButtonIcon(button)
+		
+		if icon then
+			self.active[cooldown]:Start(icon)
+		end
 	end
 end
 
