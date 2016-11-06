@@ -96,7 +96,7 @@ function Timer:UpdateFontSize(width, height)
 end
 
 function Timer:UpdateText(forceStyleUpdate)
-	if self.start > (GetTime() or 0) then
+	if self.start and self.start > (GetTime() or 0) then
 		return self:ScheduleUpdate(self.start - (GetTime() or 0))
 	end
 

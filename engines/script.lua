@@ -31,7 +31,7 @@ end
 --[[ Events ]]--
 
 function ScriptUpdater:OnUpdate(elapsed)
-	local delay = self.delay - elapsed
+	local delay = self.delay and (self.delay - elapsed) or 0
 	if delay > 0 then
 		self.delay = delay
 	else
