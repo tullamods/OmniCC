@@ -48,11 +48,11 @@ function RadioButton:OnClick()
 end
 
 function RadioButton:OnEnter()
-    self.bg:SetTexture(1, 1, 1, 0.25)
+    self.bg:SetColorTexture(1, 1, 1, 0.25)
 end
 
 function RadioButton:OnLeave()
-    self.bg:SetTexture(0.2, 0.2, 0.2, 0.6)
+    self.bg:SetColorTexture(0.2, 0.2, 0.2, 0.6)
 end
 
 

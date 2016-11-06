@@ -84,14 +84,14 @@ function FontButton:GetFontFace()
 end
 
 function FontButton:OnEnter()
-    self.bg:SetTexture(1, 1, 1, 0.3)
+    self.bg:SetColorTexture(1, 1, 1, 0.3)
 end
 
 function FontButton:OnLeave()
     if self.altColor then
-        self.bg:SetTexture(0.2, 0.2, 0.2, 0.6)
+        self.bg:SetColorTexture(0.2, 0.2, 0.2, 0.6)
     else
-        self.bg:SetTexture(0.25, 0.25, 0.25, 0.6)
+        self.bg:SetColorTexture(0.25, 0.25, 0.25, 0.6)
     end
 end
 
@@ -173,7 +173,7 @@ do
 
 		local bg = scrollBar:CreateTexture(nil, 'BACKGROUND')
 		bg:SetAllPoints(true)
-		bg:SetTexture(0, 0, 0, 0.5)
+		bg:SetColorTexture(0, 0, 0, 0.5)
 
 		local thumb = scrollBar:CreateTexture(nil, 'OVERLAY')
 		thumb:SetTexture([[Interface\Buttons\UI-ScrollBar-Knob]])

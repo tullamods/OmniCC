@@ -7,6 +7,8 @@ local Timer, Cooldown = OmniCC.Timer, OmniCC.Cooldown
 local Sets = OmniCC.sets
 local L = OMNICC_LOCALS
 
+local SUBSECONDS_ABBR = '%.1f' .. (SECONDS_ABBR:match('%%d(.+)'))
+local MINUTES_ABBR = '%.1f' .. (MINUTES_ABBR:match('%%d(.+)'))
 local BUTTON_SPACING = 8
 local SLIDER_SPACING = 24
 
@@ -156,28 +158,25 @@ function GeneralOptions:NewSlider(name, low, high, step)
 	return s
 end
 
-do
-	local SECONDS_ABBR = '%.1f' .. (SECONDS_ABBR:match('%%d(.+)'))
-	function GeneralOptions:CreateMinDurationSlider()
-		local parent = self
-		local s = self:NewSlider(L.MinDuration, 0, 30, 0.5)
+function GeneralOptions:CreateMinDurationSlider()
+	local parent = self
+	local s = self:NewSlider(L.MinDuration, 0, 30, 0.1)
 
-		s.SetSavedValue = function(self, value)
-			parent:GetGroupSets().minDuration = value
-		end
-
-		s.GetSavedValue = function(self)
-			return parent:GetGroupSets().minDuration
-		end
-
-		s.GetFormattedText = function(self, value)
-			return SECONDS_ABBR:format(value)
-		end
-
-		s.tooltip = L.MinDurationTip
-
-		return s
+	s.SetSavedValue = function(self, value)
+		parent:GetGroupSets().minDuration = value
 	end
+
+	s.GetSavedValue = function(self)
+		return parent:GetGroupSets().minDuration
+	end
+
+	s.GetFormattedText = function(self, value)
+		return SUBSECONDS_ABBR:format(value)
+	end
+
+	s.tooltip = L.MinDurationTip
+
+	return s
 end
 
 function GeneralOptions:CreateMinSizeSlider()
@@ -200,7 +199,7 @@ end
 
 function GeneralOptions:CreateMinEffectDurationSlider()
 	local parent = self
-	local s = self:NewSlider(L.MinEffectDuration, 0, 60, 1)
+	local s = self:NewSlider(L.MinEffectDuration, 0, 60, 0.1)
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().minEffectDuration = value
@@ -211,7 +210,7 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	end
 
 	s.GetFormattedText = function(self, value)
-		return SECONDS_ABBR:format(value)
+		return SUBSECONDS_ABBR:format(value)
 	end
 
 	s.tooltip = L.MinEffectDurationTip
@@ -219,44 +218,41 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	return s
 end
 
-do
-	local MINUTES_ABBR = '%.1f' .. (MINUTES_ABBR:match('%%d(.+)'))
-	function GeneralOptions:CreateMMSSSlider()
-		local parent = self
-		local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.5)
+function GeneralOptions:CreateMMSSSlider()
+	local parent = self
+	local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.1)
 
-		s.SetSavedValue = function(self, value)
-			if value > 1 then
-				parent:GetGroupSets().mmSSDuration = value * 60
-			else
-				parent:GetGroupSets().mmSSDuration = 0
-			end
-			Timer:ForAll('UpdateText')
+	s.SetSavedValue = function(self, value)
+		if value > 1 then
+			parent:GetGroupSets().mmSSDuration = value * 60
+		else
+			parent:GetGroupSets().mmSSDuration = 0
 		end
-
-		s.GetSavedValue = function(self)
-			if parent:GetGroupSets().mmSSDuration > 60 then
-				return parent:GetGroupSets().mmSSDuration / 60
-			end
-			return 1
-		end
-
-		s.GetFormattedText = function(self, value)
-			if value > 1 then
-				return MINUTES_ABBR:format(value)
-			end
-			return NEVER
-		end
-
-		s.tooltip = L.MMSSDurationTip
-
-		return s
+		Timer:ForAll('UpdateText')
 	end
+
+	s.GetSavedValue = function(self)
+		if parent:GetGroupSets().mmSSDuration > 60 then
+			return parent:GetGroupSets().mmSSDuration / 60
+		end
+		return 1
+	end
+
+	s.GetFormattedText = function(self, value)
+		if value > 1 then
+			return MINUTES_ABBR:format(value)
+		end
+		return NEVER
+	end
+
+	s.tooltip = L.MMSSDurationTip
+
+	return s
 end
 
 function GeneralOptions:CreateTenthsSlider()
 	local parent = self
-	local s = self:NewSlider(L.TenthsDuration, 0, 10, 1)
+	local s = self:NewSlider(L.TenthsDuration, 0, 10, 0.1)
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().tenthsDuration = value
@@ -269,7 +265,7 @@ function GeneralOptions:CreateTenthsSlider()
 
 	s.GetFormattedText = function(self, value)
 		if value > 0 then
-			return SECONDS_ABBR:format(value)
+			return SUBSECONDS_ABBR:format(value)
 		end
 		return NEVER
 	end
