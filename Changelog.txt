@@ -2,6 +2,7 @@
 * Updated for WoW patch 7.1.
 * Now ignores global cooldown automatically.
 * Sliders in the general options now provide higher precision.
+* Fixed several minor bugs.
 
 ====== 7.0.1
 * Tagging as release.
