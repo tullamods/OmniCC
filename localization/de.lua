@@ -1,4 +1,4 @@
-﻿--[[
+--[[
 	OmniCC configuration interface localization - deDE
 --]]
 
@@ -6,84 +6,115 @@ if GetLocale() ~= 'deDE' then return end
 
 local L = OMNICC_LOCALS
 
-L.GeneralSettings = "Allgemein"
-L.GeneralSettingsTitle = "Die allgemeinen Sachen"
+L.GeneralSettings = "Anzeige"
+L.FontSettings = "Textstil"
+L.RuleSettings = "Regeln"
+L.PositionSettings = "Textposition"
 
-L.FontSettings = "Schriftart"
-L.FontSettingsTitle = "Gib den Cooldowns neues Leben"
-
-L.FilterSettings = "Filter"
-L.FilterSettingsTitle = "Hey! Keinen Text dort anzeigen!"
-
-L.UseWhitelist = "Zeige Text nur auf registrierten Frames"
-L.UseBlacklist = "Zeige Text nur auf Frames, die nicht auf der Schwarzen Liste sind"
-L.Blacklist = "Schwarze Liste"
-
-L.Font = "Schrift"
-L.FontSize = "Basis Schriftgr\195\182\195\159e"
-L.FontOutline = "Schriftkontur"
+L.Font = "Schriftart"
+L.FontSize = "Basis-Schriftgröße"
+L.FontOutline = "Schriftumriss"
 
 L.Outline_NONE = NONE
-L.Outline_OUTLINE = "D\195\188nn"
+L.Outline_OUTLINE = "Dünn"
 L.Outline_THICKOUTLINE = "Dick"
+L.Outline_OUTLINEMONOCHROME = "Einfarbig"
 
-L.MinDuration = "Kleinste Dauer um Text anzuzeigen"
-L.MinFontSize = "Kleinste Schriftgr\195\182\195\159e um Text anzuzeigen"
-L.ScaleText = "Text automatisch an Frames anpassen"
+L.MinDuration = "Minimaldauer zur Anzeige von Text"
+L.MinSize = "Minimalgröße zur Anzeige von Text"
+L.ScaleText = "Text automatisch skalieren, damit dieser in Frames passt"
+L.EnableText = "Abklingzeittext aktivieren"
 
-L.Add = "Hinzuf\195\188gen"
+L.Add = "Hinzufügen"
 L.Remove = "Entfernen"
 
-L.FinishEffect = 'Abschlusseffekt'
-L.MinEffectDuration = 'Kleinste Dauer um Abschlusseffekt anzuzeigen'
+L.FinishEffect = "Abschlusseffekt"
+L.MinEffectDuration = "Minimaldauer zur Anzeige eines Abschlusseffekts"
 
-L.MMSSDuration = "Kleinste Dauer um Text als MM:SS anzuzeigen"
-L.TenthsDuration = "Kleinste Dauer f\195\188r Zehntelsekunden im Text"
+L.MMSSDuration = "Minimaldauer zur Anzeige des Texts im Format MM:SS"
+L.TenthsDuration = "Minimaldauer zur Anzeige von Zehntelsekunden"
 
-L.ColorAndScale = "Farbe und Gr\195\182\195\159e"
-L.Color_soon = "L\195\164uft bald ab"
+L.ColorAndScale = "Farbe und Skalierung"
+L.Color_soon = "Läuft bald ab"
 L.Color_seconds = "Unter einer Minute"
 L.Color_minutes = "Unter einer Stunde"
-L.Color_hours = "Eine Stunde und mehr"
+L.Color_hours = "Eine Stunde oder mehr"
+L.Color_charging = "Aufladungen wiederherstellen"
+L.Color_controlled = "Kontrollverlust"
 
-L.Sec = " Sek."
+L.SpiralOpacity = "Spiraltransparenz"
+L.UseAniUpdater = "Leistung optimieren"
+
+--text positioning
+L.XOffset = "X-Versatz"
+L.YOffset = "Y-Versatz"
+
+L.Anchor = 'Anker'
+L.Anchor_LEFT = 'Links'
+L.Anchor_CENTER = 'Mittig'
+L.Anchor_RIGHT = 'Rechts'
+L.Anchor_TOPLEFT = 'Oben links'
+L.Anchor_TOP = 'Oben'
+L.Anchor_TOPRIGHT = 'Oben rechts'
+L.Anchor_BOTTOMLEFT = 'Unten links'
+L.Anchor_BOTTOM = 'Unten'
+L.Anchor_BOTTOMRIGHT = 'Unten rechts'
+
+--groups
+L.Groups = 'Gruppen'
+L.Group_base = 'Standard'
+L.Group_action = 'Aktionen'
+L.Group_aura = 'Auren'
+L.Group_pet = 'Begleiteraktionen'
+L.AddGroup = 'Gruppe hinzufügen...'
 
 --[[ Tooltips ]]--
 
 L.ScaleTextTip =
-[[Verkleinert den Text, so
-dass er auch in Frames passt,
-die zu klein sind.]]
+[[Verkleinert den Text,
+sodass er auch in Frames
+passt, die zu klein sind.]]
+
+L.SpiralOpacityTip =
+[[Legt die Deckkraft der dunklen Spiralen
+fest, die du normalerweise auf Buttons siehst,
+wenn die Fähigkeit abklingt.]]
+
+L.UseAniUpdaterTip =
+[[Optimiert die CPU-Leistung, aber könnte in manchen Fällen
+zu Fehler führen.
+Das Deaktivieren dieser Option behebt das Problem.]]
 
 L.MinDurationTip =
-[[Bestimmt, wie lang ein Cooldown
-sein muss, damit er angezeigt wird.
+[[Bestimmt, wie groß die Abklingzeit sein muss,
+damit ein Text angezeigt wird. 
+Diese Einstellung wird hauptsächlich verwendet,
+um die globale Abklingzeit auszublenden.]]
 
-Das wird hauptsächlich verwendet,
-um den GCD auszublenden.]]
-
-L.MinFontSizeTip =
-[[Bestimmt, wie groß der Cooldown-
-Text mindestens sein muss, damit er
-angezeigt wird.
-
-Das wird hauptsächlich verwendet,
-um unlesbaren Text auszublenden, und um
-keinen Text auf Buffs anzuzeigen.]]
+L.MinSizeTip =
+[[Bestimmt, wie groß ein Frame sein muss,
+damit ein Text angezeigt wird.
+Je kleiner der Wert, desto kleiner können 
+Elemente sein, um Text anzuzeigen.
+Je größer der Wert, desto größer müssen Elemtente sein.
+Ein paar Richtwerte:
+100 – Die Größe eines Aktionsbuttons
+80  – Die Größe eines Klassen- oder Begleiteraktionsbuttons
+55  – Die Größe eines Buffs auf dem Zielfenster]]
 
 L.MinEffectDurationTip =
-[[Bestimmt, wie lang ein Cooldown
-sein muss, damit ein Abschlusseffekt
-angezeigt wird (Pulse/Shine).]]
+[[Legt fest, wie lang eine Abklingzeit sein muss,
+damit ein Abschlusseffekt angezeigt wird
+(ex, pulse/shine)]]
 
 L.MMSSDurationTip =
-[[Bestimmt, bis zu welcher verbleibenden
-Dauer ein Cooldown im MM:SS Format
-angezeigt wird.]]
+[[Bestimmt, bis zu welcher
+verbleibenden Dauer die Abklingzeit
+im Format MM:SS angezeigt wird.]]
 
 L.TenthsDurationTip =
-[[Bestimmt, ab wann Zehntelsekunden
-angezeigt werden.]]
+[[Bestimmt, ab welcher verbleibenden
+Dauer Zehntelsekunden angezeigt werden.]]
 
 L.FontSizeTip =
 [[Bestimmt, wie groß der Text ist.]]
@@ -92,12 +123,21 @@ L.FontOutlineTip =
 [[Bestimmt die Dicke der Kontur um den Text.]]
 
 L.UseBlacklistTip =
-[[Aktiviert die Schwarze Liste.
+[[Klicke hier, um die Verwendung der 
+Ignorierliste ein- oder auszuschalten.
 Wenn aktiv, werden alle Frames, deren
-Name in der Schwarzen Liste vorkommt,
-keinen Cooldown-Text anzeigen.]]
+Name auf der Ignorierliste vorkommt,
+keinen Abklingzeittext anzeigen.]]
 
 L.FrameStackTip =
-[[Aktiviert bzw. deaktiviert die Anzeige
-der Namen von Frames, wenn die Maus
-darüber ist.]]
+[[Aktiviert/Deaktiviert die Anzeige 
+der Namen von Frames, wenn Du mit der
+Maus über sie fährst.]]
+
+L.XOffsetTip =
+[[Legt den horizontalen
+Versatz des Texts fest.]]
+
+L.YOffsetTip =
+[[Legt den vertikalen
+Versatz des Texts fest.]]
