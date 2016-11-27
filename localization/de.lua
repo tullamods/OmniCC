@@ -82,7 +82,7 @@ wenn die Fähigkeit abklingt.]]
 
 L.UseAniUpdaterTip =
 [[Optimiert die CPU-Leistung, aber könnte in manchen Fällen
-zu Fehler führen.
+zu Fehlern führen.
 Das Deaktivieren dieser Option behebt das Problem.]]
 
 L.MinDurationTip =
