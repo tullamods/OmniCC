@@ -127,7 +127,7 @@ L.UseBlacklistTip =
 
 L.FrameStackTip =
 [[마우스오버 시 해당 프레임의
-이름을 표시 여부를 전환합니다.]]
+이름 표시 여부를 전환합니다.]]
 
 L.XOffsetTip =
 [[문자의 수평 위치를 조절합니다.]]
