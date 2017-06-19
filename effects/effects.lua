@@ -31,14 +31,14 @@ end
 function OmniCC:GetButtonIcon(frame)
 	if frame then
 		local icon = frame.icon
-		if icon and icon.GetTexture then
+		if type(icon) == 'table' and icon.GetTexture then
 			return icon
 		end
 
 		local name = frame:GetName()
 		if name then
 			local icon = _G[name .. 'Icon'] or _G[name .. 'IconTexture']
-			if icon and icon.GetTexture then
+			if type(icon) == 'table' and icon.GetTexture then
 				return icon
 			end
 		end

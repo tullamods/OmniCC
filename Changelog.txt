@@ -1,3 +1,9 @@
+##### 7.2.1
+* Minor bugfix
+
+#### 7.2.0
+* Updated TOC
+
 ##### 7.1.1
 * Updated German localization
 
@@ -62,7 +68,7 @@
 * Config option now loads properly on first try.
 
 ##### 6.0.4
-* Now you can configure the text style of timers while CC-ed separately.  
+* Now you can configure the text style of timers while CC-ed separately.
 * Spiral opacity now works with addons like Bartender and Dominos.
 * Changed how default settings are loaded.
 * Bugixes of group configuration.
@@ -139,7 +145,7 @@
 * Fixed bug preventing OmniCC from working with addons that do not support spell charges (ex: Ion).
 
 ##### 5.0.6 (beta)
-* Fixed bug preventing OmniCC from working with addons such as Bartender. 
+* Fixed bug preventing OmniCC from working with addons such as Bartender.
 * Fixed settings migration issue.
 
 ##### 5.0.5 (beta)
