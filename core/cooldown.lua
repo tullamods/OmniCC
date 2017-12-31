@@ -9,6 +9,8 @@ local Cooldown = OmniCC:New('Cooldown')
 --[[ Control ]]--
 
 function Cooldown:Start(...)
+	if self:IsForbidden() then return end
+
 	Cooldown.UpdateAlpha(self)
 
 	if Cooldown.CanShow(self, ...) then
@@ -82,6 +84,8 @@ function Cooldown:OnSizeChanged(width, ...)
 end
 
 function Cooldown:OnColorSet(...)
+	if self:IsForbidden() then return end
+
 	if not self.omniTask then
 		self.omniR, self.omniG, self.omniB, self.omniA = ...
 		Cooldown.UpdateAlpha(self)
