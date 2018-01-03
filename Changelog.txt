@@ -1,3 +1,9 @@
+##### 7.3.1
+* Prevented interaction with protected frames.
+
+#### 7.3
+* Updated for Shadow of Argus
+
 ##### 7.2.1
 * Minor bugfix
 
