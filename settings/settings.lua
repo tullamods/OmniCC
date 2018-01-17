@@ -60,6 +60,8 @@ function OmniCC:StartupGroup(group)
 		minEffectDuration = 30,
 		tenthsDuration = 0,
 		mmSSDuration = 0,
+		textShadowX = 0,
+		textShadowY = 0,
 		xOff = 0,
 		yOff = 0,
 		anchor = 'CENTER',
