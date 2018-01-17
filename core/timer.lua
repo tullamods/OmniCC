@@ -134,7 +134,7 @@ function Timer:UpdateTextStyle()
 	local sets = self:GetSettings()
 	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
 	local style = sets.styles[self.textStyle]
-	
+	local shadowX, shadowY = sets.textShadowX, sets.textShadowY
 	if sets.scaleText then
 		size = size * style.scale * (self.abRatio or 1)
 	else
@@ -146,7 +146,7 @@ function Timer:UpdateTextStyle()
 			self.text:SetFont(STANDARD_TEXT_FONT, size, outline)
 		end
 	end
-	
+	self.text:SetShadowOffset(shadowX, shadowY)
 	self.text:SetTextColor(style.r, style.g, style.b, style.a)
 end
 
