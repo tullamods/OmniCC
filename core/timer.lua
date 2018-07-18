@@ -48,7 +48,7 @@ function Timer:Start(start, duration, charge)
 	-- hotfix for ChargeCooldowns
 	local parent = self.cooldown:GetParent()
 	local charge = parent and parent.chargeCooldown
-	local chargeTimer = charge and charge.omnicc 
+	local chargeTimer = charge and charge.omnicc
 	if chargeTimer and chargeTimer ~= self then
 		chargeTimer:Stop()
 	end
@@ -125,7 +125,7 @@ function Timer:UpdateText(forceStyleUpdate)
 		if self.duration and self.duration >= self:GetSettings().minEffectDuration then
 			OmniCC:TriggerEffect(self.cooldown)
 		end
-		
+
 		self:Stop()
 	end
 end
@@ -134,7 +134,7 @@ function Timer:UpdateTextStyle()
 	local sets = self:GetSettings()
 	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
 	local style = sets.styles[self.textStyle]
-	
+
 	if sets.scaleText then
 		size = size * style.scale * (self.abRatio or 1)
 	else
@@ -146,7 +146,7 @@ function Timer:UpdateTextStyle()
 			self.text:SetFont(STANDARD_TEXT_FONT, size, outline)
 		end
 	end
-	
+
 	self.text:SetTextColor(style.r, style.g, style.b, style.a)
 end
 
@@ -196,27 +196,27 @@ function Timer:GetNextUpdate(remain)
 
 	if remain < (sets.tenthsDuration + 0.5) then
 		return 0.1
-		
+
 	elseif remain < Minuteish then
 		return remain - round(remain) + 0.51
-		
+
 	elseif remain < sets.mmSSDuration then
 		return remain - round(remain) + 0.51
-		
+
 	elseif remain < Hourish then
 		local minutes = round(remain/Minute)
 		if minutes > 1 then
 			return remain - (minutes*Minute - HalfMinuteish)
 		end
 		return remain - Minuteish + 0.01
-		
+
 	elseif remain < Dayish then
 		local hours = round(remain/Hour)
 		if hours > 1 then
 			return remain - (hours*Hour - HalfHourish)
 		end
 		return remain - Hourish + 0.01
-		
+
 	else
 		local days = round(remain/Day)
 		if days > 1 then
