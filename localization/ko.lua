@@ -23,7 +23,7 @@ L.Outline_OUTLINEMONOCHROME = "모노크롬"
 L.MinDuration = "문자를 표시할 최소 지속 시간"
 L.MinSize = "문자를 표시할 최소 글꼴 크기"
 L.ScaleText = "자동으로 문자 크기를 프레임 안에 맞추기"
-L.EnableText = "재사용 대시기간 문자 사용"
+L.EnableText = "재사용 대기시간 문자 사용"
 
 L.Add = "추가"
 L.Remove = "제거"
@@ -120,14 +120,14 @@ L.FontOutlineTip =
 [[문자 외곽선을 조절합니다.]]
 
 L.UseBlacklistTip =
-[[여기를 클릭해서 차단목록 사용을 토글하세요.
+[[여기를 클릭해서 차단목록 사용을 전환하세요.
 활성화하면 차단목록에 있는 항목과
 일치하는 이름을 가진 모든 프레임에
 재사용 대기시간 문자를 표시하지 않습니다.]]
 
 L.FrameStackTip =
 [[마우스오버 시 해당 프레임의
-이름을 표시할 지를 토글합니다.]]
+이름 표시 여부를 전환합니다.]]
 
 L.XOffsetTip =
 [[문자의 수평 위치를 조절합니다.]]
