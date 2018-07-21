@@ -5,12 +5,9 @@
 ## Author: Tuller
 ## Version: 8.0.0
 ## SavedVariables: OmniCC4Config
-
 libs\libs.xml
 localization\localization.xml
-
 main.lua
-
 core\core.xml
 settings\settings.xml
 engines\engines.xml
