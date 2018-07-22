@@ -46,6 +46,11 @@ end
 function OmniCC:SetupHooks()
 	self.Meta = getmetatable(ActionButton1Cooldown).__index
 
+	hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
+		cooldown.noCooldownCount = true
+		self.Cooldown.Stop(cooldown)
+	end)
+
 	hooksecurefunc(self.Meta, 'SetCooldown', self.Cooldown.Start)
 	hooksecurefunc(self.Meta, 'SetSwipeColor', self.Cooldown.OnColorSet)
 	hooksecurefunc('SetActionUIButton', self.Actions.Add)
