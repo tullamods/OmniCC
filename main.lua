@@ -33,8 +33,6 @@ function OmniCC:SetupCommands()
 			if type(self.ShowOptionsMenu) == "function" then
 				self:ShowOptionsMenu()
 			end
-			-- InterfaceOptionsFrame:Show()
-			-- InterfaceOptionsFrame_OpenToCategory('OmniCC')
 		end
 	end
 end
