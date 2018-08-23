@@ -2,10 +2,10 @@
 	General configuration settings for OmniCC
 --]]
 local GeneralOptions = CreateFrame("Frame", "OmniCCOptions_General")
-local Timer, Cooldown = OmniCC.Timer, OmniCC.Cooldown
+local OmniCC = _G.OmniCC
 local Sets = OmniCC.sets
-local L = OMNICC_LOCALS
 
+local L = _G.OMNICC_LOCALS
 local SUBSECONDS_ABBR = "%.1f" .. (SECONDS_ABBR:match("%%d(.+)"))
 local MINUTES_ABBR = "%.1f" .. (MINUTES_ABBR:match("%%d(.+)"))
 local BUTTON_SPACING = 8
@@ -86,7 +86,7 @@ function GeneralOptions:CreateEnableTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().enabled = enable
-		Timer:ForAll("UpdateShown")
+		-- OmniCC.Timer("UpdateShown")
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -105,7 +105,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().scaleText = enable
-		Timer:ForAll("UpdateText", true)
+		OmniCC.Display:ForActive("UpdateTextAppearance")
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -117,28 +117,9 @@ function GeneralOptions:CreateScaleTextCheckbox()
 	return b
 end
 
---use ani updater
-function GeneralOptions:CreateUseAniUpdaterCheckbox()
-	local b = self:NewCheckbox(L.UseAniUpdater)
-
-	b.OnEnableSetting = function(self, enable)
-		if Sets.engine == "ScriptUpdater" then
-			Sets.engine = "AniUpdater"
-		else
-			Sets.engine = "ScriptUpdater"
-		end
-	end
-
-	b.IsSettingEnabled = function(self)
-		return Sets.engine == "AniUpdater"
-	end
-
-	b.tooltip = L.UseAniUpdaterTip
-	return b
-end
-
 function GeneralOptions:NewSlider(name, low, high, step)
 	local s = OmniCCOptions.Slider:New(name, self, low, high, step)
+
 	s:SetHeight(s:GetHeight() + 2)
 
 	self.sliders = self.sliders or {}
@@ -173,7 +154,8 @@ function GeneralOptions:CreateMinSizeSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().minSize = value / 100
-		Timer:ForAll("UpdateShown")
+
+		OmniCC.Display:ForAll("UpdateShown")
 	end
 
 	s.GetSavedValue = function(self)
@@ -216,7 +198,8 @@ function GeneralOptions:CreateMMSSSlider()
 		else
 			parent:GetGroupSets().mmSSDuration = 0
 		end
-		Timer:ForAll("UpdateText")
+
+		OmniCC.Timer:ForActive("Update")
 	end
 
 	s.GetSavedValue = function(self)
@@ -244,7 +227,8 @@ function GeneralOptions:CreateTenthsSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().tenthsDuration = value
-		Timer:ForAll("UpdateText")
+
+		OmniCC.Timer:ForActive("Update")
 	end
 
 	s.GetSavedValue = function(self)
@@ -269,7 +253,7 @@ function GeneralOptions:CreateSpiralOpacitySlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().spiralOpacity = value
-		Cooldown:ForAll("UpdateAlpha")
+		-- Cooldown:ForAll("UpdateAlpha")
 	end
 
 	s.GetSavedValue = function(self)
