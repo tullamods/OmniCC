@@ -10,5 +10,4 @@ localization\localization.xml
 main.lua
 core\core.xml
 settings\settings.xml
-engines\engines.xml
 effects\effects.xml

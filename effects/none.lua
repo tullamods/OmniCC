@@ -1,15 +1,15 @@
---[[
-	none.lua
-		no effect
---]]
+-- none.lua - no effect
 
-local L = OMNICC_LOCALS
-local noFunc = function() end
+local OmniCC = _G[...]
+
+local L = _G.OMNICC_LOCALS
+
+local noop = function()
+end
 
 OmniCC:RegisterEffect {
 	name = L.None,
-	id = 'none',
-	
-	Run = noFunc,
-	Setup = noFunc
+	id = "none",
+	Run = noop,
+	Setup = noop
 }

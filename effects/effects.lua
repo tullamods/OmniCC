@@ -1,10 +1,6 @@
---[[
-	modules.lua
-		manages the plugable features
---]]
+local OmniCC = _G[...]
 
-
---[[ Effects ]]--
+OmniCC.effects = {}
 
 function OmniCC:TriggerEffect(cooldown)
 	local id = self:GetGroupSettingsFor(cooldown).effect
@@ -25,26 +21,20 @@ function OmniCC:GetEffect(id)
 	return self.effects[id]
 end
 
-
---[[ Utilities ]]--
-
 function OmniCC:GetButtonIcon(frame)
 	if frame then
 		local icon = frame.icon
-		if type(icon) == 'table' and icon.GetTexture then
+		if type(icon) == "table" and icon.GetTexture then
 			return icon
 		end
 
 		local name = frame:GetName()
 		if name then
-			local icon = _G[name .. 'Icon'] or _G[name .. 'IconTexture']
-			if type(icon) == 'table' and icon.GetTexture then
+			icon = _G[name .. "Icon"] or _G[name .. "IconTexture"]
+
+			if type(icon) == "table" and icon.GetTexture then
 				return icon
 			end
 		end
 	end
-end
-
-function OmniCC:GetUpdateEngine()
-	return self[self.sets.engine]
 end

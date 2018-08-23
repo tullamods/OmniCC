@@ -1,277 +1,218 @@
---[[
-	timer.lua
-		Displays countdowns on widgets
---]]
+-- A pool of objects for determining what text to display for a given cooldown, and notify subscribers when the text change
 
-local OmniCC, GetTime = OmniCC, GetTime
-local Timer = OmniCC:New('Timer')
+local Addon = _G[...]
+local L = _G.OMNICC_LOCALS
 
-local IconSize = 36
-local Padding = 0
+local Timer = {}
+local Timer_mt = {__index = Timer}
+local active = {}
+local inactive = {}
 
-local L = OMNICC_LOCALS
-local Day, Hour, Minute = 86400, 3600, 60
-local Dayish, Hourish, Minuteish, Soonish = 3600 * 23.5, 60 * 59.5, 59.5, 5.5
-local HalfDayish, HalfHourish, HalfMinuteish = Day/2 + 0.5, Hour/2 + 0.5, Minute/2 + 0.5
+--local bindings!
+local GetTime = _G.GetTime
+local After = _G.C_Timer.After
+local floor = math.floor
+local max = math.max
+local round = _G.Round
+local next = next
+local tinsert = table.insert
+local tremove = table.remove
+local strjoin = _G.strjoin
 
-local floor, min, type = floor, min, type
-local round = function(x) return floor(x + 0.5) end
+--sexy constants!
+local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
+local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5 --used for formatting text at transition points
+local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY / 2 + 0.5, HOUR / 2 + 0.5, MINUTE / 2 + 0.5 --used for calculating next update times
+local MIN_DELAY = 0.01
 
+function Timer:GetOrCreate(settings, start, duration)
+    -- start and duration can have milisecond precision, so convert them into ints
+    -- when creating a key to avoid floating point weirdness
+    local key = strjoin("-", settings.id or "base", floor(start * 1000), floor(duration * 1000))
 
---[[ Constructor ]]--
+    -- first, look for an already active timer
+    -- if we don't have one, then either reuse an old one or create a new one
+    local timer = active[key]
 
-function Timer:New(cooldown)
-	local timer = Timer:Bind(CreateFrame('Frame', nil, cooldown:GetParent()))
-	timer:SetFrameLevel(cooldown:GetFrameLevel() + 5)
-	timer:Hide()
+    if not timer then
+        if next(inactive) then
+            timer = tremove(inactive)
+            timer.key = key
+            timer.start = start
+            timer.duration = duration
+            timer.text = nil
+            timer.state = nil
+            timer.settings = settings
+        else
+            timer = {
+                key = key,
+                start = start,
+                duration = duration,
+                settings = settings,
+                subscribers = {}
+            }
 
-	timer.text = timer:CreateFontString(nil, 'OVERLAY')
-	timer.cooldown = cooldown
+            setmetatable(timer, Timer_mt)
 
-	timer:SetPoint('CENTER', cooldown)
-	timer:UpdateFontSize(cooldown:GetSize())
-	return timer
+            timer.callback = function()
+                timer:Update()
+            end
+        end
+
+        active[key] = timer
+        timer:Update()
+    end
+
+    return timer
 end
 
+function Timer:Update()
+    if not active[self.key] then
+        return
+    end
 
---[[ Controls ]]--
+    local remain = (self.duration - (GetTime() - self.start)) or 0
 
-function Timer:Start(start, duration, charge)
-	self.start, self.duration = start, duration
-	self.controlled = self.cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL
-	self.charging = self.cooldown:GetDrawEdge()
-	self.visible = self.cooldown:IsVisible()
-	self.finish = start + duration
-	self.textStyle = nil
-	self.enabled = true
+    if round(remain) > 0 then
+        local text, textSleep = self:GetTimerText(remain)
+        if self.text ~= text then
+            self.text = text
 
-	-- hotfix for ChargeCooldowns
-	local parent = self.cooldown:GetParent()
-	local charge = parent and parent.chargeCooldown
-	local chargeTimer = charge and charge.omnicc
-	if chargeTimer and chargeTimer ~= self then
-		chargeTimer:Stop()
-	end
+            for subscriber in pairs(self.subscribers) do
+                subscriber:OnTimerTextUpdated(self, text)
+            end
+        end
 
-	self:UpdateShown()
+        local state, stateSleep = self:GetTimerState(remain)
+        if self.state ~= state then
+            self.state = state
+
+            for subscriber in pairs(self.subscribers) do
+                subscriber:OnTimerStateUpdated(self, state)
+            end
+        end
+
+        After(max(min(textSleep, stateSleep), MIN_DELAY), self.callback)
+    else
+        for subscriber in pairs(self.subscribers) do
+            subscriber:OnTimerFinished(self)
+        end
+
+        self:Destroy()
+    end
 end
 
-function Timer:Stop()
-	self.start, self.duration, self.enabled, self.visible, self.textStyle = nil
-	self:CancelUpdate()
-	self:Hide()
+function Timer:Subscribe(subscriber)
+    if self.subscribers[subscriber] then
+        return
+    end
+
+    self.subscribers[subscriber] = true
+    subscriber:OnTimerTextUpdated(self, self.text or "")
+    subscriber:OnTimerStateUpdated(self, self.state or "seconds")
 end
 
+function Timer:Unsubscribe(subscriber)
+    self.subscribers[subscriber] = nil
 
---[[ Update Schedules ]]--
-
-function Timer:ScheduleUpdate(delay)
-	local engine = OmniCC:GetUpdateEngine()
-	local updater = engine:Get(self)
-
-	updater:ScheduleUpdate(delay)
+    if not next(self.subscribers) then
+        self:Destroy()
+    end
 end
 
-function Timer:CancelUpdate()
-	local engine = OmniCC:GetUpdateEngine()
-	local updater = engine:GetActive(self)
+function Timer:Destroy()
+    if not active[self.key] then
+        return
+    end
 
-	if updater then
-		updater:CancelUpdate()
-	end
+    active[self.key] = nil
+
+    self.settings = nil
+    self.text = nil
+    self.state = nil
+
+    for subscriber in pairs(self.subscribers) do
+        subscriber:OnTimerDestroyed(self)
+        self.subscribers[subscriber] = nil
+    end
+
+    tinsert(inactive, self)
 end
 
+function Timer:GetTimerText(remain)
+    local sets = self.settings or {}
 
---[[ Redraw ]]--
+    if remain < (sets.tenthsDuration or 0) then
+        -- tenths of seconds
+        return L.TenthsFormat:format(remain), MIN_DELAY
+    elseif remain < MINUTEISH then
+        -- minutes
+        local seconds = round(remain)
+        local sleep = remain - (seconds - 0.51)
 
-function Timer:UpdateFontSize(width, height)
-	self.abRatio = round(width) / IconSize
+        if seconds > 0 then
+            return seconds, sleep
+        end
 
-	self:SetSize(width, height)
-	self:UpdateTextPosition()
+        return "", sleep
+    elseif remain < (sets.mmSSDuration or 0) then
+        -- MM:SS
+        local seconds = round(remain)
+        local sleep = remain - (seconds - 0.51)
 
-	if self.enabled and self.visible then
-		self:UpdateText(true)
-	end
+        return L.MMSSFormat:format(seconds / MINUTE, seconds % MINUTE), sleep
+    elseif remain < HOUR then
+        -- minutes
+        local minutes = round(remain / MINUTE)
+        local sleep
+
+        if minutes > 1 then
+            sleep = (remain - (minutes * MINUTE - HALFMINUTEISH))
+        else
+            sleep = (remain - MINUTEISH)
+        end
+
+        return L.MinuteFormat:format(minutes), sleep
+    elseif remain < DAYISH then
+        -- hours
+        local hours = round(remain / HOUR)
+        local sleep = hours > 1 and (remain - (hours * HOUR - HALFHOURISH)) or (remain - HOURISH)
+
+        return L.HourFormat:format(hours), sleep
+    else
+        -- days
+        local days = round(remain / DAY)
+        local sleep = days > 1 and (remain - (days * DAY - HALFDAYISH)) or (remain - DAYISH)
+
+        return L.DayFormat:format(days), sleep
+    end
 end
 
-function Timer:UpdateText(forceStyleUpdate)
-	if self.start and self.start > (GetTime() or 0) then
-		return self:ScheduleUpdate(self.start - (GetTime() or 0))
-	end
-
-	local remain = self:GetRemain()
-	if remain > 0 then
-		local overallScale = self.abRatio * (self:GetEffectiveScale()/UIParent:GetScale())
-
-		if overallScale < self:GetSettings().minSize then
-			self.text:Hide()
-			self:ScheduleUpdate(1)
-		else
-			local style = self:GetTextStyle(remain)
-			if (style ~= self.textStyle) or forceStyleUpdate then
-				self.textStyle = style
-				self:UpdateTextStyle()
-			end
-
-			if self.text:GetFont() then
-				self.text:SetFormattedText(self:GetTimeText(remain))
-				self.text:Show()
-			end
-
-			self:ScheduleUpdate(self:GetNextUpdate(remain))
-		end
-	else
-		if self.duration and self.duration >= self:GetSettings().minEffectDuration then
-			OmniCC:TriggerEffect(self.cooldown)
-		end
-
-		self:Stop()
-	end
+function Timer:GetTimerState(remain)
+    if remain <= 0 then
+        return "finished", 1 / 0
+    elseif self.controlled then
+        return "controlled", remain
+    elseif self.charging then
+        return "charging", remain
+    elseif remain < SOONISH then
+        return "soon", remain
+    elseif remain < MINUTEISH then
+        return "seconds", remain - SOONISH
+    elseif remain < HOURISH then
+        return "minutes", remain - MINUTEISH
+    else
+        return "hours", remain - HOURISH
+    end
 end
 
-function Timer:UpdateTextStyle()
-	local sets = self:GetSettings()
-	local font, size, outline = sets.fontFace, sets.fontSize, sets.fontOutline
-	local style = sets.styles[self.textStyle]
-
-	if sets.scaleText then
-		size = size * style.scale * (self.abRatio or 1)
-	else
-		size = size * style.scale
-	end
-
-	if size > 0 then
-		if not self.text:SetFont(font, size, outline) then
-			self.text:SetFont(STANDARD_TEXT_FONT, size, outline)
-		end
-	end
-
-	self.text:SetTextColor(style.r, style.g, style.b, style.a)
+function Timer:ForActive(method, ...)
+    for timer in pairs(active) do
+        local func = timer[method]
+        if type(func) == "function" then
+            func(timer, ...)
+        end
+    end
 end
 
-function Timer:UpdateTextPosition()
-	local sets = self:GetSettings()
-	local abRatio = self.abRatio or 1
-
-	local text = self.text
-	text:ClearAllPoints()
-	text:SetPoint(sets.anchor, sets.xOff * abRatio, sets.yOff * abRatio)
-end
-
-function Timer:UpdateShown()
-	if self:ShouldShow() then
-		self:Show()
-		self:UpdateText()
-	else
-		self:Hide()
-	end
-end
-
-
---[[ Accessors ]]--
-
-function Timer:GetRemain()
-	return self.finish - (GetTime() or 0)
-end
-
-function Timer:GetTextStyle(remain)
-	if self.controlled then
-		return 'controlled'
-	elseif self.charging then
-		return 'charging'
-	elseif remain < Soonish then
-		return 'soon'
-	elseif remain < Minuteish then
-		return 'seconds'
-	elseif remain <  Hourish then
-		return 'minutes'
-	else
-		return 'hours'
-	end
-end
-
-function Timer:GetNextUpdate(remain)
-	local sets = self:GetSettings()
-
-	if remain < (sets.tenthsDuration + 0.5) then
-		return 0.1
-
-	elseif remain < Minuteish then
-		return remain - round(remain) + 0.51
-
-	elseif remain < sets.mmSSDuration then
-		return remain - round(remain) + 0.51
-
-	elseif remain < Hourish then
-		local minutes = round(remain/Minute)
-		if minutes > 1 then
-			return remain - (minutes*Minute - HalfMinuteish)
-		end
-		return remain - Minuteish + 0.01
-
-	elseif remain < Dayish then
-		local hours = round(remain/Hour)
-		if hours > 1 then
-			return remain - (hours*Hour - HalfHourish)
-		end
-		return remain - Hourish + 0.01
-
-	else
-		local days = round(remain/Day)
-		if days > 1 then
-			return remain - (days*Day - HalfDayish)
-		end
-		return remain - Dayish + 0.01
-	end
-end
-
-function Timer:GetTimeText(remain)
-	local sets = self:GetSettings()
-
-	if remain < sets.tenthsDuration then
-		return L.TenthsFormat, remain
-	elseif remain < Minuteish then
-		local seconds = round(remain)
-		return seconds ~= 0 and seconds or ''
-	elseif remain < sets.mmSSDuration then
-		local seconds = round(remain)
-		return L.MMSSFormat, seconds/Minute, seconds%Minute
-	elseif remain < Hourish then
-		return L.MinuteFormat, round(remain/Minute)
-	elseif remain < Dayish then
-		return L.HourFormat, round(remain/Hour)
-	else
-		return L.DayFormat, round(remain/Day)
-	end
-end
-
-function Timer:ShouldShow()
-	if not (self.enabled and self.visible) or self.cooldown.noCooldownCount then
-		return false
-	end
-
-	local sets = self:GetSettings()
-	if self.duration < sets.minDuration then
-		return false
-	end
-
-	return sets.enabled
-end
-
-
---[[ Utilities ]]--
-
-function Timer:ForAll(func, ...)
-	func = self[func]
-
-	for cooldown in pairs(OmniCC.Cache) do
-		if cooldown.omnicc and cooldown.omnicc:IsShown() then
-			func(cooldown.omnicc, ...)
-		end
-	end
-end
-
-function Timer:GetSettings()
-	return OmniCC:GetGroupSettingsFor(self.cooldown)
-end
+Addon.Timer = Timer
