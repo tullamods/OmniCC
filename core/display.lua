@@ -43,19 +43,17 @@ function Display:OnTimerStateUpdated(timer, state)
     if self.timer == timer then
         self.state = timer.state or "seconds"
 
-        if state == "finished" then
-            Addon:SetupEffect(self.cooldown)
-            Addon:TriggerEffect(self.cooldown)
-        else
-            self:UpdateTextAppearance()
-        end
+        self:UpdateTextAppearance()
     end
 end
 
 function Display:OnTimerFinished(timer)
-    if timer == self.timer and timer.duration >= (self:GetSettings().minEffectDuration or 0) then
-        Addon:SetupEffect(self.cooldown)
-        Addon:TriggerEffect(self.cooldown)
+    if self.timer == timer then
+        local settings = self:GetSettings()
+
+        if timer.duration >= (settings.minEffectDuration or 0) then
+            Addon.FX:Run(self.cooldown, settings.effect or "none")
+        end
     end
 end
 
@@ -193,8 +191,10 @@ do
 
     local function setHideCooldownNumbers(cooldown, hide)
         if hide then
-            blacklisted[cooldown] = true
-            deactivateDisplay(cooldown)
+            if not blacklisted[cooldown] then
+                blacklisted[cooldown] = true
+                deactivateDisplay(cooldown)
+            end
         else
             blacklisted[cooldown] = nil
         end

@@ -1,15 +1,7 @@
 -- none.lua - no effect
-
-local OmniCC = _G[...]
-
+local Addon = _G[...]
 local L = _G.OMNICC_LOCALS
 
-local noop = function()
-end
+local None = Addon.FX:Create("none", L.None)
 
-OmniCC:RegisterEffect {
-	name = L.None,
-	id = "none",
-	Run = noop,
-	Setup = noop
-}
+function None:Run() end

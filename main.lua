@@ -1,39 +1,32 @@
-local OmniCC = CreateFrame("Frame", ..., InterfaceOptionsFrame)
+local AddonName = ...
+local Addon = CreateFrame("Frame", AddonName, _G.InterfaceOptionsFrame)
 local L = _G.OMNICC_LOCALS
+local CONFIG_ADDON_NAME = AddonName .. "_Config"
 
-function OmniCC:Startup()
+function Addon:Startup()
 	self:SetupCommands()
 
-	self:SetScript(
-		"OnEvent",
-		function(f, event, ...)
-			f[event](f, event, ...)
-		end
-	)
+	self:SetScript("OnEvent", function(f, event, ...)
+		f[event](f, event, ...)
+	end)
 
-	self:SetScript(
-		"OnShow",
-		function(f)
-			LoadAddOn("OmniCC_Config")
-
-			f:SetScript("OnShow", nil)
-		end
-	)
-
-	SetCVar("countdownForCooldowns", 0)
+	self:SetScript("OnShow", function(f)
+		LoadAddOn(CONFIG_ADDON_NAME)
+		f:SetScript("OnShow", nil)
+	end)
 
 	self:RegisterEvent("VARIABLES_LOADED")
 end
 
-function OmniCC:SetupCommands()
-	_G.SLASH_OmniCC1 = "/omnicc"
+function Addon:SetupCommands()
+	_G[("SLASH_%s1"):format(AddonName)] = ("/%s"):format(AddonName:lower())
 
-	_G.SLASH_OmniCC2 = "/occ"
+	_G[("SLASH_%s2"):format(AddonName)] = "/occ"
 
-	_G.SlashCmdList["OmniCC"] = function(...)
+	_G.SlashCmdList[AddonName] = function(...)
 		if ... == "version" then
 			print(L.Version:format(self:GetVersion()))
-		elseif self.ShowOptionsMenu or LoadAddOn("OmniCC_Config") then
+		elseif self.ShowOptionsMenu or LoadAddOn(CONFIG_ADDON_NAME) then
 			if type(self.ShowOptionsMenu) == "function" then
 				self:ShowOptionsMenu()
 			end
@@ -41,62 +34,52 @@ function OmniCC:SetupCommands()
 	end
 end
 
-function OmniCC:SetupEvents()
+function Addon:SetupEvents()
 	self:UnregisterEvent("VARIABLES_LOADED")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
-function OmniCC:SetupHooks()
-	-- local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
-	-- local hidden = {}
-	-- hooksecurefunc(
-	-- 	Cooldown_MT,
-	-- 	"SetCooldown",
-	-- 	function(cooldown, start, duration, modRate)
-	-- 		if cooldown.noCooldownCount or cooldown:IsForbidden() or hidden[cooldown] then
-	-- 			return
-	-- 		end
-	-- 		self.Cooldown.Start(cooldown, start, duration, modRate)
-	-- 	end
-	-- )
-	-- hooksecurefunc(Cooldown_MT, "Clear", self.Cooldown.Stop)
-	-- hooksecurefunc(
-	-- 	Cooldown_MT,
-	-- 	"SetHideCountdownNumbers",
-	-- 	function(cooldown, hide)
-	-- 		if hide then
-	-- 			hidden[cooldown] = true
-	-- 			self.Cooldown.Stop(cooldown)
-	-- 		else
-	-- 			hidden[cooldown] = nil
-	-- 		end
-	-- 	end
-	-- )
-	-- hooksecurefunc(
-	-- 	"CooldownFrame_SetDisplayAsPercentage",
-	-- 	function(cooldown)
-	-- 		hidden[cooldown] = true
-	-- 		self.Cooldown.Stop(cooldown)
-	-- 	end
-	-- )
-	-- self.Meta = Cooldown_MT
-end
-
 -- Events
-function OmniCC:PLAYER_ENTERING_WORLD()
-	-- self.Timer:ForAll("UpdateText")
+function Addon:PLAYER_ENTERING_WORLD()
+	self.Timer:ForActive("Update")
 end
 
-function OmniCC:VARIABLES_LOADED()
+function Addon:VARIABLES_LOADED()
 	self:StartupSettings()
 	self:SetupEvents()
-	self:SetupHooks()
 end
 
 -- Utility
-function OmniCC:New(name, module)
+function Addon:New(name, module)
 	self[name] = module or LibStub("Classy-1.0"):New("Frame")
+
 	return self[name]
 end
 
-OmniCC:Startup()
+function Addon:CreateHiddenFrame(...)
+	local f = CreateFrame(...)
+
+	f:Hide()
+
+	return f
+end
+
+function Addon:GetButtonIcon(frame)
+	if frame then
+		local icon = frame.icon
+		if type(icon) == "table" and icon.GetTexture then
+			return icon
+		end
+
+		local name = frame:GetName()
+		if name then
+			icon = _G[name .. "Icon"] or _G[name .. "IconTexture"]
+
+			if type(icon) == "table" and icon.GetTexture then
+				return icon
+			end
+		end
+	end
+end
+
+Addon:Startup()

@@ -93,7 +93,9 @@ function Timer:Update()
         end
 
         After(max(min(textSleep, stateSleep), MIN_DELAY), self.callback)
-    else
+    elseif not self.finished then
+        self.finished = true
+
         for subscriber in pairs(self.subscribers) do
             subscriber:OnTimerFinished(self)
         end
@@ -121,22 +123,21 @@ function Timer:Unsubscribe(subscriber)
 end
 
 function Timer:Destroy()
-    if not active[self.key] then
-        return
+    if active[self.key] then
+        active[self.key] = nil
+
+        self.settings = nil
+        self.text = nil
+        self.state = nil
+        self.finished = nil
+
+        for subscriber in pairs(self.subscribers) do
+            subscriber:OnTimerDestroyed(self)
+            self.subscribers[subscriber] = nil
+        end
+
+        tinsert(inactive, self)
     end
-
-    active[self.key] = nil
-
-    self.settings = nil
-    self.text = nil
-    self.state = nil
-
-    for subscriber in pairs(self.subscribers) do
-        subscriber:OnTimerDestroyed(self)
-        self.subscribers[subscriber] = nil
-    end
-
-    tinsert(inactive, self)
 end
 
 function Timer:GetTimerText(remain)
