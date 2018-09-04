@@ -73,7 +73,7 @@ function Timer:Update()
 
     local remain = (self.duration - (GetTime() - self.start)) or 0
 
-    if round(remain) > 0 then
+    if remain > 0 then
         local text, textSleep = self:GetTimerText(remain)
         if self.text ~= text then
             self.text = text
@@ -141,22 +141,30 @@ function Timer:Destroy()
 end
 
 function Timer:GetTimerText(remain)
-    local sets = self.settings or {}
+    local sets = self.settings
+    local tenthsDuration = sets and sets.tenthsDuration or 0
+    local mmSSDuration = sets and sets.mmSSDuration or 0
 
-    if remain < (sets.tenthsDuration or 0) then
+    if remain <= tenthsDuration then
         -- tenths of seconds
-        return L.TenthsFormat:format(remain), MIN_DELAY
+        local sleep = remain * 100 % 10 / 100
+
+        return L.TenthsFormat:format(remain), sleep
     elseif remain < MINUTEISH then
         -- minutes
         local seconds = round(remain)
-        local sleep = remain - (seconds - 0.51)
+
+        local sleep = remain - max(
+            seconds - 0.51,
+            tenthsDuration
+        )
 
         if seconds > 0 then
             return seconds, sleep
         end
 
         return "", sleep
-    elseif remain < (sets.mmSSDuration or 0) then
+    elseif remain <= mmSSDuration then
         -- MM:SS
         local seconds = round(remain)
         local sleep = remain - (seconds - 0.51)
@@ -165,25 +173,35 @@ function Timer:GetTimerText(remain)
     elseif remain < HOUR then
         -- minutes
         local minutes = round(remain / MINUTE)
-        local sleep
 
-        if minutes > 1 then
-            sleep = (remain - (minutes * MINUTE - HALFMINUTEISH))
-        else
-            sleep = (remain - MINUTEISH)
-        end
+        local sleep = remain - max(
+            -- transition point of showing one minute versus another (29.5s, 89.5s, 149.5s, ...)
+            (minutes * MINUTE - HALFMINUTEISH),
+            -- transition point of displaying minutes to displaying seconds (59.5s)
+            MINUTEISH,
+            -- transition point of displaying MM:SS (user set)
+            mmSSDuration
+        )
 
         return L.MinuteFormat:format(minutes), sleep
     elseif remain < DAYISH then
         -- hours
         local hours = round(remain / HOUR)
-        local sleep = hours > 1 and (remain - (hours * HOUR - HALFHOURISH)) or (remain - HOURISH)
+
+        local sleep = remain - max(
+            (hours * HOUR - HALFHOURISH),
+            HOURISH
+        )
 
         return L.HourFormat:format(hours), sleep
     else
         -- days
         local days = round(remain / DAY)
-        local sleep = days > 1 and (remain - (days * DAY - HALFDAYISH)) or (remain - DAYISH)
+
+        local sleep = remain - max(
+            (days * DAY - HALFDAYISH),
+            DAYISH
+        )
 
         return L.DayFormat:format(days), sleep
     end
@@ -191,7 +209,7 @@ end
 
 function Timer:GetTimerState(remain)
     if remain <= 0 then
-        return "finished", 1 / 0
+        return "finished", math.huge
     elseif self.controlled then
         return "controlled", remain
     elseif self.charging then
