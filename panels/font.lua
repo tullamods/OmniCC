@@ -5,9 +5,8 @@ local FontOptions = CreateFrame("Frame", "OmniCCOptions_Font")
 local OmniCC = _G.OmniCC
 local L = _G.OMNICC_LOCALS
 local BUTTON_SPACING = 24
---
 
---[[ Events ]] function FontOptions:AddWidgets()
+function FontOptions:AddWidgets()
 	self.Sliders = {}
 
 	self.Fonts = self:CreateFontSelector(L.Font)

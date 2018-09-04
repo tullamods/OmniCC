@@ -283,15 +283,12 @@ end
 		items = function()
 			local t = {}
 
-			for id, effect in pairs(OmniCC.effects) do
-				tinsert(
-					t,
-					{
-						text = effect.name,
-						tooltip = effect.desc,
-						value = id
-					}
-				)
+			for id, effect in OmniCC.FX:All() do
+				tinsert(t, {
+					text = effect.name,
+					tooltip = effect.desc,
+					value = id
+				})
 			end
 
 			return t
