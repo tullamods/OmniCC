@@ -209,8 +209,16 @@ do
             end
 
             local settings = Addon:GetGroupSettingsFor(cooldown)
+            local enabled, minDuration
+            if settings then
+                enabled = settings.enabled
+                minDuration = settings.minDuration or 0
+            else
+                enabled = false
+                minDuration = 0
+            end
 
-            if settings.enabled and (duration or 0) > settings.minDuration and (modRate or 1) > 0 then
+            if enabled and (duration or 0) > minDuration and (modRate or 1) > 0 then
                 local display = Display:Get(cooldown) or Display:Create(cooldown)
                 display:Activate(Addon.Timer:GetOrCreate(settings, start, duration))
             else
