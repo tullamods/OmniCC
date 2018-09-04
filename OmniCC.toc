@@ -1,11 +1,10 @@
 ## Interface: 80000
-## Title: OmniCC5
+## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트
 ## Author: Tuller
-## Version: 8.0.1
-## Dependencies: OmniCC
-#### SavedVariables: OmniCC4Config
+## Version: 8.0.2
+## SavedVariables: OmniCC4Config
 libs\libs.xml
 localization\localization.xml
 main.lua
