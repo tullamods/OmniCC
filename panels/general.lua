@@ -152,13 +152,12 @@ function GeneralOptions:CreateMinSizeSlider()
 	local parent = self
 	local s = self:NewSlider(L.MinSize, 0, 200, 1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().minSize = value / 100
-
-		OmniCC.Display:ForAll("UpdateShown")
+		OmniCC.Display:ForAll("UpdateTextShown")
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function(_)
 		return floor(parent:GetGroupSets().minSize * 100)
 	end
 
