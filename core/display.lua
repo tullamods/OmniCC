@@ -77,16 +77,13 @@ end
 -- adjust font size whenever the timer's size changes
 -- and hide if it gets too tiny
 function Display:OnSizeChanged(width, height)
-    local scale = round(width + 0.5) / ICON_SIZE
+    local scale = round(width) / ICON_SIZE
 
     if scale ~= self.scale then
         self.scale = scale
 
-        if scale >= (self:GetSettings().minSize or 0) then
-            self:UpdateTextAppearance()
-        else
-            self.text:Hide()
-        end
+        self:UpdateTextAppearance()
+        self:UpdateTextShown()
     end
 end
 
@@ -120,6 +117,17 @@ function Display:Deactivate()
     self:Hide()
 end
 
+function Display:UpdateTextShown()
+    local scale = self.scale or 0
+    local settings = self:GetSettings()
+
+    if scale >= (settings and settings.minSize or 0) then
+        self.text:Show()
+    else
+        self.text:Hide()
+    end
+end
+
 function Display:UpdateTextAppearance()
     local sets = self:GetSettings()
     local face = sets.fontFace
@@ -148,7 +156,14 @@ function Display:UpdateTextPosition()
 end
 
 function Display:UpdateShown()
-    self:OnSizeChanged(self:GetSize())
+    local scale = self.scale or 0
+    local settings = self:GetSettings()
+
+    if scale >= (settings and settings.minSize or 0) then
+        self.text:Show()
+    else
+        self.text:Hide()
+    end
 end
 
 function Display:GetSettings()
@@ -180,7 +195,7 @@ do
     -- ActionButton1Cooldown is used here since its likely to always exist
     -- and I'd rather not create my own cooldown frame to preserve a tiny bit of memory
     local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
-    local blacklisted = {}
+    local blacklist = {}
 
     local function deactivateDisplay(cooldown)
         local display = Display:Get(cooldown)
@@ -189,54 +204,49 @@ do
         end
     end
 
-    local function setHideCooldownNumbers(cooldown, hide)
-        if hide then
-            if not blacklisted[cooldown] then
-                blacklisted[cooldown] = true
+    local function setBlacklisted(cooldown, isBlacklisted)
+        if isBlacklisted then
+            if not blacklist[cooldown] then
+                blacklist[cooldown] = true
                 deactivateDisplay(cooldown)
             end
         else
-            blacklisted[cooldown] = nil
+            blacklist[cooldown] = nil
         end
     end
 
-    hooksecurefunc(
-        Cooldown_MT,
-        "SetCooldown",
-        function(cooldown, start, duration, modRate)
-            if cooldown.noCooldownCount or cooldown:IsForbidden() or blacklisted[cooldown] then
-                return
-            end
-
-            local settings = Addon:GetGroupSettingsFor(cooldown)
-            local enabled, minDuration
-            if settings then
-                enabled = settings.enabled
-                minDuration = settings.minDuration or 0
-            else
-                enabled = false
-                minDuration = 0
-            end
-
-            if enabled and (duration or 0) > minDuration and (modRate or 1) > 0 then
-                local display = Display:Get(cooldown) or Display:Create(cooldown)
-                display:Activate(Addon.Timer:GetOrCreate(settings, start, duration))
-            else
-                deactivateDisplay(cooldown)
-            end
+    hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration, modRate)
+        if cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden()  then
+            return
         end
-    )
+
+        local settings = Addon:GetGroupSettingsFor(cooldown)
+        local enabled, minDuration
+        if settings then
+            enabled = settings.enabled
+            minDuration = settings.minDuration or 0
+        else
+            enabled = false
+            minDuration = 0
+        end
+
+        if enabled and (duration or 0) > minDuration and (modRate or 1) > 0 then
+            local display = Display:Get(cooldown) or Display:Create(cooldown)
+            display:Activate(Addon.Timer:GetOrCreate(settings, start, duration))
+        else
+            deactivateDisplay(cooldown)
+        end
+    end)
 
     hooksecurefunc(Cooldown_MT, "Clear", deactivateDisplay)
 
-    hooksecurefunc(Cooldown_MT, "SetHideCountdownNumbers", setHideCooldownNumbers)
+    hooksecurefunc(Cooldown_MT, "SetHideCountdownNumbers", function(cooldown, hide)
+        setBlacklisted(cooldown, hide and Addon.sets and Addon.sets.obeyHideCountdownNumbers)
+    end)
 
-    hooksecurefunc(
-        "CooldownFrame_SetDisplayAsPercentage",
-        function(cooldown)
-            setHideCooldownNumbers(cooldown, true)
-        end
-    )
+    hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
+        setBlacklisted(cooldown, true)
+    end)
 end
 
 Addon.Display = Display

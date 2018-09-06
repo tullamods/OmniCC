@@ -25,6 +25,7 @@ function Addon:StartupSettings()
 	_G[DB_NAME] = SetDefaults(_G[DB_NAME] or {}, {
 		engine = 'AniUpdater',
 		version = self:GetVersion(),
+		obeyHideCountdownNumbers = false,
 		groupSettings = {base = {}},
 		groups = {}
 	})
