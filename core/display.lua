@@ -1,29 +1,28 @@
 --[[ A cooldown text display ]] --
 
 local Addon = _G[...]
-
 local ICON_SIZE = math.ceil(_G.ActionButton1:GetWidth()) -- the expected size of an icon
-local CreateFrame = _G.CreateFrame
 
-local Display = CreateFrame("Frame")
-Display:Hide()
-
-local Display_mt = {__index = Display}
+-- local bindings
 local round = _G.Round
+
 local displays = {}
+
+local Display = Addon:CreateHiddenFrame("Frame")
+local Display_mt = {__index = Display}
 
 function Display:Get(cooldown)
     return displays[cooldown]
 end
 
 function Display:Create(cooldown)
-    local display = setmetatable(CreateFrame("Frame", nil, cooldown:GetParent()), Display_mt)
+    local display = setmetatable(Addon:CreateHiddenFrame("Frame", nil, cooldown:GetParent()), Display_mt)
 
     display.cooldown = cooldown
     display:SetAllPoints(cooldown)
     display:SetScript("OnShow", self.OnShow)
     display:SetScript("OnSizeChanged", self.OnSizeChanged)
-    display:Hide()
+    display:UpdateCooldownOpacity()
 
     local text = display:CreateFontString(nil, "OVERLAY")
     display.text = text
@@ -133,7 +132,7 @@ function Display:UpdateTextAppearance()
     local face = sets.fontFace
     local outline = sets.fontOutline
     local style = sets.styles[self.state or "seconds"]
-    local size = sets.fontSize * (sets.scaleText and self.scale or 1)
+    local size = sets.fontSize * style.scale * (sets.scaleText and self.scale or 1)
     local text = self.text
 
     if size > 0 then
@@ -166,6 +165,13 @@ function Display:UpdateShown()
     end
 end
 
+function Display:UpdateCooldownOpacity()
+    local sets = self:GetSettings()
+
+    self.cooldown:SetAlpha(sets.spiralOpacity or 1)
+end
+
+
 function Display:GetSettings()
     return Addon:GetGroupSettingsFor(self.cooldown)
 end
@@ -188,65 +194,6 @@ function Display:ForActive(method, ...)
             end
         end
     end
-end
-
-do
-    -- hook the SetCooldown method of all cooldown frames
-    -- ActionButton1Cooldown is used here since its likely to always exist
-    -- and I'd rather not create my own cooldown frame to preserve a tiny bit of memory
-    local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
-    local blacklist = {}
-
-    local function deactivateDisplay(cooldown)
-        local display = Display:Get(cooldown)
-        if display then
-            display:Deactivate()
-        end
-    end
-
-    local function setBlacklisted(cooldown, isBlacklisted)
-        if isBlacklisted then
-            if not blacklist[cooldown] then
-                blacklist[cooldown] = true
-                deactivateDisplay(cooldown)
-            end
-        else
-            blacklist[cooldown] = nil
-        end
-    end
-
-    hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration, modRate)
-        if cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden()  then
-            return
-        end
-
-        local settings = Addon:GetGroupSettingsFor(cooldown)
-        local enabled, minDuration
-        if settings then
-            enabled = settings.enabled
-            minDuration = settings.minDuration or 0
-        else
-            enabled = false
-            minDuration = 0
-        end
-
-        if enabled and (duration or 0) > minDuration and (modRate or 1) > 0 then
-            local display = Display:Get(cooldown) or Display:Create(cooldown)
-            display:Activate(Addon.Timer:GetOrCreate(settings, start, duration))
-        else
-            deactivateDisplay(cooldown)
-        end
-    end)
-
-    hooksecurefunc(Cooldown_MT, "Clear", deactivateDisplay)
-
-    hooksecurefunc(Cooldown_MT, "SetHideCountdownNumbers", function(cooldown, hide)
-        setBlacklisted(cooldown, hide and Addon.sets and Addon.sets.obeyHideCountdownNumbers)
-    end)
-
-    hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
-        setBlacklisted(cooldown, true)
-    end)
 end
 
 Addon.Display = Display
