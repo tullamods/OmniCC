@@ -1,6 +1,7 @@
 --[[
 	font.lua: the OmniCC font styles panel
 --]]
+
 local FontOptions = CreateFrame("Frame", "OmniCCOptions_Font")
 local OmniCC = _G.OmniCC
 local L = _G.OMNICC_LOCALS
@@ -80,40 +81,39 @@ function FontOptions:CreateColorPickerFrame(name)
 
 	return f
 end
---
 
---[[ Style Picker ]] function FontOptions:CreateStylePicker(timePeriod, parent)
-	local slider = FontOptions:NewSlider(L["Color_" .. timePeriod], parent, 0.5, 2, 0.05)
+function FontOptions:CreateStylePicker(state, parent)
+	local slider = FontOptions:NewSlider(L["Color_" .. state], parent, 0.5, 2, 0.05)
 
 	_G[slider:GetName() .. "Text"]:Hide()
 
-	slider.SetSavedValue = function(self, value)
-		OmniCCOptions:GetGroupSets().styles[timePeriod].scale = value
+	slider.SetSavedValue = function(_, value)
+		OmniCCOptions:GetGroupSets().styles[state].scale = value
 
 		OmniCC.Display:ForAll("UpdateTextAppearance")
 	end
 
-	slider.GetSavedValue = function(self)
-		return OmniCCOptions:GetGroupSets().styles[timePeriod].scale
+	slider.GetSavedValue = function(_)
+		return OmniCCOptions:GetGroupSets().styles[state].scale
 	end
 
-	slider.GetFormattedText = function(self, value)
+	slider.GetFormattedText = function(_, value)
 		return floor(value * 100 + 0.5) .. "%"
 	end
 
 	--color picker
-	local picker = OmniCCOptions.ColorSelector:New(L["Color_" .. timePeriod], slider, true)
+	local picker = OmniCCOptions.ColorSelector:New(L["Color_" .. state], slider, true)
 	picker:SetPoint("BOTTOMLEFT", slider, "TOPLEFT")
 
-	picker.OnSetColor = function(self, r, g, b, a)
-		local style = OmniCCOptions:GetGroupSets().styles[timePeriod]
+	picker.OnSetColor = function(_, r, g, b, a)
+		local style = OmniCCOptions:GetGroupSets().styles[state]
 		style.r, style.g, style.b, style.a = r, g, b, a
 
 		OmniCC.Display:ForAll("UpdateTextAppearance")
 	end
 
-	picker.GetColor = function(self)
-		local style = OmniCCOptions:GetGroupSets().styles[timePeriod]
+	picker.GetColor = function(_)
+		local style = OmniCCOptions:GetGroupSets().styles[state]
 		return style.r, style.g, style.b, style.a
 	end
 
@@ -126,13 +126,13 @@ end
 function FontOptions:CreateFontSizeSlider()
 	local s = self:NewSlider(L.FontSize, self, 2, 48, 1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		OmniCCOptions:GetGroupSets().fontSize = value
 
 		OmniCC.Display:ForAll("UpdateTextAppearance")
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function(_)
 		return OmniCCOptions:GetGroupSets().fontSize
 	end
 
@@ -187,7 +187,6 @@ function FontOptions:NewSlider(name, parent, low, high, step)
 	tinsert(self.Sliders, s)
 	return s
 end
---
 
---[[ Load the thing ]] FontOptions:AddWidgets()
+FontOptions:AddWidgets()
 OmniCCOptions:AddTab("font", L.FontSettings, FontOptions)
