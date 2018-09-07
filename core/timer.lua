@@ -1,34 +1,40 @@
--- A pool of objects for determining what text to display for a given cooldown, and notify subscribers when the text change
+-- A pool of objects for determining what text to display for a given cooldown
+-- and notify subscribers when the text change
 
+-- local bindings!
 local Addon = _G[...]
 local L = _G.OMNICC_LOCALS
+local After = _G.C_Timer.After
+local floor = math.floor
+local GetTime = _G.GetTime
+local max = math.max
+local next = next
+local round = _G.Round
+local strjoin = _G.strjoin
+local tinsert = table.insert
+local tremove = table.remove
 
-local Timer = {}
-local Timer_mt = {__index = Timer}
+-- sexy constants!
+-- used for formatting text
+local DAY, HOUR, MINUTE = 86400, 3600, 60
+-- used for formatting text at transition points
+local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5
+-- used for calculating next update times
+local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY / 2 + 0.5, HOUR / 2 + 0.5, MINUTE / 2 + 0.5
+-- the minimum wait time for a timer
+local MIN_DELAY = 0.01
+
+-- internal state!
 local active = {}
 local inactive = {}
 
---local bindings!
-local GetTime = _G.GetTime
-local After = _G.C_Timer.After
-local floor = math.floor
-local max = math.max
-local round = _G.Round
-local next = next
-local tinsert = table.insert
-local tremove = table.remove
-local strjoin = _G.strjoin
+local Timer = {}
+local Timer_mt = {__index = Timer}
 
---sexy constants!
-local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for formatting text
-local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5 --used for formatting text at transition points
-local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY / 2 + 0.5, HOUR / 2 + 0.5, MINUTE / 2 + 0.5 --used for calculating next update times
-local MIN_DELAY = 0.01
-
-function Timer:GetOrCreate(settings, start, duration)
-    -- start and duration can have milisecond precision, so convert them into ints
-    -- when creating a key to avoid floating point weirdness
-    local key = strjoin("-", settings.id or "base", floor(start * 1000), floor(duration * 1000))
+function Timer:GetOrCreate(settings, start, duration, kind)
+    -- start and duration can have milisecond precision
+    -- convert them into ints when creating a key to avoid floating point weirdness
+    local key = strjoin("-", settings.id or "", floor(start * 1000), floor(duration * 1000), kind or "")
 
     -- first, look for an already active timer
     -- if we don't have one, then either reuse an old one or create a new one
@@ -37,22 +43,23 @@ function Timer:GetOrCreate(settings, start, duration)
     if not timer then
         if next(inactive) then
             timer = tremove(inactive)
+
             timer.key = key
             timer.start = start
             timer.duration = duration
             timer.text = nil
             timer.state = nil
+            timer.kind = kind
             timer.settings = settings
         else
-            timer = {
+            timer = setmetatable({
                 key = key,
                 start = start,
                 duration = duration,
                 settings = settings,
+                kind = kind,
                 subscribers = {}
-            }
-
-            setmetatable(timer, Timer_mt)
+            }, Timer_mt)
 
             timer.callback = function()
                 timer:Update()
@@ -210,10 +217,10 @@ end
 function Timer:GetTimerState(remain)
     if remain <= 0 then
         return "finished", math.huge
-    elseif self.controlled then
-        return "controlled", remain
-    elseif self.charging then
-        return "charging", remain
+    elseif self.kind == "loc" then
+        return "controlled", math.huge
+    elseif self.kind == "charge" then
+        return "charging", math.huge
     elseif remain < SOONISH then
         return "soon", remain
     elseif remain < MINUTEISH then

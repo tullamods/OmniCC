@@ -95,12 +95,12 @@ function Addon:UpdateGroups()
 		local newGroup = self:FindGroup(cooldown)
 		if group ~= newGroup then
 			self.Cache[cooldown] = newGroup
-			self.Cooldown.UpdateAlpha(cooldown)
+			-- self.Cooldown.UpdateAlpha(cooldown)
 
-			local timer = cooldown.omnicc
-			if timer and timer.visible then
-				timer:UpdateText(true)
-			end
+			-- local timer = cooldown.omnicc
+			-- if timer and timer.visible then
+			-- 	timer:UpdateText(true)
+			-- end
 		end
 	end
 end
