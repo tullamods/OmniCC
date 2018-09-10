@@ -5,14 +5,12 @@
 local Addon = _G[...]
 local L = _G.OMNICC_LOCALS
 local After = _G.C_Timer.After
-local floor = math.floor
 local GetTime = _G.GetTime
 local max = math.max
+local min = math.min
 local next = next
 local round = _G.Round
 local strjoin = _G.strjoin
-local tinsert = table.insert
-local tremove = table.remove
 
 -- sexy constants!
 -- used for formatting text
@@ -25,11 +23,12 @@ local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY / 2 + 0.5, HOUR / 2 + 0.5, MI
 local MIN_DELAY = 0.01
 
 -- internal state!
+-- all active timers
 local active = {}
-local inactive = {}
-
-local Timer = {}
-local Timer_MT = { __index = Timer }
+-- inactive timers
+-- here we use a weak table so that inactive timers are cleaned up on garbage
+-- collection
+local inactive = setmetatable({}, {__mode = "k" })
 
 local function cooldown_GetKind(cooldown)
     if cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
@@ -44,6 +43,9 @@ local function cooldown_GetKind(cooldown)
     return "default"
 end
 
+local Timer = {}
+local Timer_MT = { __index = Timer }
+
 function Timer:GetOrCreate(cooldown)
     local start, duration = cooldown:GetCooldownTimes()
     if not (start and start > 0) then
@@ -52,9 +54,6 @@ function Timer:GetOrCreate(cooldown)
 
     local kind = cooldown_GetKind(cooldown)
     local settings = Addon:GetGroupSettingsFor(cooldown)
-
-    -- start and duration can have milisecond precision
-    -- convert them into ints when creating a key to avoid floating point weirdness
     local key = strjoin("-", start, duration, kind, settings and settings.id or "base")
 
     -- first, look for an already active timer
@@ -62,16 +61,17 @@ function Timer:GetOrCreate(cooldown)
     local timer = active[key]
 
     if not timer then
-        if next(inactive) then
-            timer = tremove(inactive)
+        timer = next(inactive)
+
+        if timer then
+            inactive[timer] = nil
 
             timer.key = key
             timer.start = start / 1000
             timer.duration = duration / 1000
-            timer.text = nil
-            timer.state = nil
-            timer.kind = kind
             timer.settings = settings
+            timer.kind = kind
+            timer.subscribers = {}
         else
             timer = setmetatable({
                 key = key,
@@ -82,9 +82,7 @@ function Timer:GetOrCreate(cooldown)
                 subscribers = {}
             }, Timer_MT)
 
-            timer.callback = function()
-                timer:Update()
-            end
+            timer.callback = function() timer:Update() end
         end
 
         active[key] = timer
@@ -94,14 +92,8 @@ function Timer:GetOrCreate(cooldown)
     return timer
 end
 
-function Timer:GetName()
-    return strjoin("-", floor(self.start * 1000), floor(self.duration * 1000), self.kind, self.settings and self.settings.id or "base")
-end
-
 function Timer:Update()
-    if not active[self.key] then
-        return
-    end
+    if not self.key then return end
 
     local remain = self.duration - (GetTime() - (self.start or 0))
 
@@ -137,12 +129,16 @@ function Timer:Update()
 end
 
 function Timer:Subscribe(subscriber)
+    if not self.key then return end
+
     if not self.subscribers[subscriber] then
         self.subscribers[subscriber] = true
     end
 end
 
 function Timer:Unsubscribe(subscriber)
+    if not self.key then return end
+
     if self.subscribers[subscriber] then
         self.subscribers[subscriber] = nil
 
@@ -153,24 +149,27 @@ function Timer:Unsubscribe(subscriber)
 end
 
 function Timer:Destroy()
-    if active[self.key] then
-        active[self.key] = nil
+    if not self.key then return end
 
-        self.settings = nil
-        self.text = nil
-        self.state = nil
-        self.finished = nil
+    active[self.key] = nil
 
-        for subscriber in pairs(self.subscribers) do
-            subscriber:OnTimerDestroyed(self)
-            self.subscribers[subscriber] = nil
-        end
-
-        -- only maintain a small pool of inactive timers
-        if #inactive  < 14 then
-            tinsert(inactive, self)
-        end
+    -- clear subscribers
+    for subscriber in pairs(self.subscribers) do
+        subscriber:OnTimerDestroyed(self)
     end
+
+    -- reset fields
+    self.duration = nil
+    self.finished = nil
+    self.key = nil
+    self.kind = nil
+    self.settings = nil
+    self.start = nil
+    self.state = nil
+    self.subscribers = nil
+    self.text = nil
+
+    inactive[self] = true
 end
 
 function Timer:GetTimerText(remain)
@@ -259,7 +258,7 @@ function Timer:GetTimerState(remain)
 end
 
 function Timer:ForActive(method, ...)
-    for timer in pairs(active) do
+    for _, timer in pairs(active) do
         local func = timer[method]
         if type(func) == "function" then
             func(timer, ...)
