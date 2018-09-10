@@ -86,7 +86,6 @@ function GeneralOptions:CreateEnableTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().enabled = enable
-		-- OmniCC.Timer("UpdateShown")
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -105,7 +104,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 
 	b.OnEnableSetting = function(self, enable)
 		parent:GetGroupSets().scaleText = enable
-		OmniCC.Display:ForActive("UpdateTextAppearance")
+		OmniCC.Display:ForActive("UpdateCooldownTextStyle")
 	end
 
 	b.IsSettingEnabled = function(self)
@@ -154,7 +153,7 @@ function GeneralOptions:CreateMinSizeSlider()
 
 	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().minSize = value / 100
-		OmniCC.Display:ForAll("UpdateTextShown")
+		OmniCC.Display:ForAll("UpdateCooldownTextShown")
 	end
 
 	s.GetSavedValue = function(_)
@@ -266,9 +265,8 @@ function GeneralOptions:CreateSpiralOpacitySlider()
 	s.tooltip = L.SpiralOpacityTip
 	return s
 end
---
 
---[[ Dropdown ]] function GeneralOptions:CreateFinishEffectPicker()
+function GeneralOptions:CreateFinishEffectPicker()
 	local dd =
 		_G.OmniCCOptions.Dropdown:New {
 		parent = self,
@@ -296,8 +294,7 @@ end
 
 	return dd
 end
---
 
---[[ Load the thing ]] OmniCCOptions:AddTab("general", L.GeneralSettings, GeneralOptions)
+OmniCCOptions:AddTab("general", L.GeneralSettings, GeneralOptions)
 GeneralOptions:AddWidgets()
 GeneralOptions:UpdateValues()

@@ -76,7 +76,7 @@ function PositionOptions:CreateXOffsetSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().xOff = value
-		OmniCC.Display:ForAll("UpdateTextPosition")
+		OmniCC.Display:ForAll("UpdateCooldownTextPosition")
 	end
 
 	s.GetSavedValue = function(self)
@@ -94,7 +94,7 @@ function PositionOptions:CreateYOffsetSlider()
 
 	s.SetSavedValue = function(self, value)
 		parent:GetGroupSets().yOff = value
-		OmniCC.Display:ForAll("UpdateTextPosition")
+		OmniCC.Display:ForAll("UpdateCooldownTextPosition")
 	end
 
 	s.GetSavedValue = function(self)
@@ -116,7 +116,7 @@ function PositionOptions:CreateAnchorPicker()
 
 	rg.OnSelect = function(self, value)
 		parent:GetGroupSets().anchor = value
-		OmniCC.Display:ForAll("UpdateTextPosition")
+		OmniCC.Display:ForAll("UpdateCooldownTextPosition")
 	end
 
 	rg.GetSelectedValue = function(self)

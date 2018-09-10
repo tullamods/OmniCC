@@ -42,7 +42,7 @@ function FontOptions:CreateFontSelector(name)
 	f.SetSavedValue = function(self, value)
 		OmniCCOptions:GetGroupSets().fontFace = value
 
-		OmniCC.Display:ForAll("UpdateTextAppearance")
+		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	f.GetSavedValue = function(self)
@@ -90,7 +90,7 @@ function FontOptions:CreateStylePicker(state, parent)
 	slider.SetSavedValue = function(_, value)
 		OmniCCOptions:GetGroupSets().styles[state].scale = value
 
-		OmniCC.Display:ForAll("UpdateTextAppearance")
+		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	slider.GetSavedValue = function(_)
@@ -109,7 +109,7 @@ function FontOptions:CreateStylePicker(state, parent)
 		local style = OmniCCOptions:GetGroupSets().styles[state]
 		style.r, style.g, style.b, style.a = r, g, b, a
 
-		OmniCC.Display:ForAll("UpdateTextAppearance")
+		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	picker.GetColor = function(_)
@@ -129,7 +129,7 @@ function FontOptions:CreateFontSizeSlider()
 	s.SetSavedValue = function(_, value)
 		OmniCCOptions:GetGroupSets().fontSize = value
 
-		OmniCC.Display:ForAll("UpdateTextAppearance")
+		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	s.GetSavedValue = function(_)
@@ -162,7 +162,7 @@ do
 		s.SetSavedValue = function(self, value)
 			OmniCCOptions:GetGroupSets().fontOutline = toOutline(value)
 
-			OmniCC.Display:ForAll("UpdateTextAppearance")
+			OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 		end
 
 		s.GetSavedValue = function(self)
