@@ -5,6 +5,7 @@ local Addon = _G[...]
 local ICON_SIZE = math.ceil(_G.ActionButton1:GetWidth()) -- the expected size of an icon
 
 local round = _G.Round
+local min = math.min
 local displays = {}
 
 local function getCooldownPriority(cooldown)
@@ -44,12 +45,14 @@ end
 
 -- adjust font size whenever the timer's size changes
 -- and hide if it gets too tiny
-function Display:OnSizeChanged(width)
-    local scale = round(width) / ICON_SIZE
+function Display:OnSizeChanged(width, height)
+    local scale = round(min(width, height)) / ICON_SIZE
 
     if scale ~= self.scale then
         self.scale = scale
+
         self:UpdateCooldownTextShown()
+        self:UpdateCooldownTextStyle()
     end
 end
 
@@ -164,7 +167,9 @@ function Display:UpdateCooldownTextShown()
     if not sets then return end
 
     local scale = self.scale or 1
-    if scale >= (sets and sets.minSize or 0) then
+    local frameScale = self:GetEffectiveScale() / _G.UIParent:GetScale()
+
+    if (scale * frameScale) >= (sets and sets.minSize or 0) then
         self.text:Show()
     else
         self.text:Hide()
@@ -192,6 +197,8 @@ end
 
 function Display:UpdateCooldownTextPosition()
     local sets = self:GetCooldownSettings()
+    if not sets then return end
+
     local scale = self.scale or 1
 
     self.text:ClearAllPoints()
