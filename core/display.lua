@@ -1,137 +1,183 @@
 --[[ A cooldown text display ]] --
 
 local Addon = _G[...]
+
 local ICON_SIZE = math.ceil(_G.ActionButton1:GetWidth()) -- the expected size of an icon
 
--- local bindings
 local round = _G.Round
-
 local displays = {}
 
-local Display = Addon:CreateHiddenFrame("Frame")
-local Display_mt = {__index = Display}
+local function getCooldownPriority(cooldown)
+    local start, duration = cooldown:GetCooldownTimes()
 
-function Display:Get(cooldown)
-    return displays[cooldown]
+    return start + duration
 end
 
-function Display:Create(cooldown)
-    local display = setmetatable(Addon:CreateHiddenFrame("Frame", nil, cooldown:GetParent()), Display_mt)
+local Display = Addon:CreateHiddenFrame("Frame")
+local Display_MT = {__index = Display}
 
-    display.cooldown = cooldown
-    display:SetAllPoints(cooldown)
+function Display:Get(parent)
+    return displays[parent]
+end
+
+function Display:GetOrCreate(parent)
+    return displays[parent] or self:Create(parent)
+end
+
+function Display:Create(parent)
+    local display = setmetatable(Addon:CreateHiddenFrame("Frame", nil, parent), Display_MT)
+
+    display:SetAllPoints(parent)
     display:SetScript("OnShow", self.OnShow)
     display:SetScript("OnSizeChanged", self.OnSizeChanged)
-    display:UpdateCooldownOpacity()
+    display.text = display:CreateFontString(nil, "OVERLAY")
+    display.cooldowns = {}
 
-    local text = display:CreateFontString(nil, "OVERLAY")
-    display.text = text
-
-    displays[cooldown] = display
+    displays[parent] = display
     return display
+end
+
+function Display:OnShow()
+    self:OnSizeChanged(self:GetSize())
+    self:SetScript("OnShow", nil)
+end
+
+-- adjust font size whenever the timer's size changes
+-- and hide if it gets too tiny
+function Display:OnSizeChanged(width)
+    local scale = round(width) / ICON_SIZE
+
+    if scale ~= self.scale then
+        self.scale = scale
+        self:UpdateCooldownTextShown()
+    end
 end
 
 -- update text when the timer notifies us of a change
 function Display:OnTimerTextUpdated(timer, text)
-    if self.timer == timer and self.text:IsShown() then
-        self.text:SetText(timer.text or "")
+    if self.timer == timer then
+        self.text:SetText(text)
     end
 end
 
 function Display:OnTimerStateUpdated(timer, state)
     if self.timer == timer then
-        self.state = timer.state or "seconds"
-
-        self:UpdateTextAppearance()
+        self:UpdateCooldownTextStyle()
     end
 end
 
 function Display:OnTimerFinished(timer)
     if self.timer == timer then
-        local settings = self:GetSettings()
+        local settings = self:GetCooldownSettings()
 
-        if timer.duration >= (settings.minEffectDuration or 0) then
+        if settings and timer.duration >= (settings.minEffectDuration or 0) then
             Addon.FX:Run(self.cooldown, settings.effect or "none")
         end
     end
 end
 
--- hide the display when its parent timer is destroyed
 function Display:OnTimerDestroyed(timer)
     if self.timer == timer then
-        self.timer = nil
-        self.state = nil
-        self.text:SetText("")
-
-        self:Hide()
+        self:HideCooldownText(self.cooldown)
     end
 end
 
-function Display:OnShow()
-    if not self.scale then
-        self:OnSizeChanged(self:GetSize())
+function Display:ShowCooldownText(cooldown)
+    if not self.cooldowns[cooldown] then
+        self.cooldowns[cooldown] = true
+    end
+
+    self:UpdatePrimaryCooldown()
+    self:UpdateTimer()
+end
+
+function Display:HideCooldownText(cooldown)
+    if self.cooldowns[cooldown] then
+        self.cooldowns[cooldown] = nil
+
+        self:UpdatePrimaryCooldown()
+        self:UpdateTimer()
     end
 end
 
--- adjust font size whenever the timer's size changes
--- and hide if it gets too tiny
-function Display:OnSizeChanged(width, height)
-    local scale = round(width) / ICON_SIZE
+function Display:UpdatePrimaryCooldown()
+    local old = self.cooldown
+    local new = self:GetCooldownWithHighestPriority()
 
-    if scale ~= self.scale then
-        self.scale = scale
-
-        self:UpdateTextAppearance()
-        self:UpdateTextShown()
+    if old ~= new then
+        self.cooldown = new
+        return true
     end
 end
 
-function Display:Activate(timer)
+function Display:UpdateTimer()
     local oldTimer = self.timer
+    local newTimer = self.cooldown and Addon.Timer:GetOrCreate(self.cooldown)
 
-    if oldTimer ~= timer then
-        self.timer = timer
+    if oldTimer ~= newTimer then
+        self.timer = newTimer
 
         if oldTimer then
             oldTimer:Unsubscribe(self)
         end
 
-        self:UpdateTextAppearance()
-        self:UpdateTextPosition()
-        timer:Subscribe(self)
-    end
+        if newTimer then
+            newTimer:Subscribe(self)
 
-    self:Show()
+            self:UpdateCooldownText()
+            self:Show()
+        else
+            self:Hide()
+        end
+    end
 end
 
-function Display:Deactivate()
-    local timer = self.timer
+function Display:GetCooldownWithHighestPriority()
+    local priority = math.huge
+    local cooldown
 
-    if timer then
-        timer:Unsubscribe(self)
-        self.timer = nil
+    for cd in pairs(self.cooldowns) do
+        local p = getCooldownPriority(cd)
+        if p < priority then
+            cooldown = cd
+            priority = p
+        end
     end
 
-    self.text:SetText("")
-    self:Hide()
+    return cooldown
 end
 
-function Display:UpdateTextShown()
-    local scale = self.scale or 0
-    local settings = self:GetSettings()
+function Display:SetCooldownText(text)
+    self.text:SetText(text or "")
+end
 
-    if scale >= (settings and settings.minSize or 0) then
+function Display:UpdateCooldownText()
+    self:UpdateCooldownTextShown()
+    self:UpdateCooldownTextStyle()
+    self:UpdateCooldownTextPosition()
+
+    self.text:SetText(self.timer and self.timer.text or "")
+end
+
+function Display:UpdateCooldownTextShown()
+    local sets = self:GetCooldownSettings()
+    if not sets then return end
+
+    local scale = self.scale or 1
+    if scale >= (sets and sets.minSize or 0) then
         self.text:Show()
     else
         self.text:Hide()
     end
 end
 
-function Display:UpdateTextAppearance()
-    local sets = self:GetSettings()
+function Display:UpdateCooldownTextStyle()
+    local sets = self:GetCooldownSettings()
+    if not sets then return end
+
     local face = sets.fontFace
     local outline = sets.fontOutline
-    local style = sets.styles[self.state or "seconds"]
+    local style = sets.styles[self.timer and self.timer.state or "seconds"]
     local size = sets.fontSize * style.scale * (sets.scaleText and self.scale or 1)
     local text = self.text
 
@@ -141,39 +187,19 @@ function Display:UpdateTextAppearance()
         end
 
         text:SetTextColor(style.r, style.g, style.b, style.a)
-        text:SetText(self.timer and self.timer.text or "")
     end
 end
 
-function Display:UpdateTextPosition()
-    local sets = self:GetSettings()
+function Display:UpdateCooldownTextPosition()
+    local sets = self:GetCooldownSettings()
     local scale = self.scale or 1
-    local text = self.text
 
-    text:ClearAllPoints()
-    text:SetPoint(sets.anchor, sets.xOff * scale, sets.yOff * scale)
+    self.text:ClearAllPoints()
+    self.text:SetPoint(sets.anchor, sets.xOff * scale, sets.yOff * scale)
 end
 
-function Display:UpdateShown()
-    local scale = self.scale or 0
-    local settings = self:GetSettings()
-
-    if scale >= (settings and settings.minSize or 0) then
-        self.text:Show()
-    else
-        self.text:Hide()
-    end
-end
-
-function Display:UpdateCooldownOpacity()
-    local sets = self:GetSettings()
-
-    self.cooldown:SetAlpha(sets.spiralOpacity or 1)
-end
-
-
-function Display:GetSettings()
-    return Addon:GetGroupSettingsFor(self.cooldown)
+function Display:GetCooldownSettings()
+    return self.cooldown and Addon:GetGroupSettingsFor(self.cooldown)
 end
 
 function Display:ForAll(method, ...)

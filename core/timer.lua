@@ -29,12 +29,33 @@ local active = {}
 local inactive = {}
 
 local Timer = {}
-local Timer_mt = {__index = Timer}
+local Timer_MT = { __index = Timer }
 
-function Timer:GetOrCreate(settings, start, duration, kind)
+local function cooldown_GetKind(cooldown)
+    if cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
+        return "loc"
+    end
+
+    local parent = cooldown:GetParent()
+    if parent and parent.chargeCooldown == cooldown then
+        return "charge"
+    end
+
+    return "default"
+end
+
+function Timer:GetOrCreate(cooldown)
+    local start, duration = cooldown:GetCooldownTimes()
+    if not (start and start > 0) then
+        return
+    end
+
+    local kind = cooldown_GetKind(cooldown)
+    local settings = Addon:GetGroupSettingsFor(cooldown)
+
     -- start and duration can have milisecond precision
     -- convert them into ints when creating a key to avoid floating point weirdness
-    local key = strjoin("-", settings.id or "", floor(start * 1000), floor(duration * 1000), kind or "")
+    local key = strjoin("-", start, duration, kind, settings and settings.id or "base")
 
     -- first, look for an already active timer
     -- if we don't have one, then either reuse an old one or create a new one
@@ -45,8 +66,8 @@ function Timer:GetOrCreate(settings, start, duration, kind)
             timer = tremove(inactive)
 
             timer.key = key
-            timer.start = start
-            timer.duration = duration
+            timer.start = start / 1000
+            timer.duration = duration / 1000
             timer.text = nil
             timer.state = nil
             timer.kind = kind
@@ -54,12 +75,12 @@ function Timer:GetOrCreate(settings, start, duration, kind)
         else
             timer = setmetatable({
                 key = key,
-                start = start,
-                duration = duration,
+                start = start / 1000,
+                duration = duration / 1000,
                 settings = settings,
                 kind = kind,
                 subscribers = {}
-            }, Timer_mt)
+            }, Timer_MT)
 
             timer.callback = function()
                 timer:Update()
@@ -73,12 +94,16 @@ function Timer:GetOrCreate(settings, start, duration, kind)
     return timer
 end
 
+function Timer:GetName()
+    return strjoin("-", floor(self.start * 1000), floor(self.duration * 1000), self.kind, self.settings and self.settings.id or "base")
+end
+
 function Timer:Update()
     if not active[self.key] then
         return
     end
 
-    local remain = (self.duration - (GetTime() - self.start)) or 0
+    local remain = self.duration - (GetTime() - (self.start or 0))
 
     if remain > 0 then
         local text, textSleep = self:GetTimerText(remain)
@@ -112,20 +137,18 @@ function Timer:Update()
 end
 
 function Timer:Subscribe(subscriber)
-    if self.subscribers[subscriber] then
-        return
+    if not self.subscribers[subscriber] then
+        self.subscribers[subscriber] = true
     end
-
-    self.subscribers[subscriber] = true
-    subscriber:OnTimerTextUpdated(self, self.text or "")
-    subscriber:OnTimerStateUpdated(self, self.state or "seconds")
 end
 
 function Timer:Unsubscribe(subscriber)
-    self.subscribers[subscriber] = nil
+    if self.subscribers[subscriber] then
+        self.subscribers[subscriber] = nil
 
-    if not next(self.subscribers) then
-        self:Destroy()
+        if not next(self.subscribers) then
+            self:Destroy()
+        end
     end
 end
 
@@ -143,7 +166,10 @@ function Timer:Destroy()
             self.subscribers[subscriber] = nil
         end
 
-        tinsert(inactive, self)
+        -- only maintain a small pool of inactive timers
+        if #inactive  < 14 then
+            tinsert(inactive, self)
+        end
     end
 end
 
