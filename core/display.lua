@@ -28,8 +28,6 @@ end
 function Display:Create(parent)
     local display = setmetatable(Addon:CreateHiddenFrame("Frame", nil, parent), Display_MT)
 
-    display:SetAllPoints(parent)
-    display:SetScript("OnShow", self.OnShow)
     display:SetScript("OnSizeChanged", self.OnSizeChanged)
     display.text = display:CreateFontString(nil, "OVERLAY")
     display.cooldowns = {}
@@ -38,10 +36,6 @@ function Display:Create(parent)
     return display
 end
 
-function Display:OnShow()
-    self:OnSizeChanged(self:GetSize())
-    self:SetScript("OnShow", nil)
-end
 
 -- adjust font size whenever the timer's size changes
 -- and hide if it gets too tiny
@@ -109,7 +103,10 @@ function Display:UpdatePrimaryCooldown()
 
     if old ~= new then
         self.cooldown = new
-        return true
+
+        if new then
+            self:SetAllPoints(new)
+        end
     end
 end
 
