@@ -1,7 +1,7 @@
 local AddonName = ...
 local Addon = CreateFrame("Frame", AddonName, _G.InterfaceOptionsFrame)
-local L = _G.OMNICC_LOCALS
 local CONFIG_ADDON_NAME = AddonName .. "_Config"
+local L = _G.OMNICC_LOCALS
 
 function Addon:Startup()
 	self:SetupCommands()
@@ -38,10 +38,11 @@ end
 function Addon:SetupHooks()
 	local Display = self.Display
 	local GetSpellCooldown = _G.GetSpellCooldown
+	-- local COOLDOWN_TYPE_LOSS_OF_CONTROL = _G.COOLDOWN_TYPE_LOSS_OF_CONTROL
 	local GCD_SPELL_ID = 61304
 	local blacklist = {}
 
-    local function hideTimer(cooldown)
+	local function hideTimer(cooldown)
 		local display = Display:Get(cooldown:GetParent())
 
         if display then
@@ -81,13 +82,26 @@ function Addon:SetupHooks()
 	local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
 
 	hooksecurefunc(Cooldown_MT, "Clear", function(cooldown)
-		hideTimer(cooldown)
+        if not (cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden()) then
+            hideTimer(cooldown)
+		end
+	end)
+
+	hooksecurefunc(Cooldown_MT, "Hide", function(cooldown)
+        if not (cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden()) then
+            hideTimer(cooldown)
+		end
 	end)
 
 	hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration, modRate)
         if cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden() then
             return
 		end
+
+		-- filter loss of control
+		-- if cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
+		-- 	return
+		-- end
 
 		-- filter GCD
 		local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
@@ -108,7 +122,7 @@ function Addon:SetupHooks()
 
     hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
         setBlacklisted(cooldown, true)
-    end)
+	end)
 end
 
 -- Events
