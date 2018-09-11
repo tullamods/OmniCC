@@ -34,10 +34,20 @@ function Addon:GetGroup(cooldown)
 	return id
 end
 
+local function getFirstAncestorWithName(cooldown)
+	local frame = cooldown
+	repeat
+		local name = frame:GetName()
+		if name then
+			return name
+		end
+		frame = frame:GetParent()
+	until not frame
+end
+
 function Addon:FindGroup(cooldown)
 	if self.sets then
-		local parent = cooldown:GetParent()
-		local name = cooldown:GetName() or (parent and parent:GetName())
+		local name = getFirstAncestorWithName(cooldown)
 
 		if name then
 			local groups = self.sets.groups
