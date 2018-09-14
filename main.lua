@@ -17,6 +17,8 @@ function Addon:Startup()
 
 	self:RegisterEvent("ADDON_LOADED")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_LOGIN")
+	self:RegisterEvent("PLAYER_LOGOUT")
 end
 
 function Addon:SetupCommands()
@@ -127,17 +129,32 @@ end
 
 -- Events
 function Addon:ADDON_LOADED(event, ...)
-	if ... == AddonName then
-		self:UnregisterEvent(event)
+	if AddonName ~= ... then return end
 
-		SetCVar('countdownForCooldowns', 0)
-		self:StartupSettings()
-		self:SetupHooks()
-	end
+	self:UnregisterEvent(event)
+	self:StartupSettings()
+	self:SetupHooks()
 end
 
 function Addon:PLAYER_ENTERING_WORLD()
 	self.Timer:ForActive("Update")
+end
+
+function Addon:PLAYER_LOGIN()
+	-- disable and preserve the user's blizzard cooldown count setting
+	self.countdownForCooldowns = GetCVar("countdownForCooldowns")
+	if self.countdownForCooldowns ~= "0" then
+		SetCVar('countdownForCooldowns', "0")
+	end
+end
+
+function Addon:PLAYER_LOGOUT()
+	-- return the setting to whatever it was originally on logout
+	-- so that the user can uninstall omnicc and go back to what they had
+	local countdownForCooldowns = GetCVar("countdownForCooldowns")
+	if self.countdownForCooldowns ~= countdownForCooldowns then
+		SetCVar('countdownForCooldowns', self.countdownForCooldowns)
+	end
 end
 
 -- Utility
