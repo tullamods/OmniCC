@@ -22,13 +22,13 @@ function GeneralOptions:AddWidgets()
 	finishEffect:SetPoint("TOPLEFT", scaleText, "BOTTOMLEFT", 4, -BUTTON_SPACING)
 
 	--sliders
-	local spiralOpacity = self:CreateSpiralOpacitySlider()
-	spiralOpacity:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 16, 10)
-	spiralOpacity:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 10)
+	-- local spiralOpacity = self:CreateSpiralOpacitySlider()
+	-- spiralOpacity:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 16, 10)
+	-- spiralOpacity:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 10)
 
 	local minEffectDuration = self:CreateMinEffectDurationSlider()
-	minEffectDuration:SetPoint("BOTTOMLEFT", spiralOpacity, "TOPLEFT", 0, SLIDER_SPACING)
-	minEffectDuration:SetPoint("BOTTOMRIGHT", spiralOpacity, "TOPRIGHT", 0, SLIDER_SPACING)
+	minEffectDuration:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 16, 10)
+	minEffectDuration:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 10)
 
 	local mmSSDuration = self:CreateMMSSSlider()
 	mmSSDuration:SetPoint("BOTTOMLEFT", minEffectDuration, "TOPLEFT", 0, SLIDER_SPACING)
@@ -245,26 +245,26 @@ function GeneralOptions:CreateTenthsSlider()
 	return s
 end
 
-function GeneralOptions:CreateSpiralOpacitySlider()
-	local parent = self
-	local s = self:NewSlider(L.SpiralOpacity, 0, 1, .01)
+-- function GeneralOptions:CreateSpiralOpacitySlider()
+-- 	local parent = self
+-- 	local s = self:NewSlider(L.SpiralOpacity, 0, 1, .01)
 
-	s.SetSavedValue = function(self, value)
-		parent:GetGroupSets().spiralOpacity = value
-		-- Cooldown:ForAll("UpdateAlpha")
-	end
+-- 	s.SetSavedValue = function(self, value)
+-- 		parent:GetGroupSets().spiralOpacity = value
+-- 		-- Cooldown:ForAll("UpdateAlpha")
+-- 	end
 
-	s.GetSavedValue = function(self)
-		return parent:GetGroupSets().spiralOpacity
-	end
+-- 	s.GetSavedValue = function(self)
+-- 		return parent:GetGroupSets().spiralOpacity
+-- 	end
 
-	s.GetFormattedText = function(self, value)
-		return floor(value * 100) .. "%"
-	end
+-- 	s.GetFormattedText = function(self, value)
+-- 		return floor(value * 100) .. "%"
+-- 	end
 
-	s.tooltip = L.SpiralOpacityTip
-	return s
-end
+-- 	s.tooltip = L.SpiralOpacityTip
+-- 	return s
+-- end
 
 function GeneralOptions:CreateFinishEffectPicker()
 	local dd =
