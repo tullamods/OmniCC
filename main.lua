@@ -69,7 +69,7 @@ function Addon:SetupHooks()
         if settings and settings.enabled then
 			minDuration = settings.minDuration or 0
         else
-			minDuration = 0
+			minDuration = math.huge
 		end
 
 		if (duration or 0) > minDuration then
