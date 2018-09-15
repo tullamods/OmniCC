@@ -8,10 +8,56 @@ local round = _G.Round
 local min = math.min
 local displays = {}
 
-local function getCooldownPriority(cooldown)
+local function cooldown_GetEndTime(cooldown)
     local start, duration = cooldown:GetCooldownTimes()
 
     return start + duration
+end
+
+-- gets the priority associated with a cooldown relative to its parent
+-- lower numbers == more important
+local function cooldown_GetPriority(cooldown)
+    local parent = cooldown:GetParent()
+    if parent and parent.chargeCooldown == cooldown then
+        return 2
+    end
+
+    return 1
+end
+
+-- given two cooldowns returns the more important one
+local function cooldown_Compare(lhs, rhs)
+    if lhs == rhs then
+        return lhs
+    end
+
+    -- prefer the one that isn't nil
+    if rhs == nil then
+        return lhs
+    end
+
+    if lhs == nil then
+        return rhs
+    end
+
+    -- prefer cooldowns ending first
+    local lEnd = cooldown_GetEndTime(lhs)
+    local rEnd = cooldown_GetEndTime(rhs)
+
+    if lEnd < rEnd then
+        return lhs
+    end
+
+    if lEnd > rEnd then
+        return rhs
+    end
+
+    -- then check priority
+    if cooldown_GetPriority(lhs) < cooldown_GetPriority(rhs) then
+        return lhs
+    end
+
+    return rhs
 end
 
 local Display = Addon:CreateHiddenFrame("Frame")
@@ -133,15 +179,10 @@ function Display:UpdateTimer()
 end
 
 function Display:GetCooldownWithHighestPriority()
-    local priority = math.huge
     local cooldown
 
     for cd in pairs(self.cooldowns) do
-        local p = getCooldownPriority(cd)
-        if p < priority then
-            cooldown = cd
-            priority = p
-        end
+        cooldown = cooldown_Compare(cd, cooldown)
     end
 
     return cooldown
