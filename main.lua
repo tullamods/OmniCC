@@ -1,7 +1,8 @@
-local AddonName = ...
-local Addon = CreateFrame("Frame", AddonName, _G.InterfaceOptionsFrame)
-local CONFIG_ADDON_NAME = AddonName .. "_Config"
+local ADDON_NAME = ...
+local CONFIG_ADDON_NAME = ADDON_NAME .. "_Config"
 local L = _G.OMNICC_LOCALS
+
+local Addon = CreateFrame("Frame", ADDON_NAME, _G.InterfaceOptionsFrame)
 
 function Addon:Startup()
 	self:SetupCommands()
@@ -22,11 +23,11 @@ function Addon:Startup()
 end
 
 function Addon:SetupCommands()
-	_G[("SLASH_%s1"):format(AddonName)] = ("/%s"):format(AddonName:lower())
+	_G[("SLASH_%s1"):format(ADDON_NAME)] = ("/%s"):format(ADDON_NAME:lower())
 
-	_G[("SLASH_%s2"):format(AddonName)] = "/occ"
+	_G[("SLASH_%s2"):format(ADDON_NAME)] = "/occ"
 
-	_G.SlashCmdList[AddonName] = function(...)
+	_G.SlashCmdList[ADDON_NAME] = function(...)
 		if ... == "version" then
 			print(L.Version:format(self:GetVersion()))
 		elseif self.ShowOptionsMenu or LoadAddOn(CONFIG_ADDON_NAME) then
@@ -40,7 +41,6 @@ end
 function Addon:SetupHooks()
 	local Display = self.Display
 	local GetSpellCooldown = _G.GetSpellCooldown
-	-- local COOLDOWN_TYPE_LOSS_OF_CONTROL = _G.COOLDOWN_TYPE_LOSS_OF_CONTROL
 	local GCD_SPELL_ID = 61304
 	local blacklist = {}
 
@@ -79,7 +79,7 @@ function Addon:SetupHooks()
         else
             blacklist[cooldown] = nil
         end
-    end
+	end
 
 	local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
 
@@ -100,18 +100,13 @@ function Addon:SetupHooks()
             return
 		end
 
-		-- filter loss of control
-		-- if cooldown.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
-		-- 	return
-		-- end
-
-		-- filter GCD
+		-- stop timers replaced by global cooldown
 		local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
-		if (gcdStart == start and gcdDuration == duration) then
-			return
+        if start == gcdStart and duration == gcdDuration then
+			hideTimer(cooldown)
+		else
+			showTimer(cooldown, duration)
 		end
-
-		showTimer(cooldown, duration)
 	end)
 
     hooksecurefunc(Cooldown_MT, "SetCooldownDuration", function(cooldown, duration)
@@ -129,7 +124,7 @@ end
 
 -- Events
 function Addon:ADDON_LOADED(event, ...)
-	if AddonName ~= ... then return end
+	if ADDON_NAME ~= ... then return end
 
 	self:UnregisterEvent(event)
 	self:StartupSettings()
