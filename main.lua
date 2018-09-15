@@ -42,83 +42,92 @@ function Addon:SetupHooks()
 	local Display = self.Display
 	local GetSpellCooldown = _G.GetSpellCooldown
 	local GCD_SPELL_ID = 61304
-	local blacklist = {}
+	local active = {}
+	local blacklisted = {}
+	local hooked = {}
+
+	-- yes, most of the code here is the same as hideTimer
+	-- but I want to check active before calling cooldown:IsShown()
+	local function cooldown_OnHide(cooldown)
+		if active[cooldown] and not cooldown:IsShown() then
+			Display:Get(cooldown:GetParent()):HideCooldownText(cooldown)
+			active[cooldown] = nil
+		end
+	end
 
 	local function hideTimer(cooldown)
-		local display = Display:Get(cooldown:GetParent())
-
-        if display then
-            display:HideCooldownText(cooldown)
-        end
-    end
+		if active[cooldown] then
+			Display:Get(cooldown:GetParent()):HideCooldownText(cooldown)
+			active[cooldown] = nil
+		end
+	end
 
 	local function showTimer(cooldown, duration)
-		local enabled, minDuration
+		local minDuration
+
 		local settings = Addon:GetGroupSettingsFor(cooldown)
-        if settings then
-            enabled = settings.enabled
+        if settings and settings.enabled then
 			minDuration = settings.minDuration or 0
         else
-            enabled = false
 			minDuration = 0
 		end
 
-		if enabled and (duration or 0) > minDuration then
+		if (duration or 0) > minDuration then
+			if not hooked[cooldown] then
+				hooked[cooldown] = true
+				cooldown:HookScript("OnHide", cooldown_OnHide)
+			end
+
 			Display:GetOrCreate(cooldown:GetParent()):ShowCooldownText(cooldown)
+			active[cooldown] = true
 		else
 			hideTimer(cooldown)
         end
 	end
 
-    local function setBlacklisted(cooldown, blacklisted)
-        if blacklisted then
-            if not blacklist[cooldown] then
-				blacklist[cooldown] = true
-                hideTimer(cooldown)
-            end
-        else
-            blacklist[cooldown] = nil
-        end
-	end
-
 	local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
 
-	hooksecurefunc(Cooldown_MT, "Clear", function(cooldown)
-        if not (cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden()) then
-            hideTimer(cooldown)
-		end
-	end)
-
-	hooksecurefunc(Cooldown_MT, "Hide", function(cooldown)
-        if not (cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden()) then
-            hideTimer(cooldown)
-		end
-	end)
-
 	hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration, modRate)
-        if cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden() then
+        if cooldown.noCooldownCount or blacklisted[cooldown] or cooldown:IsForbidden() then
             return
+		end
+
+		duration = duration or 0
+
+		if duration == 0 then
+			hideTimer(cooldown)
+			return
 		end
 
 		-- stop timers replaced by global cooldown
 		local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
         if start == gcdStart and duration == gcdDuration then
 			hideTimer(cooldown)
-		else
-			showTimer(cooldown, duration)
-		end
-	end)
-
-    hooksecurefunc(Cooldown_MT, "SetCooldownDuration", function(cooldown, duration)
-        if cooldown.noCooldownCount or blacklist[cooldown] or cooldown:IsForbidden() then
-            return
+			return
 		end
 
 		showTimer(cooldown, duration)
+	end)
+
+    hooksecurefunc(Cooldown_MT, "SetCooldownDuration", function(cooldown, duration)
+        if cooldown.noCooldownCount or blacklisted[cooldown] or cooldown:IsForbidden() then
+            return
+		end
+
+		duration = duration or 0
+
+		if duration > 0 then
+			showTimer(cooldown, duration)
+		else
+			hideTimer(cooldown)
+		end
     end)
 
-    hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
-        setBlacklisted(cooldown, true)
+	hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
+		if not blacklisted[cooldown] then
+			blacklisted[cooldown] = true
+			hideTimer(cooldown)
+		end
 	end)
 end
 
