@@ -68,6 +68,8 @@ function Display:Get(parent)
 end
 
 function Display:GetOrCreate(parent)
+    if not parent then return end
+
     return displays[parent] or self:Create(parent)
 end
 
