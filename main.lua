@@ -42,22 +42,30 @@ function Addon:SetupHooks()
 	local Display = self.Display
 	local GetSpellCooldown = _G.GetSpellCooldown
 	local GCD_SPELL_ID = 61304
+
+	-- used to keep track of active cooldowns,
+	-- and the displays associated with them
 	local active = {}
-	local blacklisted = {}
+
+	-- used to keep track of cooldowns that we've hooked
 	local hooked = {}
 
 	-- yes, most of the code here is the same as hideTimer
 	-- but I want to check active before calling cooldown:IsShown()
 	local function cooldown_OnHide(cooldown)
-		if active[cooldown] and not cooldown:IsShown() then
-			Display:Get(cooldown:GetParent()):HideCooldownText(cooldown)
+		local display = active[cooldown]
+
+		if display and not cooldown:IsShown() then
+			display:HideCooldownText(cooldown)
 			active[cooldown] = nil
 		end
 	end
 
 	local function hideTimer(cooldown)
-		if active[cooldown] then
-			Display:Get(cooldown:GetParent()):HideCooldownText(cooldown)
+		local display = active[cooldown]
+
+		if display then
+			display:HideCooldownText(cooldown)
 			active[cooldown] = nil
 		end
 	end
@@ -69,7 +77,7 @@ function Addon:SetupHooks()
         if settings and settings.enabled then
 			minDuration = settings.minDuration or 0
         else
-			minDuration = 0
+			minDuration = math.huge
 		end
 
 		if (duration or 0) > minDuration then
@@ -78,8 +86,20 @@ function Addon:SetupHooks()
 				cooldown:HookScript("OnHide", cooldown_OnHide)
 			end
 
-			Display:GetOrCreate(cooldown:GetParent()):ShowCooldownText(cooldown)
-			active[cooldown] = true
+			-- handle a fun edge case of a cooldown with an already active
+			-- display that now belongs to a different parent object
+			local oldDisplay = active[cooldown]
+			local newDisplay = Display:GetOrCreate(cooldown:GetParent())
+
+			if oldDisplay and oldDisplay ~= newDisplay then
+				oldDisplay:HideCooldownText(cooldown)
+			end
+
+			if newDisplay then
+				newDisplay:ShowCooldownText(cooldown)
+			end
+
+			active[cooldown] = newDisplay
 		else
 			hideTimer(cooldown)
         end
@@ -88,7 +108,7 @@ function Addon:SetupHooks()
 	local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
 
 	hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration, modRate)
-        if cooldown.noCooldownCount or blacklisted[cooldown] or cooldown:IsForbidden() then
+        if cooldown.noCooldownCount or cooldown:IsForbidden() then
             return
 		end
 
@@ -103,14 +123,13 @@ function Addon:SetupHooks()
 		local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
         if start == gcdStart and duration == gcdDuration then
 			hideTimer(cooldown)
-			return
+		else
+			showTimer(cooldown, duration)
 		end
-
-		showTimer(cooldown, duration)
 	end)
 
     hooksecurefunc(Cooldown_MT, "SetCooldownDuration", function(cooldown, duration)
-        if cooldown.noCooldownCount or blacklisted[cooldown] or cooldown:IsForbidden() then
+        if cooldown.noCooldownCount or cooldown:IsForbidden() then
             return
 		end
 
@@ -124,8 +143,9 @@ function Addon:SetupHooks()
     end)
 
 	hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
-		if not blacklisted[cooldown] then
-			blacklisted[cooldown] = true
+		if not cooldown.noCooldownCount then
+			cooldown.noCooldownCount = true
+
 			hideTimer(cooldown)
 		end
 	end)
