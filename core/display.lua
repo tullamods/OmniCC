@@ -1,7 +1,6 @@
 --[[ A cooldown text display ]] --
 
 local Addon = _G[...]
-
 local ICON_SIZE = math.ceil(_G.ActionButton1:GetWidth()) -- the expected size of an icon
 
 local round = _G.Round
@@ -159,9 +158,13 @@ function Display:UpdatePrimaryCooldown()
 end
 
 function Display:UpdateTimer()
-    local oldTimer = self.timer
-    local newTimer = self.cooldown and Addon.Timer:GetOrCreate(self.cooldown)
+    local oldTimer = self.timer and self.timer
+    local oldTimerKey = oldTimer and oldTimer.key
 
+    local newTimer = self.cooldown and Addon.Timer:GetOrCreate(self.cooldown)
+    local newTimerKey = newTimer and newTimer.key
+
+    -- update subscription if we're watching a different timer
     if oldTimer ~= newTimer then
         self.timer = newTimer
 
@@ -171,12 +174,19 @@ function Display:UpdateTimer()
 
         if newTimer then
             newTimer:Subscribe(self)
-
-            self:UpdateCooldownText()
-            self:Show()
-        else
-            self:Hide()
         end
+    end
+
+    -- only show display if we have a timer to watch
+    if newTimer then
+        -- only update text if the timer we're watching has changed
+        if newTimerKey ~= oldTimerKey then
+            self:UpdateCooldownText()
+        end
+
+        self:Show()
+    else
+        self:Hide()
     end
 end
 
@@ -188,10 +198,6 @@ function Display:GetCooldownWithHighestPriority()
     end
 
     return cooldown
-end
-
-function Display:SetCooldownText(text)
-    self.text:SetText(text or "")
 end
 
 function Display:UpdateCooldownText()
