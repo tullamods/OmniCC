@@ -107,7 +107,7 @@ function Addon:SetupHooks()
 
 	local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
 
-	hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration, modRate)
+	hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration)
         if cooldown.noCooldownCount or cooldown:IsForbidden() then
             return
 		end
