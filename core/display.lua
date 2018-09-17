@@ -212,10 +212,9 @@ function Display:UpdateCooldownTextShown()
     local sets = self:GetCooldownSettings()
     if not sets then return end
 
-    local scale = self.scale or 1
-    local frameScale = self:GetEffectiveScale() / _G.UIParent:GetScale()
+    local scale = (self.scale or 1) * self:GetEffectiveScale()
 
-    if (scale * frameScale) >= (sets and sets.minSize or 0) then
+    if scale >= (sets and sets.minSize or 0) then
         self.text:Show()
     else
         self.text:Hide()
