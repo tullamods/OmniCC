@@ -13,14 +13,24 @@ local round = _G.Round
 local strjoin = _G.strjoin
 
 -- sexy constants!
--- used for formatting text
-local DAY, HOUR, MINUTE = 86400, 3600, 60
--- used for formatting text at transition points
-local DAYISH, HOURISH, MINUTEISH, SOONISH = 3600 * 23.5, 60 * 59.5, 59.5, 5.5
--- used for calculating next update times
-local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY / 2 + 0.5, HOUR / 2 + 0.5, MINUTE / 2 + 0.5
--- the minimum wait time for a timer
-local MIN_DELAY = 0.01
+-- the minimum timer increment
+local TICK = 0.01
+
+-- time units in seconds
+local DAY = 86400
+local HOUR = 3600
+local MINUTE = 60
+
+local HALF_DAY = 43200
+local HALF_HOUR = 5400
+local HALF_MINUTE = 30
+local HALF_SECOND = 0.5
+
+-- transition points
+local HOURS_THRESHOLD = 84600 --23.5 hours in seconds
+local MINUTES_THRESHOLD = 3570 --59.5 minutes in seconds
+local SECONDS_THRESHOLD = 59.5
+local SOON_THRESHOLD = 5.5
 
 -- internal state!
 -- all active timers
@@ -113,6 +123,7 @@ function Timer:Destroy()
     self.state = nil
     self.subscribers = nil
     self.text = nil
+    self.wait = nil
 
     inactive[self] = true
 end
@@ -120,8 +131,14 @@ end
 function Timer:Update()
     if not self.key then return end
 
-    local remain = self.duration - (GetTime() - (self.start or 0))
+    -- prevent
+    local time = GetTime()
+    if self.wait and self.wait > time then
+        return
+    end
+    self.wait = nil
 
+    local remain = self.duration - (time - (self.start or 0))
     if remain > 0 then
         local text, textSleep = self:GetTimerText(remain)
         if self.text ~= text then
@@ -141,7 +158,11 @@ function Timer:Update()
             end
         end
 
-        After(max(min(textSleep, stateSleep), MIN_DELAY), self.callback)
+        local sleep = max(min(textSleep, stateSleep), TICK)
+        if sleep < math.huge then
+            self.wait = time + sleep
+            After(sleep, self.callback)
+        end
     elseif not self.finished then
         self.finished = true
 
@@ -174,67 +195,78 @@ function Timer:Unsubscribe(subscriber)
 end
 
 function Timer:GetTimerText(remain)
-    local sets = self.settings
-    local tenthsDuration = sets and sets.tenthsDuration or 0
-    local mmSSDuration = sets and sets.mmSSDuration or 0
+    local tenthsThreshold, mmSSThreshold
 
-    if remain <= tenthsDuration then
+    local sets = self.settings
+    if sets then
+        tenthsThreshold = sets.tenthsDuration or 0
+        mmSSThreshold = sets.mmSSDuration or 0
+    else
+        tenthsThreshold = 0
+        mmSSThreshold = 0
+    end
+
+    if remain < tenthsThreshold then
         -- tenths of seconds
         local sleep = remain * 100 % 10 / 100
 
         return L.TenthsFormat:format(remain), sleep
-    elseif remain < MINUTEISH then
+    elseif remain < SECONDS_THRESHOLD then
         -- minutes
         local seconds = round(remain)
 
-        local sleep = remain - max(
-            seconds - 0.51,
-            tenthsDuration
-        )
+        local sleep = remain - (TICK + max(
+            seconds - HALF_SECOND,
+            tenthsThreshold
+        ))
 
         if seconds > 0 then
             return seconds, sleep
         end
 
         return "", sleep
-    elseif remain <= mmSSDuration then
+    elseif remain < mmSSThreshold then
         -- MM:SS
         local seconds = round(remain)
-        local sleep = remain - (seconds - 0.51)
+
+        local sleep = remain - (TICK + max(
+            seconds - HALF_SECOND,
+            SECONDS_THRESHOLD
+        ))
 
         return L.MMSSFormat:format(seconds / MINUTE, seconds % MINUTE), sleep
-    elseif remain < HOUR then
+    elseif remain < MINUTES_THRESHOLD then
         -- minutes
         local minutes = round(remain / MINUTE)
 
-        local sleep = remain - max(
+        local sleep = remain - (TICK + max(
             -- transition point of showing one minute versus another (29.5s, 89.5s, 149.5s, ...)
-            (minutes * MINUTE - HALFMINUTEISH),
+            minutes * MINUTE - HALF_MINUTE,
             -- transition point of displaying minutes to displaying seconds (59.5s)
-            MINUTEISH,
+            SECONDS_THRESHOLD,
             -- transition point of displaying MM:SS (user set)
-            mmSSDuration
-        )
+            mmSSThreshold
+        ))
 
         return L.MinuteFormat:format(minutes), sleep
-    elseif remain < DAYISH then
+    elseif remain < HOURS_THRESHOLD then
         -- hours
         local hours = round(remain / HOUR)
 
-        local sleep = remain - max(
-            (hours * HOUR - HALFHOURISH),
-            HOURISH
-        )
+        local sleep = remain - (TICK + max(
+            hours * HOUR - HALF_HOUR,
+            MINUTES_THRESHOLD
+        ))
 
         return L.HourFormat:format(hours), sleep
     else
         -- days
         local days = round(remain / DAY)
 
-        local sleep = remain - max(
-            (days * DAY - HALFDAYISH),
-            DAYISH
-        )
+        local sleep = remain - (TICK + max(
+            days * DAY - HALF_DAY,
+            HOURS_THRESHOLD
+        ))
 
         return L.DayFormat:format(days), sleep
     end
@@ -247,14 +279,14 @@ function Timer:GetTimerState(remain)
         return "controlled", math.huge
     elseif self.kind == "charge" then
         return "charging", math.huge
-    elseif remain < SOONISH then
+    elseif remain < SOON_THRESHOLD then
         return "soon", remain
-    elseif remain < MINUTEISH then
-        return "seconds", remain - SOONISH
-    elseif remain < HOURISH then
-        return "minutes", remain - MINUTEISH
+    elseif remain < SECONDS_THRESHOLD then
+        return "seconds", remain - (TICK + SOON_THRESHOLD)
+    elseif remain < MINUTES_THRESHOLD then
+        return "minutes", remain - (TICK + SECONDS_THRESHOLD)
     else
-        return "hours", remain - HOURISH
+        return "hours", remain - (TICK + MINUTES_THRESHOLD)
     end
 end
 

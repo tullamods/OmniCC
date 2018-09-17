@@ -1,7 +1,7 @@
 --[[ A cooldown text display ]] --
 
 local Addon = _G[...]
-local ICON_SIZE = math.ceil(_G.ActionButton1:GetWidth()) -- the expected size of an icon
+local ICON_SIZE = 36-- the expected size of an icon
 
 local round = _G.Round
 local min = math.min
