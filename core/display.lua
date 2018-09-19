@@ -2,7 +2,7 @@
 
 local Addon = _G[...]
 local ICON_SIZE = 36-- the expected size of an icon
-
+local UIParent = _G.UIParent
 local round = _G.Round
 local min = math.min
 local displays = {}
@@ -212,9 +212,19 @@ function Display:UpdateCooldownTextShown()
     local sets = self:GetCooldownSettings()
     if not sets then return end
 
-    local scale = (self.scale or 1) * self:GetEffectiveScale()
+    -- do a zero comparison here so that we can avoid
+    -- doing the comparison math if we don't actually need to
+    local minSize = sets.minSize or 0
+    if minSize <= 0 then
+        self.text:Show()
+        return
+    end
 
-    if scale >= (sets and sets.minSize or 0) then
+    local scale = self.scale or 1
+    local uiRatio = self:GetEffectiveScale() / UIParent:GetEffectiveScale()
+
+    -- compare as ints to avoid floating point math errors
+    if round(100 * minSize) <= round(100 * scale * uiRatio) then
         self.text:Show()
     else
         self.text:Hide()
