@@ -9,8 +9,13 @@ local GetTime = _G.GetTime
 local max = math.max
 local min = math.min
 local next = next
-local round = _G.Round
 local strjoin = _G.strjoin
+local round = _G.Round
+
+local function roundTo(v, places)
+    local exp = 10 ^ places
+    return floor(v * exp + 0.5) / exp
+end
 
 -- sexy constants!
 -- the minimum timer increment
@@ -123,7 +128,6 @@ function Timer:Destroy()
     self.state = nil
     self.subscribers = nil
     self.text = nil
-    self.wait = nil
 
     inactive[self] = true
 end
@@ -131,19 +135,11 @@ end
 function Timer:Update()
     if not self.key then return end
 
-    -- prevent
-    local time = GetTime()
-    if self.wait and self.wait > time then
-        return
-    end
-    self.wait = nil
-
-    local remain = self.duration - (time - (self.start or 0))
+    local remain = self.duration - (GetTime() - self.start)
     if remain > 0 then
         local text, textSleep = self:GetTimerText(remain)
         if self.text ~= text then
             self.text = text
-
             for subscriber in pairs(self.subscribers) do
                 subscriber:OnTimerTextUpdated(self, text)
             end
@@ -152,7 +148,6 @@ function Timer:Update()
         local state, stateSleep = self:GetTimerState(remain)
         if self.state ~= state then
             self.state = state
-
             for subscriber in pairs(self.subscribers) do
                 subscriber:OnTimerStateUpdated(self, state)
             end
@@ -160,7 +155,6 @@ function Timer:Update()
 
         local sleep = max(min(textSleep, stateSleep), TICK)
         if sleep < math.huge then
-            self.wait = time + sleep
             After(sleep, self.callback)
         end
     elseif not self.finished then
@@ -208,14 +202,19 @@ function Timer:GetTimerText(remain)
 
     if remain < tenthsThreshold then
         -- tenths of seconds
-        local sleep = remain * 100 % 10 / 100
+        local tenths = roundTo(remain, 1)
+        local sleep = TICK + (remain - (tenths - 0.05))
 
-        return L.TenthsFormat:format(remain), sleep
+        if tenths > 0 then
+            return L.TenthsFormat:format(tenths), sleep
+        end
+
+        return "", sleep
     elseif remain < SECONDS_THRESHOLD then
-        -- minutes
+        -- seconds
         local seconds = round(remain)
 
-        local sleep = remain - (TICK + max(
+        local sleep = TICK + (remain - max(
             seconds - HALF_SECOND,
             tenthsThreshold
         ))
@@ -229,7 +228,7 @@ function Timer:GetTimerText(remain)
         -- MM:SS
         local seconds = round(remain)
 
-        local sleep = remain - (TICK + max(
+        local sleep = TICK + (remain - max(
             seconds - HALF_SECOND,
             SECONDS_THRESHOLD
         ))
@@ -239,7 +238,7 @@ function Timer:GetTimerText(remain)
         -- minutes
         local minutes = round(remain / MINUTE)
 
-        local sleep = remain - (TICK + max(
+        local sleep = TICK + (remain - max(
             -- transition point of showing one minute versus another (29.5s, 89.5s, 149.5s, ...)
             minutes * MINUTE - HALF_MINUTE,
             -- transition point of displaying minutes to displaying seconds (59.5s)
@@ -253,7 +252,7 @@ function Timer:GetTimerText(remain)
         -- hours
         local hours = round(remain / HOUR)
 
-        local sleep = remain - (TICK + max(
+        local sleep = TICK + (remain - max(
             hours * HOUR - HALF_HOUR,
             MINUTES_THRESHOLD
         ))
@@ -263,7 +262,7 @@ function Timer:GetTimerText(remain)
         -- days
         local days = round(remain / DAY)
 
-        local sleep = remain - (TICK + max(
+        local sleep = TICK + (remain - max(
             days * DAY - HALF_DAY,
             HOURS_THRESHOLD
         ))
@@ -282,11 +281,11 @@ function Timer:GetTimerState(remain)
     elseif remain < SOON_THRESHOLD then
         return "soon", remain
     elseif remain < SECONDS_THRESHOLD then
-        return "seconds", remain - (TICK + SOON_THRESHOLD)
+        return "seconds", TICK + (remain - SOON_THRESHOLD)
     elseif remain < MINUTES_THRESHOLD then
-        return "minutes", remain - (TICK + SECONDS_THRESHOLD)
+        return "minutes", TICK + (remain - SECONDS_THRESHOLD)
     else
-        return "hours", remain - (TICK + MINUTES_THRESHOLD)
+        return "hours", TICK + (remain - MINUTES_THRESHOLD)
     end
 end
 
