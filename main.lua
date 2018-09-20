@@ -50,27 +50,66 @@ function Addon:SetupHooks()
 	-- used to keep track of cooldowns that we've hooked
 	local hooked = {}
 
-	-- yes, most of the code here is the same as hideTimer
-	-- but I want to check active before calling cooldown:IsShown()
-	local function cooldown_OnHide(cooldown)
-		local display = active[cooldown]
+	local cooldown_ShowTimer, cooldown_HideTimer
 
-		if display and not cooldown:IsShown() then
-			display:HideCooldownText(cooldown)
-			active[cooldown] = nil
+	local function cooldown_OnSetCooldown(cooldown, start, duration)
+        if cooldown.noCooldownCount or cooldown:IsForbidden() then
+            return
+		end
+
+		start = start or 0
+		if start == 0 then
+			cooldown_HideTimer(cooldown)
+			return
+		end
+
+		duration = duration or 0
+		if duration == 0 then
+			cooldown_HideTimer(cooldown)
+			return
+		end
+
+		-- stop timers replaced by global cooldown
+		local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+        if start == gcdStart and duration == gcdDuration then
+			cooldown_HideTimer(cooldown)
+		else
+			cooldown_ShowTimer(cooldown, duration)
 		end
 	end
 
-	local function hideTimer(cooldown)
-		local display = active[cooldown]
+	local function cooldown_OnSetCooldownDuration(cooldown, duration)
+        if cooldown.noCooldownCount or cooldown:IsForbidden() then
+            return
+		end
 
-		if display then
-			display:HideCooldownText(cooldown)
-			active[cooldown] = nil
+		duration = duration or 0
+
+		if duration > 0 then
+			cooldown_ShowTimer(cooldown, duration)
+		else
+			cooldown_HideTimer(cooldown)
 		end
 	end
 
-	local function showTimer(cooldown, duration)
+	local function cooldown_OnSetDisplayAsPercentage(cooldown)
+		if not cooldown.noCooldownCount then
+			cooldown.noCooldownCount = true
+
+			cooldown_HideTimer(cooldown)
+		end
+	end
+
+	local function cooldown_OnShow(cooldown)
+		if not active[cooldown] then
+			local start, duration = cooldown:GetCooldownTimes()
+			if start and duration then
+				cooldown_OnSetCooldown(cooldown, start/1000, duration / 1000)
+			end
+		end
+	end
+
+	function cooldown_ShowTimer(cooldown, duration)
 		local minDuration
 
 		local settings = Addon:GetGroupSettingsFor(cooldown)
@@ -83,7 +122,8 @@ function Addon:SetupHooks()
 		if (duration or 0) > minDuration then
 			if not hooked[cooldown] then
 				hooked[cooldown] = true
-				cooldown:HookScript("OnHide", cooldown_OnHide)
+				cooldown:HookScript("OnShow", cooldown_OnShow)
+				cooldown:HookScript("OnHide", cooldown_HideTimer)
 			end
 
 			-- handle a fun edge case of a cooldown with an already active
@@ -101,54 +141,23 @@ function Addon:SetupHooks()
 
 			active[cooldown] = newDisplay
 		else
-			hideTimer(cooldown)
-        end
+			cooldown_HideTimer(cooldown)
+		end
+	end
+
+	function cooldown_HideTimer(cooldown)
+		local display = active[cooldown]
+
+		if display then
+			display:HideCooldownText(cooldown)
+			active[cooldown] = nil
+		end
 	end
 
 	local Cooldown_MT = getmetatable(_G.ActionButton1Cooldown).__index
-
-	hooksecurefunc(Cooldown_MT, "SetCooldown", function(cooldown, start, duration)
-        if cooldown.noCooldownCount or cooldown:IsForbidden() then
-            return
-		end
-
-		duration = duration or 0
-
-		if duration == 0 then
-			hideTimer(cooldown)
-			return
-		end
-
-		-- stop timers replaced by global cooldown
-		local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
-        if start == gcdStart and duration == gcdDuration then
-			hideTimer(cooldown)
-		else
-			showTimer(cooldown, duration)
-		end
-	end)
-
-    hooksecurefunc(Cooldown_MT, "SetCooldownDuration", function(cooldown, duration)
-        if cooldown.noCooldownCount or cooldown:IsForbidden() then
-            return
-		end
-
-		duration = duration or 0
-
-		if duration > 0 then
-			showTimer(cooldown, duration)
-		else
-			hideTimer(cooldown)
-		end
-    end)
-
-	hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", function(cooldown)
-		if not cooldown.noCooldownCount then
-			cooldown.noCooldownCount = true
-
-			hideTimer(cooldown)
-		end
-	end)
+	hooksecurefunc(Cooldown_MT, "SetCooldown", cooldown_OnSetCooldown)
+	hooksecurefunc(Cooldown_MT, "SetCooldownDuration", cooldown_OnSetCooldownDuration)
+	hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", cooldown_OnSetDisplayAsPercentage)
 end
 
 -- Events
