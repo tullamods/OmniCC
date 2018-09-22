@@ -31,7 +31,7 @@ local cooldownSettings = setmetatable({}, {
 
 --[[ Queries ]]--
 
-function Addon.GetCooldownSettings(cooldown)
+function Addon:GetCooldownSettings(cooldown)
 	return cooldownSettings[cooldown]
 end
 
