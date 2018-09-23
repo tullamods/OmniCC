@@ -55,8 +55,14 @@ local function cooldown_GetKind(cooldown)
         return "charge"
     end
 
+    -- 8.0.1 and earlier behavior for charge cooldown detection
+    if not cooldown:GetDrawSwipe() then
+        return "charge"
+    end
+
     return "default"
 end
+
 
 local Timer = {}
 local Timer_MT = { __index = Timer }
