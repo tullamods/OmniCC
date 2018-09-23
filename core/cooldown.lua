@@ -53,6 +53,7 @@ function cooldown_OnSetDisplayAsPercentage(cooldown)
         return
     end
 
+    cooldown.noCooldownCount = true
     cooldown_HideText(cooldown)
 end
 
@@ -75,7 +76,6 @@ end
 
 
 function cooldown_ShouldShowText(cooldown, start, duration)
-    start = start or 0
     if (start or 0) <= 0 then
         return false
     end
