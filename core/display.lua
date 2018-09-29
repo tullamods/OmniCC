@@ -116,7 +116,7 @@ function Display:OnTimerFinished(timer)
     if self.timer == timer then
         local settings = self:GetCooldownSettings()
 
-        if settings and timer.duration >= (settings.minEffectDuration or 0) then
+        if settings and ((settings.minEffectDuration or 0) * 1000) <= timer.duration  then
             Addon.FX:Run(self.cooldown, settings.effect or "none")
         end
     end
