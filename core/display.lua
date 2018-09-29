@@ -153,6 +153,7 @@ function Display:UpdatePrimaryCooldown()
 
         if new then
             self:SetAllPoints(new)
+            self:SetFrameLevel(new:GetFrameLevel() + 7)
         end
     end
 end
