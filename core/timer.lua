@@ -56,11 +56,6 @@ local function cooldown_GetKind(cooldown)
         return "charge"
     end
 
-    -- 8.0.1 and earlier behavior for charge cooldown detection
-    if cooldown:GetDrawSwipe() == false then
-        return "charge"
-    end
-
     return "default"
 end
 
