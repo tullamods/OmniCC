@@ -174,14 +174,12 @@ function Display:UpdateTimer()
         if oldTimer then
             oldTimer:Unsubscribe(self)
         end
-
-        if newTimer then
-            newTimer:Subscribe(self)
-        end
     end
 
     -- only show display if we have a timer to watch
     if newTimer then
+        newTimer:Subscribe(self)
+
         -- only update text if the timer we're watching has changed
         if newTimerKey ~= oldTimerKey then
             self:UpdateCooldownText()
@@ -189,6 +187,9 @@ function Display:UpdateTimer()
 
         self:Show()
     else
+        self.text:Hide()
+        self.text:SetText("")
+
         self:Hide()
     end
 end
@@ -226,13 +227,13 @@ function Display:UpdateCooldownTextShown()
 
     -- compare as ints to avoid floating point math errors
     if round(100 * minSize) <= round(100 * scale * uiRatio) then
-        self.text:Show()
         self.text:SetText(self.timer and self.timer.text or "")
+        self.text:Show()
     else
         -- clear text on hide to work around text sometimes staying shown
         -- even if we've hidden the font string
-        self.text:Hide()
         self.text:SetText("")
+        self.text:Hide()
     end
 end
 
