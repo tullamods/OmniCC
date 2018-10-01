@@ -27,7 +27,6 @@ local HALF_HOUR = 5400000
 local HALF_MINUTE = 30000
 local HALF_SECOND = 500
 local HALF_TENTHS = 50
-local HALF_TICK = 5
 
 -- transition points in ms
 local HOURS_THRESHOLD = 84600000 -- 23.5 hours
