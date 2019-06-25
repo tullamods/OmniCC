@@ -136,17 +136,15 @@ function Cooldown:SetTimer(start, duration)
     Cooldown.UpdateText(self)
 end
 
-function Cooldown:SetNoCooldownCount(disable)
-    disable = disable and true or nil
-
-    if self.noCooldownCount == disable then
-        return
-    end
+function Cooldown:SetNoCooldownCount(disable, owner)
+    owner = owner or true
 
     if disable then
-        self.noCooldownCount = true
-        Cooldown.HideText(self)
-    else
+        if not self.noCooldownCount then
+            self.noCooldownCount = owner
+            Cooldown.HideText(self)
+        end
+    elseif self.noCooldownCount == owner then
         self.noCooldownCount = nil
         Cooldown.Refresh(self)
     end
