@@ -118,6 +118,10 @@ function Cooldown:Refresh()
     start = (start or 0) / 1000
     duration = (duration or 0) / 1000
 
+    -- force :SetTimer to update the text
+    self._occ_start = nil
+    self._occ_duration = nil
+
     Cooldown.Initialize(self)
     Cooldown.SetTimer(self, start, duration)
 end
