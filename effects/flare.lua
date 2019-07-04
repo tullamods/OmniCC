@@ -90,6 +90,8 @@ do
 end
 
 function Flare:Run(cooldown)
+	if cooldown:IsForbidden() then return end
+
 	local owner = cooldown:GetParent() or cooldown
 
 	if owner and (not owner:IsForbidden()) and owner:IsVisible() then
