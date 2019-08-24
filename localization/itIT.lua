@@ -1,7 +1,6 @@
---[[OmniCC Config Localization - Italian]]
-
-if GetLocale() ~= 'itIT' then return end
-local L = OMNICC_LOCALS
+-- OmniCC Config Localization - Italian
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "itIT")
+if not L then return end
 
 L.GeneralSettings = "Visualizzazione"
 L.FontSettings = "Stile del testo"

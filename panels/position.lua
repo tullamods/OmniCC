@@ -3,7 +3,8 @@
 --]]
 local OmniCCOptions = _G.OmniCCOptions
 local OmniCC = _G.OmniCC
-local L = _G.OMNICC_LOCALS
+local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
+
 
 --fun constants!
 local SLIDER_SPACING = 24

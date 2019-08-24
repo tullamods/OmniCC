@@ -1,10 +1,6 @@
---[[
-OmniCC configuration interface localization - Chinese Traditional
---]]
-
-if GetLocale() ~= 'zhTW' then return end
-
-local L = OMNICC_LOCALS
+-- OmniCC configuration interface localization - Chinese Traditional
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "zhTW")
+if not L then return end
 
 L.GeneralSettings = "顯示"
 L.FontSettings = "文字風格"

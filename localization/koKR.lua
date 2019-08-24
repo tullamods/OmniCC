@@ -1,10 +1,6 @@
---[[
-	OmniCC configuration interface localization - koKR
---]]
-
-if GetLocale() ~= 'koKR' then return end
-
-local L = OMNICC_LOCALS
+-- OmniCC configuration interface localization - koKR
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "koKR")
+if not L then return end
 
 L.GeneralSettings = "표시"
 L.FontSettings = "문자 스타일"
@@ -39,8 +35,8 @@ L.Color_soon = "곧 만료"
 L.Color_seconds = "1분 이하"
 L.Color_minutes = "1시간 이하"
 L.Color_hours = "1시간 이상"
-L.Color_charging = "충전량 복원" 
-L.Color_controlled = "제어 불가 효과" 
+L.Color_charging = "충전량 복원"
+L.Color_controlled = "제어 불가 효과"
 
 
 --text positioning
@@ -69,18 +65,18 @@ L.AddGroup = '그룹 추가...'
 --[[ Tooltips ]]--
 
 L.ScaleTextTip =
-[[활성화하면 프레임이 
+[[활성화하면 프레임이
 너무 작을 경우 그 프레임에
 맞춰 문자를 축소시킵니다.]]
 
-L.SpiralOpacityTip = 
+L.SpiralOpacityTip =
 [[재사용 대기 중일 때 버튼에 보이는
-검은 나선 소용돌이의 투명도를 설정합니다.]] 
+검은 나선 소용돌이의 투명도를 설정합니다.]]
 
-L.UseAniUpdaterTip = 
-[[CPU 성능을 향상시킵니다, 하지만 
-몇몇 환경에서 오류를 발생할 수 있습니다. 
-이 옵션을 비활성하면 문제를 해결할 수 있습니다.]] 
+L.UseAniUpdaterTip =
+[[CPU 성능을 향상시킵니다, 하지만
+몇몇 환경에서 오류를 발생할 수 있습니다.
+이 옵션을 비활성하면 문제를 해결할 수 있습니다.]]
 
 L.MinDurationTip =
 [[재사용 대기시간이 얼마나 길어야

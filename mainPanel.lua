@@ -4,7 +4,7 @@
 		provides ways of switching between tabs & groups
 --]]
 
-local L = _G.OMNICC_LOCALS
+local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
 StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 	text = 'Enter Group Name',

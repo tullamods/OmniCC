@@ -1,9 +1,6 @@
---[[
-	OmniCC configuration localization - English
---]]
-
-if not strfind(GetLocale(), "^es") then return end
-local L = OMNICC_LOCALS
+-- OmniCC configuration localization - Spanish
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "esES") or LibStub("AceLocale-3.0"):NewLocale("OmniCC", "esMX")
+if not L then return end
 
 L.GeneralSettings = "General"
 L.FontSettings = "Aspecto del Texto"

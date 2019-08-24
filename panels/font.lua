@@ -4,7 +4,8 @@
 
 local FontOptions = CreateFrame("Frame", "OmniCCOptions_Font")
 local OmniCC = _G.OmniCC
-local L = _G.OMNICC_LOCALS
+local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
+
 local BUTTON_SPACING = 24
 
 function FontOptions:AddWidgets()

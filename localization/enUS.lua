@@ -1,8 +1,5 @@
---[[
-	OmniCC configuration localization - English
---]]
-
-local L = OMNICC_LOCALS
+-- OmniCC configuration localization - English
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "enUS", true)
 
 L.GeneralSettings = "Display"
 L.FontSettings = "Text Style"

@@ -1,10 +1,6 @@
---[[
-	OmniCC configuration localization - Chinese Simplified
---]]
-
-if GetLocale() ~= 'zhCN' then return end
-
-local L = OMNICC_LOCALS
+-- OmniCC configuration localization - Chinese Simplified
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "zhCN")
+if not L then return end
 
 L.GeneralSettings = "显示"
 L.FontSettings = "文字风格"
@@ -65,7 +61,7 @@ L.AddGroup = '新增分组...'
 --[[ 提示 ]]--
 
 L.ScaleTextTip =
-[[当启用时，此设置 
+[[当启用时，此设置
 会令文字缩小来适应
 太小的框架]]
 

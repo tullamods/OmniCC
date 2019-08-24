@@ -1,9 +1,6 @@
-﻿--[[
-	OmniCC configuration localization - French
---]]
-
-if GetLocale() ~= 'frFR' then return end
-local L = OMNICC_LOCALS
+﻿-- OmniCC configuration localization - French
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "frFR")
+if not L then return end
 
 L.GeneralSettings = "Affichage"
 L.FontSettings = "Style du texte"

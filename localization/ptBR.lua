@@ -1,9 +1,6 @@
---[[
-	OmniCC configuration localization - Portuguese
---]]
-
-if GetLocale() ~= 'ptBR' then return end
-local L = OMNICC_LOCALS
+-- OmniCC configuration localization - Portuguese
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "ptBR")
+if not L then return end
 
 L.GeneralSettings = "Geral"
 L.FontSettings = "Aspecto do Texto"

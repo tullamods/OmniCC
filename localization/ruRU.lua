@@ -1,10 +1,6 @@
---[[
-	OmniCC configuration interface localization - Russian
---]]
-
-if GetLocale() ~= 'ruRU' then return end
-
-local L = OMNICC_LOCALS
+-- OmniCC configuration interface localization - Russian
+local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "ruRU")
+if not L then return end
 
 L.GeneralSettings = "Отображение"
 L.FontSettings = "Стиль текста"

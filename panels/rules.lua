@@ -2,16 +2,13 @@
 	General configuration settings for OmniCC
 --]]
 
-local OmniCCOptions = OmniCCOptions
-local OmniCC = OmniCC
-local L = OMNICC_LOCALS
+local OmniCCOptions = _G.OmniCCOptions
+local OmniCC = _G.OmniCC
+local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
 --fun constants!
-local BUTTON_SPACING = 0
-local SLIDER_SPACING = 24
-
 local function groupIdToGroup(groupId)
-	for i, group in pairs(OmniCC.sets.groups) do
+	for _, group in pairs(OmniCC.sets.groups) do
 		if group.id == groupId then
 			return group
 		end

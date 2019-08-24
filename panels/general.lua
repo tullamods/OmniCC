@@ -3,9 +3,8 @@
 --]]
 local GeneralOptions = CreateFrame("Frame", "OmniCCOptions_General")
 local OmniCC = _G.OmniCC
-local Sets = OmniCC.sets
+local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
-local L = _G.OMNICC_LOCALS
 local SUBSECONDS_ABBR = "%.1f" .. (SECONDS_ABBR:match("%%d(.+)"))
 local MINUTES_ABBR = "%.1f" .. (MINUTES_ABBR:match("%%d(.+)"))
 local BUTTON_SPACING = 8
@@ -91,8 +90,6 @@ function GeneralOptions:CreateEnableTextCheckbox()
 	b.IsSettingEnabled = function(self)
 		return parent:GetGroupSets().enabled
 	end
-
-	b.tooltip = L.EnableTextTip
 
 	return b
 end
