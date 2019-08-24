@@ -1,7 +1,6 @@
---[[OmniCC Localization - Italian]]
-
-if GetLocale() ~= 'itIT' then return end
-local L = OMNICC_LOCALS
+local AddonName = ...
+local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "itIT")
+if not L then return end
 
 -- effect names
 L.None = NONE

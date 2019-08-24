@@ -1,6 +1,7 @@
 -- none.lua - no effect
-local Addon = _G[...]
-local L = _G.OMNICC_LOCALS
+local AddonName = ...
+local Addon = _G[AddonName]
+local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
 local None = Addon.FX:Create("none", L.None)
 

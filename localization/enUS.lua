@@ -1,6 +1,5 @@
-_G.OMNICC_LOCALS = {} -- should be done in the US locale file, only
-
-local L = _G.OMNICC_LOCALS
+local AddonName = ...
+local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "enUS", true)
 
 -- timer formats
 L.TenthsFormat = "%0.1f"

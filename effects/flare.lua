@@ -1,7 +1,7 @@
 -- a flare finish effect. Artwork by Renaitre
 local AddonName = ...
-local Addon = _G[...]
-local L = _G.OMNICC_LOCALS
+local Addon = _G[AddonName]
+local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
 local Flare = Addon.FX:Create("flare", L.Flare)
 

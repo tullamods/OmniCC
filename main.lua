@@ -1,9 +1,9 @@
 -- code to drive the addon
 local ADDON_NAME = ...
 local CONFIG_ADDON_NAME = ADDON_NAME .. "_Config"
-local L = _G.OMNICC_LOCALS
+local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
 
-local Addon = CreateFrame("Frame", ADDON_NAME, _G.InterfaceOptionsFrame)
+local Addon = CreateFrame("Frame", ADDON_NAME, InterfaceOptionsFrame)
 
 function Addon:Startup()
 	self:SetupCommands()

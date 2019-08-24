@@ -1,5 +1,7 @@
-﻿if GetLocale() ~= 'frFR' then return end
-local L = OMNICC_LOCALS
+﻿local AddonName = ...
+local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "frFR")
+if not L then return end
+
 
 -- effect names
 L.Pulse = "Pulsation"
