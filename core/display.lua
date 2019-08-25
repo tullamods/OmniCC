@@ -1,7 +1,8 @@
 -- A cooldown text display
-local Addon = _G[...]
+local _, Addon = ...
 
-local ICON_SIZE = 36 -- the expected size of an icon
+-- the expected size of an icon
+local ICON_SIZE = 36
 
 local After = _G.C_Timer.After
 local GetTickTime = _G.GetTickTime
@@ -60,6 +61,7 @@ function Display:OnScaleChanged()
         self:UpdateCooldownTextShown()
     end
 end
+
 -- update text when the timer notifies us of a change
 function Display:OnTimerTextUpdated(timer)
     if self.timer == timer then

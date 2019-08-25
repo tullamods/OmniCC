@@ -1,8 +1,8 @@
--- none.lua - no effect
-local AddonName = ...
-local Addon = _G[AddonName]
+-- an effect that does nothing
+local AddonName, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
-local None = Addon.FX:Create("none", L.None)
+local NoopEffect = Addon.FX:Create("none", L.None)
 
-function None:Run() end
+function NoopEffect:Run()
+end

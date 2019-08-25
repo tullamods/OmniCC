@@ -1,10 +1,6 @@
---[[
-	settings.lua
-		handles OmniCC saved variables
---]]
+-- settings.lua - handles OmniCC saved variables
 
-local AddonName = ...
-local Addon = _G[AddonName]
+local AddonName, Addon = ...
 local DB_NAME = "OmniCC4Config"
 
 local function SetDefaults(target, defaults)
@@ -96,9 +92,6 @@ function Addon:StartupGroup(group)
 		}
 	})
 end
-
-
---[[ Version ]]--
 
 function Addon:GetVersion()
 	return GetAddOnMetadata(AddonName, 'Version')

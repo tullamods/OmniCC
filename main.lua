@@ -1,37 +1,35 @@
 -- code to drive the addon
-local ADDON_NAME = ...
-local CONFIG_ADDON_NAME = ADDON_NAME .. "_Config"
-local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
+local AddonName, Addon = ...
+local CONFIG_ADDON = AddonName .. "_Config"
+local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
-local Addon = CreateFrame("Frame", ADDON_NAME, InterfaceOptionsFrame)
+local OptionsFrame = CreateFrame("Frame", AddonName .. "OptionsFrame", InterfaceOptionsFrame)
 
-function Addon:Startup()
-	self:SetupCommands()
+function Addon:Initialize()
+	-- create and setup options frame
 
-	self:SetScript("OnEvent", function(f, event, ...)
-		f[event](f, event, ...)
+	OptionsFrame:SetScript("OnEvent", function(_, event, ...)
+		self[event](self, event, ...)
 	end)
 
-	self:SetScript("OnShow", function(f)
-		LoadAddOn(CONFIG_ADDON_NAME)
+	OptionsFrame:SetScript("OnShow", function(f)
+		LoadAddOn(CONFIG_ADDON)
 		f:SetScript("OnShow", nil)
 	end)
 
-	self:RegisterEvent("ADDON_LOADED")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	self:RegisterEvent("PLAYER_LOGIN")
-	self:RegisterEvent("PLAYER_LOGOUT")
-end
+	OptionsFrame:RegisterEvent("ADDON_LOADED")
+	OptionsFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	OptionsFrame:RegisterEvent("PLAYER_LOGIN")
+	OptionsFrame:RegisterEvent("PLAYER_LOGOUT")
 
-function Addon:SetupCommands()
-	_G[("SLASH_%s1"):format(ADDON_NAME)] = ("/%s"):format(ADDON_NAME:lower())
+	-- setup slash commands
+	_G[("SLASH_%s1"):format(AddonName)] = ("/%s"):format(AddonName:lower())
+	_G[("SLASH_%s2"):format(AddonName)] = "/occ"
 
-	_G[("SLASH_%s2"):format(ADDON_NAME)] = "/occ"
-
-	_G.SlashCmdList[ADDON_NAME] = function(...)
+	SlashCmdList[AddonName] = function(...)
 		if ... == "version" then
 			print(L.Version:format(self:GetVersion()))
-		elseif self.ShowOptionsMenu or LoadAddOn(CONFIG_ADDON_NAME) then
+		elseif self.ShowOptionsMenu or LoadAddOn(CONFIG_ADDON) then
 			if type(self.ShowOptionsMenu) == "function" then
 				self:ShowOptionsMenu()
 			end
@@ -39,12 +37,14 @@ function Addon:SetupCommands()
 	end
 end
 
--- Events
-function Addon:ADDON_LOADED(event, ...)
-	if ADDON_NAME ~= ... then return end
+-- events
+function Addon:ADDON_LOADED(event, addonName)
+	if AddonName ~= addonName then return end
 
-	self:UnregisterEvent(event)
+	OptionsFrame:UnregisterEvent(event)
+
 	self:StartupSettings()
+
 	self.Cooldown:SetupHooks()
 end
 
@@ -69,7 +69,7 @@ function Addon:PLAYER_LOGOUT()
 	end
 end
 
--- Utility
+-- utility methods
 function Addon:New(name, module)
 	self[name] = module or LibStub("Classy-1.0"):New("Frame")
 
@@ -102,4 +102,7 @@ function Addon:GetButtonIcon(frame)
 	end
 end
 
-Addon:Startup()
+Addon:Initialize()
+
+-- exports
+_G[AddonName] = Addon

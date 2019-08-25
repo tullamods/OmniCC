@@ -1,4 +1,4 @@
-local Addon = _G[...]
+local _, Addon = ...
 local FX = {}
 
 local effects = {}

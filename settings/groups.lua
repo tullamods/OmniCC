@@ -1,6 +1,5 @@
---[[ groups.lua: manages group behaviour ]]--
-
-local Addon = _G[...]
+-- groups.lua: manages group behaviour
+local _, Addon = ...
 
 local function getFirstAncestorWithName(cooldown)
 	local frame = cooldown

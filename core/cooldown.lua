@@ -1,5 +1,5 @@
 -- hooks for watching cooldown events
-local Addon = _G[...]
+local _, Addon = ...
 
 local GCD_SPELL_ID = 61304
 local COOLDOWN_TYPE_LOSS_OF_CONTROL = _G.COOLDOWN_TYPE_LOSS_OF_CONTROL

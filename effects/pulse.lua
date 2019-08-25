@@ -1,14 +1,13 @@
 -- a pulse finish effect
-local AddonName = ...
-local Addon = _G[AddonName]
+local AddonName, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
 local PULSE_SCALE = 2.5
 local PULSE_DURATION = 0.6
 
-local Pulse = Addon.FX:Create("pulse", L.Pulse, L.PulseTip)
+local PulseEffect = Addon.FX:Create("pulse", L.Pulse, L.PulseTip)
 
-function Pulse:Run(cooldown)
+function PulseEffect:Run(cooldown)
 	local parent = cooldown:GetParent()
 	if parent:IsForbidden() then
 		return
@@ -21,7 +20,7 @@ function Pulse:Run(cooldown)
 	end
 end
 
-function Pulse:Start(pulse, icon)
+function PulseEffect:Start(pulse, icon)
 	if pulse.animation:IsPlaying() then
 		pulse.animation:Stop()
 	end
@@ -30,11 +29,11 @@ function Pulse:Start(pulse, icon)
 	pulse.icon:SetVertexColor(r, g, b, 0.7)
 	pulse.icon:SetTexture(icon:GetTexture())
 
-	pulse:Show()
+	PulseEffect:Show()
 	pulse.animation:Play()
 end
 
-function Pulse:Get(owner)
+function PulseEffect:Get(owner)
 	return self.effects and self.effects[owner]
 end
 
@@ -80,12 +79,12 @@ do
 		return group
 	end
 
-	function Pulse:Create(owner)
+	function PulseEffect:Create(owner)
 		local pulse = Addon:CreateHiddenFrame("Frame", nil, owner)
 
-		pulse:SetAllPoints(owner)
-		pulse:SetToplevel(true)
-		pulse:SetScript("OnHide", pulseFrame_OnHide)
+		PulseEffect:SetAllPoints(owner)
+		PulseEffect:SetToplevel(true)
+		PulseEffect:SetScript("OnHide", pulseFrame_OnHide)
 		pulse.icon = pulseFrame_CreateIcon(pulse)
 		pulse.animation = pulseFrame_CreateAnimation(pulse)
 

@@ -1,31 +1,24 @@
---[[
-	alert.lua
-		a finish effect that displays the cooldown at the center of the screen
---]]
-local AddonName = ...
-local Addon = _G[AddonName]
+-- a finish effect that displays the cooldown at the center of the screen
+local AddonName, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
-local Frame = CreateFrame("Frame", nil, UIParent)
-Frame:SetPoint("CENTER")
-Frame:SetSize(50, 50)
-Frame:SetAlpha(0)
-Frame:Hide()
+local AlertFrame = CreateFrame("Frame", nil, UIParent)
+AlertFrame:SetPoint("CENTER")
+AlertFrame:SetSize(50, 50)
+AlertFrame:SetAlpha(0)
+AlertFrame:Hide()
 
-local Icon = Frame:CreateTexture()
-Icon:SetAllPoints()
+local icon = AlertFrame:CreateTexture(nil, "ARTWORK")
+icon:SetAllPoints(AlertFrame)
+AlertFrame.icon = icon
 
-local Anims = Frame:CreateAnimationGroup()
-Anims:SetLooping("NONE")
-Anims:SetScript(
-	"OnFinished",
-	function()
-		Frame:Hide()
-	end
-)
+local animationGroup = AlertFrame:CreateAnimationGroup()
+animationGroup:SetLooping("NONE")
+animationGroup:SetScript("OnFinished", function() AlertFrame:Hide() end)
+AlertFrame.animationGroup = animationGroup
 
 local function newAnim(type, order, from, to)
-	local anim = Anims:CreateAnimation(type)
+	local anim = AlertFrame.animationGroup:CreateAnimation(type)
 	anim:SetDuration(0.3)
 	anim:SetOrder(order)
 
@@ -44,21 +37,24 @@ newAnim("Alpha", 1, 0, .7)
 newAnim("Scale", 2, -2.5)
 newAnim("Alpha", 2, .7, 0)
 
-local Alert = Addon.FX:Create("alert", L.Alert, L.AlertTip)
+local AlertEffect = Addon.FX:Create("alert", L.Alert, L.AlertTip)
 
-function Alert:Run(cooldown)
-	local icon = Addon:GetButtonIcon(cooldown:GetParent())
-	if not icon then
+function AlertEffect:Run(cooldown)
+	local buttonIcon = Addon:GetButtonIcon(cooldown:GetParent())
+	if not buttonIcon then
 		return
 	end
 
-	Icon:SetVertexColor(icon:GetVertexColor())
-	Icon:SetTexture(icon:GetTexture())
-	Frame:Show()
+	AlertFrame:Show()
 
-	if Anims:IsPlaying() then
-		Anims:Finish()
+	local alertIcon = AlertFrame.icon
+	alertIcon:SetVertexColor(buttonIcon:GetVertexColor())
+	alertIcon:SetTexture(buttonIcon:GetTexture())
+
+	local alertAnimation = AlertFrame.animationGroup
+	if alertAnimation:IsPlaying() then
+		alertAnimation:Finish()
 	end
 
-	Anims:Play()
+	alertAnimation:Play()
 end

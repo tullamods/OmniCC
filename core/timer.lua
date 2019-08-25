@@ -2,8 +2,7 @@
 -- and notify subscribers when the text change
 
 -- local bindings!
-local AddonName = ...
-local Addon = _G[AddonName]
+local AddonName, Addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
 local After = _G.C_Timer.After
