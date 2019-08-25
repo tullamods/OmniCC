@@ -3,24 +3,25 @@ local AddonName, Addon = ...
 local CONFIG_ADDON = AddonName .. "_Config"
 local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
 
-local OptionsFrame = CreateFrame("Frame", AddonName .. "OptionsFrame", InterfaceOptionsFrame)
-
 function Addon:Initialize()
-	-- create and setup options frame
+	-- create and setup options frame and event loader
+	local frame = CreateFrame("Frame", nil, InterfaceOptionsFrame)
 
-	OptionsFrame:SetScript("OnEvent", function(_, event, ...)
+	frame:SetScript("OnEvent", function(_, event, ...)
 		self[event](self, event, ...)
 	end)
 
-	OptionsFrame:SetScript("OnShow", function(f)
+	frame:SetScript("OnShow", function(f)
 		LoadAddOn(CONFIG_ADDON)
 		f:SetScript("OnShow", nil)
 	end)
 
-	OptionsFrame:RegisterEvent("ADDON_LOADED")
-	OptionsFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	OptionsFrame:RegisterEvent("PLAYER_LOGIN")
-	OptionsFrame:RegisterEvent("PLAYER_LOGOUT")
+	frame:RegisterEvent("ADDON_LOADED")
+	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	frame:RegisterEvent("PLAYER_LOGIN")
+	frame:RegisterEvent("PLAYER_LOGOUT")
+
+	self.frame = frame
 
 	-- setup slash commands
 	_G[("SLASH_%s1"):format(AddonName)] = ("/%s"):format(AddonName:lower())
@@ -41,7 +42,7 @@ end
 function Addon:ADDON_LOADED(event, addonName)
 	if AddonName ~= addonName then return end
 
-	OptionsFrame:UnregisterEvent(event)
+	self.frame:UnregisterEvent(event)
 
 	self:StartupSettings()
 
