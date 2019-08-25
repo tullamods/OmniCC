@@ -1,15 +1,7 @@
---[[
-	slider.lua
-		A bagnon options slider
---]]
-
-OmniCCOptions = OmniCCOptions or {}
+--- An options slider widget
+local _, Addon = ...
 
 local Slider = LibStub('Classy-1.0'):New('Slider')
-OmniCCOptions.Slider = Slider
-
-
---[[ Constructor ]]--
 
 function Slider:New(name, parent, low, high, step)
 	local f = self:Bind(CreateFrame('Slider', parent:GetName() .. name, parent, 'OptionsSliderTemplate'))
@@ -18,12 +10,12 @@ function Slider:New(name, parent, low, high, step)
 	f:EnableMouseWheel(true)
 	f:SetObeyStepOnDrag(true)
 
-	_G[f:GetName() .. 'Text']:SetText(name)
-	_G[f:GetName() .. 'Text']:SetFontObject('GameFontNormalLeft')
-	_G[f:GetName() .. 'Text']:ClearAllPoints()
-	_G[f:GetName() .. 'Text']:SetPoint('BOTTOMLEFT', f, 'TOPLEFT')
-	_G[f:GetName() .. 'Low']:SetText('')
-	_G[f:GetName() .. 'High']:SetText('')
+	f.Text:SetText(name)
+	f.Text:SetFontObject('GameFontNormalLeft')
+	f.Text:ClearAllPoints()
+	f.Text:SetPoint('BOTTOMLEFT', f, 'TOPLEFT')
+	f.Low:SetText('')
+	f.High:SetText('')
 
 	local text = f:CreateFontString(nil, 'BACKGROUND', 'GameFontHighlightSmall')
 	text:SetJustifyH('RIGHT')
@@ -39,7 +31,6 @@ function Slider:New(name, parent, low, high, step)
 
 	return f
 end
-
 
 --[[ Frame Events ]]--
 
@@ -104,3 +95,6 @@ function Slider:UpdateText(value)
 		self.valText:SetText(value)
 	end
 end
+
+-- exports
+Addon.Slider = Slider

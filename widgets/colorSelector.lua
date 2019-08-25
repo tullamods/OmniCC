@@ -1,22 +1,14 @@
---[[
-	colorSelector.lua
-		A bagnon color selector
---]]
+-- A color selector widget
 
-OmniCCOptions = OmniCCOptions or {}
-
+local _, Addon = ...
 local Classy = LibStub('Classy-1.0')
 local ColorSelector = Classy:New('Button')
-OmniCCOptions.ColorSelector = ColorSelector
 
-
---[[ Constructor ]]--
-
+-- constructor
 function ColorSelector:New(name, parent, hasOpacity)
 	local f = self:Bind(CreateFrame('Button', parent:GetName() .. name, parent))
 	f.hasOpacity = hasOpacity
-	f:SetWidth(18)
-	f:SetHeight(18)
+	f:SetSize(18, 18)
 
 	if hasOpacity then
 		f.swatchFunc = function()
@@ -65,15 +57,15 @@ function ColorSelector:New(name, parent, hasOpacity)
 	return f
 end
 
-
---[[ Frame Events ]]--
-
+-- frame events
 function ColorSelector:OnClick()
 	if ColorPickerFrame:IsShown() then
 		ColorPickerFrame:Hide()
 	else
 		self.r, self.g, self.b, self.opacity = self:GetColor()
-		self.opacity = 1 - (self.opacity or 1) --correction, since the color menu is crazy
+
+		-- correction, since the color menu is crazy
+		self.opacity = 1 - (self.opacity or 1)
 
 		OpenColorPicker(self)
 		ColorPickerFrame:SetFrameStrata('TOOLTIP')
@@ -87,18 +79,16 @@ function ColorSelector:OnShow()
 end
 
 function ColorSelector:OnEnter()
-	local color = _G['NORMAL_FONT_COLOR']
+	local color = NORMAL_FONT_COLOR
 	self.bg:SetVertexColor(color.r, color.g, color.b)
 end
 
 function ColorSelector:OnLeave()
-	local color = _G['HIGHLIGHT_FONT_COLOR']
+	local color = HIGHLIGHT_FONT_COLOR
 	self.bg:SetVertexColor(color.r, color.g, color.b)
 end
 
-
---[[ Update Methods ]]--
-
+-- update methods
 function ColorSelector:SetColor(r, g, b, a)
 	self:GetNormalTexture():SetVertexColor(r, g, b)
 	self:OnSetColor(r, g, b, a)
@@ -115,3 +105,6 @@ end
 function ColorSelector:UpdateColor()
 	self:SetColor(self:GetColor())
 end
+
+-- exports
+Addon.ColorSelector = ColorSelector

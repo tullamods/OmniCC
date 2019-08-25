@@ -1,12 +1,8 @@
---[[
-	General configuration settings for OmniCC
---]]
-local OmniCCOptions = _G.OmniCCOptions
+-- general configuration settings for OmniCC
+local _, Addon = ...
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
-
---fun constants!
 local SLIDER_SPACING = 24
 
 local ANCHOR_POINTS = {
@@ -22,6 +18,7 @@ local ANCHOR_POINTS = {
 }
 
 local PositionOptions = CreateFrame("Frame", "OmniCCTextPositionOptionsPanel")
+
 PositionOptions:SetScript(
 	"OnShow",
 	function(self)
@@ -32,7 +29,7 @@ PositionOptions:SetScript(
 )
 
 function PositionOptions:GetGroupSets()
-	return OmniCCOptions:GetGroupSets()
+	return Addon:GetGroupSets()
 end
 
 function PositionOptions:AddWidgets()
@@ -63,7 +60,7 @@ function PositionOptions:UpdateValues()
 end
 
 function PositionOptions:NewSlider(name, low, high, step)
-	local s = OmniCCOptions.Slider:New(name, self, low, high, step)
+	local s = Addon.Slider:New(name, self, low, high, step)
 	s:SetHeight(s:GetHeight() + 2)
 
 	self.sliders = self.sliders or {}
@@ -75,12 +72,12 @@ function PositionOptions:CreateXOffsetSlider()
 	local parent = self
 	local s = self:NewSlider(L.XOffset, -32, 32, 1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().xOff = value
 		OmniCC.Display:ForAll("UpdateCooldownTextPosition")
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function()
 		return parent:GetGroupSets().xOff
 	end
 
@@ -93,12 +90,12 @@ function PositionOptions:CreateYOffsetSlider()
 	local parent = self
 	local s = self:NewSlider(L.YOffset, -32, 32, 1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().yOff = value
 		OmniCC.Display:ForAll("UpdateCooldownTextPosition")
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function()
 		return parent:GetGroupSets().yOff
 	end
 
@@ -109,18 +106,18 @@ end
 
 function PositionOptions:CreateAnchorPicker()
 	local parent = self
-	local rg = OmniCCOptions.RadioGroup:New(L.Anchor, parent)
+	local rg = Addon.RadioGroup:New(L.Anchor, parent)
 
-	for i, v in ipairs(ANCHOR_POINTS) do
+	for _, v in ipairs(ANCHOR_POINTS) do
 		rg:AddItem(v, L["Anchor_" .. v])
 	end
 
-	rg.OnSelect = function(self, value)
+	rg.OnSelect = function(_, value)
 		parent:GetGroupSets().anchor = value
 		OmniCC.Display:ForAll("UpdateCooldownTextPosition")
 	end
 
-	rg.GetSelectedValue = function(self)
+	rg.GetSelectedValue = function()
 		return parent:GetGroupSets().anchor
 	end
 
@@ -128,4 +125,4 @@ function PositionOptions:CreateAnchorPicker()
 	return rg
 end
 
-OmniCCOptions:AddTab("position", L.PositionSettings, PositionOptions)
+Addon:AddTab("position", L.PositionSettings, PositionOptions)

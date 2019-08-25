@@ -2,6 +2,8 @@
 	font.lua: the OmniCC font styles panel
 --]]
 
+local _, Addon = ...
+
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
@@ -31,7 +33,7 @@ function FontOptions:AddWidgets()
 end
 
 function FontOptions:UpdateValues()
-	for i, slider in ipairs(self.Sliders) do
+	for _, slider in ipairs(self.Sliders) do
 		slider:UpdateValue()
 	end
 
@@ -39,23 +41,23 @@ function FontOptions:UpdateValues()
 end
 
 function FontOptions:CreateFontSelector(name)
-	local f = OmniCCOptions.FontSelector:New(name, self, 552, 232)
+	local f = Addon.FontSelector:New(name, self, 552, 232)
 
-	f.SetSavedValue = function(self, value)
-		OmniCCOptions:GetGroupSets().fontFace = value
+	f.SetSavedValue = function(_, value)
+		Addon:GetGroupSets().fontFace = value
 
 		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
-	f.GetSavedValue = function(self)
-		return OmniCCOptions:GetGroupSets().fontFace
+	f.GetSavedValue = function()
+		return Addon:GetGroupSets().fontFace
 	end
 
 	return f
 end
 
 function FontOptions:CreateColorPickerFrame(name)
-	local f = OmniCCOptions.Group:New(name, self)
+	local f = Addon.Group:New(name, self)
 
 	local soon = self:CreateStylePicker("soon", f)
 	soon:SetPoint("TOPLEFT", 8, -(BUTTON_SPACING + 4))
@@ -90,13 +92,13 @@ function FontOptions:CreateStylePicker(state, parent)
 	_G[slider:GetName() .. "Text"]:Hide()
 
 	slider.SetSavedValue = function(_, value)
-		OmniCCOptions:GetGroupSets().styles[state].scale = value
+		Addon:GetGroupSets().styles[state].scale = value
 
 		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	slider.GetSavedValue = function(_)
-		return OmniCCOptions:GetGroupSets().styles[state].scale
+		return Addon:GetGroupSets().styles[state].scale
 	end
 
 	slider.GetFormattedText = function(_, value)
@@ -104,18 +106,18 @@ function FontOptions:CreateStylePicker(state, parent)
 	end
 
 	--color picker
-	local picker = OmniCCOptions.ColorSelector:New(L["Color_" .. state], slider, true)
+	local picker = Addon.ColorSelector:New(L["Color_" .. state], slider, true)
 	picker:SetPoint("BOTTOMLEFT", slider, "TOPLEFT")
 
 	picker.OnSetColor = function(_, r, g, b, a)
-		local style = OmniCCOptions:GetGroupSets().styles[state]
+		local style = Addon:GetGroupSets().styles[state]
 		style.r, style.g, style.b, style.a = r, g, b, a
 
 		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	picker.GetColor = function(_)
-		local style = OmniCCOptions:GetGroupSets().styles[state]
+		local style = Addon:GetGroupSets().styles[state]
 		return style.r, style.g, style.b, style.a
 	end
 
@@ -129,13 +131,13 @@ function FontOptions:CreateFontSizeSlider()
 	local s = self:NewSlider(L.FontSize, self, 2, 48, 1)
 
 	s.SetSavedValue = function(_, value)
-		OmniCCOptions:GetGroupSets().fontSize = value
+		Addon:GetGroupSets().fontSize = value
 
 		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	s.GetSavedValue = function(_)
-		return OmniCCOptions:GetGroupSets().fontSize
+		return Addon:GetGroupSets().fontSize
 	end
 
 	s.tooltip = L.FontSizeTip
@@ -161,17 +163,17 @@ do
 	function FontOptions:CreateFontOutlinePicker()
 		local s = self:NewSlider(L.FontOutline, self, 1, #fontOutlines, 1)
 
-		s.SetSavedValue = function(self, value)
-			OmniCCOptions:GetGroupSets().fontOutline = toOutline(value)
+		s.SetSavedValue = function(_, value)
+			Addon:GetGroupSets().fontOutline = toOutline(value)
 
 			OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 		end
 
-		s.GetSavedValue = function(self)
-			return toIndex(OmniCCOptions:GetGroupSets().fontOutline) or 1
+		s.GetSavedValue = function()
+			return toIndex(Addon:GetGroupSets().fontOutline) or 1
 		end
 
-		s.GetFormattedText = function(self, value)
+		s.GetFormattedText = function(_, value)
 			return L["Outline_" .. toOutline(value or 1)]
 		end
 
@@ -182,7 +184,7 @@ do
 end
 
 function FontOptions:NewSlider(name, parent, low, high, step)
-	local s = OmniCCOptions.Slider:New(name, parent, low, high, step)
+	local s = Addon.Slider:New(name, parent, low, high, step)
 
 	s:SetObeyStepOnDrag(true)
 
@@ -191,4 +193,4 @@ function FontOptions:NewSlider(name, parent, low, high, step)
 end
 
 FontOptions:AddWidgets()
-OmniCCOptions:AddTab("font", L.FontSettings, FontOptions)
+Addon:AddTab("font", L.FontSettings, FontOptions)

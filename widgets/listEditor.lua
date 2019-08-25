@@ -1,19 +1,12 @@
---[[
-	listEditor.lua
-		Displays an editable list
---]]
-
-OmniCCOptions = OmniCCOptions or {}
+-- An editable listbox
+local _, Addon = ...
 
 local Classy = LibStub('Classy-1.0')
 local PADDING = 2
 local BUTTON_HEIGHT = 18
 local SCROLL_STEP = BUTTON_HEIGHT + PADDING
 
---[[
-	Remove button
---]]
-
+-- remove item button
 local function removeButton_OnEnter(self)
 	self:GetParent():LockHighlight()
 end
@@ -22,21 +15,20 @@ local function removeButton_OnLeave(self)
 	if not self:GetParent():IsMouseOver() then
 		self:Hide()
 	end
+
 	self:GetParent():UnlockHighlight()
 end
 
---[[
-	a list button
---]]
-
+-- list item button
 local ListButton = Classy:New('Button')
 
 function ListButton:New(parent, onClick, onRemove)
 	local b = self:Bind(CreateFrame('Button', nil, parent))
+
 	b:SetHeight(BUTTON_HEIGHT)
 	b:SetScript('OnClick', onClick)
-	b:SetScript('OnEnter', function(self) self.removeButton:Show() end)
-	b:SetScript('OnLeave', function(self) if not self.removeButton:IsMouseOver() then self.removeButton:Hide() end end)
+	b:SetScript('OnEnter', self.OnEnter)
+	b:SetScript('OnLeave', self.OnLeave)
 
 	local ht = b:CreateTexture(nil, 'BACKGROUND')
 	ht:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
@@ -48,11 +40,11 @@ function ListButton:New(parent, onClick, onRemove)
 	local text = b:CreateFontString(nil, 'ARTWORK')
 	text:SetJustifyH('LEFT')
 	text:SetAllPoints(b)
+
 	b:SetFontString(text)
 	b:SetNormalFontObject('GameFontNormal')
 	b:SetHighlightFontObject('GameFontHighlight')
 
-	--create remove button
 	local removeButton = CreateFrame('Button', nil, b, 'UIPanelCloseButton')
 	removeButton:SetSize(BUTTON_HEIGHT, BUTTON_HEIGHT)
 	removeButton:SetPoint('RIGHT')
@@ -65,6 +57,16 @@ function ListButton:New(parent, onClick, onRemove)
 	return b
 end
 
+function ListButton:OnEnter()
+	self.removeButton:Show()
+end
+
+function ListButton:OnLeave()
+	if not self.removeButton:IsMouseOver() then
+		self.removeButton:Hide()
+	end
+end
+
 function ListButton:SetValue(value)
 	self.value = value
 end
@@ -73,11 +75,7 @@ function ListButton:GetValue()
 	return self.value
 end
 
-
---[[
-	Edit Frame
---]]
-
+-- list edit frame
 local EditFrame = Classy:New('Frame')
 
 local function editBox_OnEnterPressed(self)
@@ -99,10 +97,10 @@ end
 
 function EditFrame:New(parent)
 	--create parent frame
-	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. 'EditFrame', parent))
+	local f = self:Bind(CreateFrame('Frame', 'EditFrame', parent))
 
 	--create edit box
-	local editBox = CreateFrame('EditBox', f:GetName() .. 'Edit', f, 'InputBoxTemplate')
+	local editBox = CreateFrame('EditBox', '$parentEdit', f, 'InputBoxTemplate')
 	editBox:SetPoint('TOPLEFT', f, 'TOPLEFT', 8, 0)
 	editBox:SetPoint('BOTTOMRIGHT', f, 'BOTTOMRIGHT', -54, 0)
 	editBox:SetScript('OnEnterPressed', editBox_OnEnterPressed)
@@ -111,7 +109,7 @@ function EditFrame:New(parent)
 	f.edit = editBox
 
 	--create add button
-	local addButton = CreateFrame('Button', f:GetName() .. 'Add', f, 'UIPanelButtonTemplate')
+	local addButton = CreateFrame('Button', '$parentAdd', f, 'UIPanelButtonTemplate')
 	addButton:SetText(ADD)
 	addButton:SetSize(48, 24)
 	addButton:SetPoint('LEFT', editBox, 'RIGHT', 4, 0)
@@ -142,16 +140,14 @@ function EditFrame:RemoveItem()
 end
 
 
---[[
-	The list panel
---]]
-
+-- scrolling list panel
 local ListEditor = Classy:New('Frame')
-OmniCCOptions.ListEditor = ListEditor
 
 function ListEditor:New(name, parent)
 	local f = self:Bind(CreateFrame('Frame', parent:GetName() .. name, parent))
+
 	f:SetScript('OnShow', f.Load)
+
 	return f
 end
 
@@ -342,12 +338,6 @@ end
 function ListEditor:RemoveItem(value)
 	if self:OnRemoveItem(value) then
 		self:UpdateList()
-
-		local nextItem = ''
-		for i, v in pairs(self:GetItems()) do
-			nextItem = v
-			break
-		end
 		self:UpdateAddButton()
 	end
 end
@@ -368,7 +358,7 @@ function ListEditor:CanAddItem()
 		return false
 	end
 
-	for i, v in pairs(self:GetItems()) do
+	for _, v in pairs(self:GetItems()) do
 		if text == v or text:lower() == v then
 			return false
 		end
@@ -384,3 +374,6 @@ function ListEditor:UpdateAddButton()
 		self.editFrame.add:Disable()
 	end
 end
+
+-- exports
+Addon.ListEditor = ListEditor

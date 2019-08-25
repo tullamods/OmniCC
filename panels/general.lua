@@ -1,4 +1,5 @@
--- General configuration settings for OmniCC
+-- general configuration settings for OmniCC
+local _, Addon = ...
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
@@ -66,44 +67,44 @@ function GeneralOptions:UpdateValues()
 end
 
 function GeneralOptions:GetGroupSets()
-	return OmniCCOptions:GetGroupSets()
+	return Addon:GetGroupSets()
 end
 
 function GeneralOptions:NewCheckbox(name)
-	local b = OmniCCOptions.CheckButton:New(name, self)
+	local b = Addon.CheckButton:New(name, self)
 
 	self.buttons = self.buttons or {}
 	table.insert(self.buttons, b)
 	return b
 end
 
---scale text
+-- enable text
 function GeneralOptions:CreateEnableTextCheckbox()
 	local parent = self
 	local b = self:NewCheckbox(L.EnableText)
 
-	b.OnEnableSetting = function(self, enable)
+	b.OnEnableSetting = function(_, enable)
 		parent:GetGroupSets().enabled = enable
 	end
 
-	b.IsSettingEnabled = function(self)
+	b.IsSettingEnabled = function()
 		return parent:GetGroupSets().enabled
 	end
 
 	return b
 end
 
---scale text
+-- scale text
 function GeneralOptions:CreateScaleTextCheckbox()
 	local parent = self
 	local b = self:NewCheckbox(L.ScaleText)
 
-	b.OnEnableSetting = function(self, enable)
+	b.OnEnableSetting = function(_, enable)
 		parent:GetGroupSets().scaleText = enable
 		OmniCC.Display:ForActive("UpdateCooldownTextStyle")
 	end
 
-	b.IsSettingEnabled = function(self)
+	b.IsSettingEnabled = function()
 		return parent:GetGroupSets().scaleText
 	end
 
@@ -113,7 +114,7 @@ function GeneralOptions:CreateScaleTextCheckbox()
 end
 
 function GeneralOptions:NewSlider(name, low, high, step)
-	local s = OmniCCOptions.Slider:New(name, self, low, high, step)
+	local s = Addon.Slider:New(name, self, low, high, step)
 
 	s:SetHeight(s:GetHeight() + 2)
 
@@ -126,15 +127,15 @@ function GeneralOptions:CreateMinDurationSlider()
 	local parent = self
 	local s = self:NewSlider(L.MinDuration, 0, 30, 0.1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().minDuration = value
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function()
 		return parent:GetGroupSets().minDuration
 	end
 
-	s.GetFormattedText = function(self, value)
+	s.GetFormattedText = function(_, value)
 		return SUBSECONDS_ABBR:format(value)
 	end
 
@@ -165,15 +166,15 @@ function GeneralOptions:CreateMinEffectDurationSlider()
 	local parent = self
 	local s = self:NewSlider(L.MinEffectDuration, 0, 60, 0.1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().minEffectDuration = value
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function()
 		return parent:GetGroupSets().minEffectDuration
 	end
 
-	s.GetFormattedText = function(self, value)
+	s.GetFormattedText = function(_, value)
 		return SUBSECONDS_ABBR:format(value)
 	end
 
@@ -186,7 +187,7 @@ function GeneralOptions:CreateMMSSSlider()
 	local parent = self
 	local s = self:NewSlider(L.MMSSDuration, 1, 15, 0.1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		if value > 1 then
 			parent:GetGroupSets().mmSSDuration = value * 60
 		else
@@ -196,14 +197,14 @@ function GeneralOptions:CreateMMSSSlider()
 		OmniCC.Timer:ForActive("Update")
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function()
 		if parent:GetGroupSets().mmSSDuration > 60 then
 			return parent:GetGroupSets().mmSSDuration / 60
 		end
 		return 1
 	end
 
-	s.GetFormattedText = function(self, value)
+	s.GetFormattedText = function(_, value)
 		if value > 1 then
 			return MINUTES_ABBR:format(value)
 		end
@@ -219,17 +220,17 @@ function GeneralOptions:CreateTenthsSlider()
 	local parent = self
 	local s = self:NewSlider(L.TenthsDuration, 0, 10, 0.1)
 
-	s.SetSavedValue = function(self, value)
+	s.SetSavedValue = function(_, value)
 		parent:GetGroupSets().tenthsDuration = value
 
 		OmniCC.Timer:ForActive("Update")
 	end
 
-	s.GetSavedValue = function(self)
+	s.GetSavedValue = function()
 		return parent:GetGroupSets().tenthsDuration
 	end
 
-	s.GetFormattedText = function(self, value)
+	s.GetFormattedText = function(_, value)
 		if value > 0 then
 			return SUBSECONDS_ABBR:format(value)
 		end
@@ -263,16 +264,19 @@ end
 -- end
 
 function GeneralOptions:CreateFinishEffectPicker()
-	local dd =
-		_G.OmniCCOptions.Dropdown:New {
+	return Addon.Dropdown:New{
 		parent = self,
+
 		name = L.FinishEffect,
+
 		get = function()
 			return self:GetGroupSets().effect
 		end,
+
 		set = function(_, value)
 			self:GetGroupSets().effect = value
 		end,
+
 		items = function()
 			local t = {}
 
@@ -287,10 +291,8 @@ function GeneralOptions:CreateFinishEffectPicker()
 			return t
 		end
 	}
-
-	return dd
 end
 
-OmniCCOptions:AddTab("general", L.GeneralSettings, GeneralOptions)
+Addon:AddTab("general", L.GeneralSettings, GeneralOptions)
 GeneralOptions:AddWidgets()
 GeneralOptions:UpdateValues()

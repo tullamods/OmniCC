@@ -1,16 +1,12 @@
---[[
-	checkButton.lua
-		A checkbutton for OmniCC
---]]
-
-OmniCCOptions = OmniCCOptions or {}
+-- A checkbutton for OmniCC
+local _, Addon = ...
 
 local CheckButton = LibStub('Classy-1.0'):New('CheckButton')
-OmniCCOptions.CheckButton = CheckButton
 
 function CheckButton:New(name, parent)
 	local b = self:Bind(CreateFrame('CheckButton', parent:GetName() .. name, parent, 'InterfaceOptionsCheckButtonTemplate'))
-	_G[b:GetName() .. 'Text']:SetText(name)
+
+	b.Text:SetText(name)
 
 	b:SetScript('OnClick', b.OnClick)
 	b:SetScript('OnShow', b.OnShow)
@@ -23,10 +19,10 @@ end
 function CheckButton:SetDisabled(disable)
 	if disable then
 		self:Disable()
-		_G[self:GetName() .. 'Text']:SetFontObject('GameFontDisable')
+		self.Text:SetFontObject('GameFontDisable')
 	else
 		self:Enable()
-		_G[self:GetName() .. 'Text']:SetFontObject('GameFontHighlight')
+		self.Text:SetFontObject('GameFontHighlight')
 	end
 end
 
@@ -72,3 +68,6 @@ end
 function CheckButton:IsSettingEnabled()
 	assert(false, 'Hey you forgot to implement IsSettingEnabled for ' .. self:GetName())
 end
+
+-- exports
+Addon.CheckButton = CheckButton

@@ -1,12 +1,9 @@
---[[
-	fontSelector.lua
-		Displays a list of fonts registered with LibSharedMedia for the user to pick from
---]]
+-- a scrolling font picker panel
 
-OmniCCOptions = OmniCCOptions or {}
-
+local _, Addon = ...
 local LSM = LibStub('LibSharedMedia-3.0')
 local Classy = LibStub('Classy-1.0')
+
 local LSM_FONT = LSM.MediaType.FONT
 local PADDING = 2
 local FONT_HEIGHT = 24
@@ -42,10 +39,7 @@ local function getUsableFonts()
 	return nextUsableFont, LSM:List(LSM_FONT), 0
 end
 
---[[
-	The Font Button
---]]
-
+-- a font button
 local FontButton = Classy:New('CheckButton')
 
 function FontButton:New(parent, altColor)
@@ -105,16 +99,11 @@ function FontButton:OnLeave()
     end
 end
 
-
---[[
-	The Font Selector
---]]
-
+-- a scrolling font selector
 local FontSelector = Classy:New('Frame')
-OmniCCOptions.FontSelector = FontSelector
 
 function FontSelector:New(title, parent, width, height)
-	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
+	local f = self:Bind(Addon.Group:New(title, parent))
 	local scrollFrame = f:CreateScrollFrame()
 	scrollFrame:SetPoint('TOPLEFT', 8, -8)
 	f.scrollFrame = scrollFrame
@@ -248,7 +237,10 @@ end
 
 function FontSelector:UpdateSelected()
 	local selectedValue = self:GetSavedValue()
-	for i, button in pairs(self.buttons) do
+	for _, button in pairs(self.buttons) do
 		button:SetChecked(button:GetFontFace() == selectedValue)
 	end
 end
+
+-- exports
+Addon.FontSelector = FontSelector

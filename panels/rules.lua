@@ -1,12 +1,8 @@
---[[
-	General configuration settings for OmniCC
---]]
-
-local OmniCCOptions = _G.OmniCCOptions
+-- general configuration settings for OmniCC
+local _, Addon = ...
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
---fun constants!
 local function groupIdToGroup(groupId)
 	for _, group in pairs(OmniCC.sets.groups) do
 		if group.id == groupId then
@@ -16,17 +12,15 @@ local function groupIdToGroup(groupId)
 end
 
 local RuleOptions = CreateFrame('Frame', 'OmniCCGroupRulesOptionsPanel')
+
 RuleOptions:SetScript('OnShow', function(self)
 	self:AddWidgets()
 	self:SetScript('OnShow', nil)
 end)
 
 function RuleOptions:GetGroupRules()
-	return groupIdToGroup(OmniCCOptions:GetGroupId()).rules
+	return groupIdToGroup(Addon:GetGroupId()).rules
 end
-
-
---[[ Widgets ]]--
 
 function RuleOptions:AddWidgets()
 	self.rules = self:AddRulesEditor()
@@ -42,15 +36,15 @@ end
 
 function RuleOptions:AddRulesEditor()
 	local parent = self
-	local editor = OmniCCOptions.ListEditor:New('List', parent)
+	local editor = Addon.ListEditor:New('List', parent)
 
-	editor.OnAddItem = function(self, ruleToAdd)
+	editor.OnAddItem = function(_, ruleToAdd)
 		table.insert(parent:GetGroupRules(), ruleToAdd)
 		OmniCC:UpdateGroups()
 		return true
 	end
 
-	editor.OnRemoveItem = function(self, ruleToRemove)
+	editor.OnRemoveItem = function(_, ruleToRemove)
 		local rules = parent:GetGroupRules()
 		for i, rule in pairs(rules) do
 			if rule == ruleToRemove then
@@ -61,7 +55,7 @@ function RuleOptions:AddRulesEditor()
 		end
 	end
 
-	editor.GetItems = function(self)
+	editor.GetItems = function()
 		local rules = parent:GetGroupRules()
 		table.sort(rules)
 		return rules
@@ -70,7 +64,4 @@ function RuleOptions:AddRulesEditor()
 	return editor
 end
 
-
---[[ Load the thing ]]--
-
-OmniCCOptions:AddTab('rules', L.RuleSettings, RuleOptions)
+Addon:AddTab('rules', L.RuleSettings, RuleOptions)

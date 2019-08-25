@@ -1,16 +1,7 @@
---[[
-	RadioGroup.lua
-		Defines a radio button group for Sage
---]]
+local _, Addon = ...
 
-OmniCCOptions = OmniCCOptions or {}
-
+-- a clickable radio button
 local RadioButton = LibStub('Classy-1.0'):New('CheckButton')
-OmniCCOptions.RadioButton = RadioButton
-
---[[
-	Define Radio Button Logic Here
---]]
 
 function RadioButton:New(value, title, parent)
 	local b = self:Bind(CreateFrame('CheckButton', nil, parent))
@@ -29,7 +20,7 @@ function RadioButton:New(value, title, parent)
 	text:SetFontObject('GameFontNormalLarge')
 	text:SetPoint('CENTER')
 	text:SetText(title or value)
-	
+
 	b:SetFontString(text)
 	b:SetNormalFontObject('GameFontNormalLarge')
 	b:SetHighlightFontObject('GameFontHighlightLarge')
@@ -55,26 +46,25 @@ function RadioButton:OnLeave()
     self.bg:SetColorTexture(0.2, 0.2, 0.2, 0.6)
 end
 
+Addon.RadioButton = RadioButton
 
---[[
-	Radio Group Widget
---]]
 
+-- a container for radio buttons
 local RadioGroup = LibStub('Classy-1.0'):New('Frame')
-OmniCCOptions.RadioGroup = RadioGroup
+
 RadioGroup.columns = 3
 RadioGroup.spacing = 2
 
 function RadioGroup:New(title, parent)
-	local f = self:Bind(OmniCCOptions.Group:New(title, parent))
+	local f = self:Bind(Addon.Group:New(title, parent))
+
 	f.buttons = {}
 	f:SetScript('OnShow', f.OnShow)
-	
+
 	return f
 end
 
---[[ Frame Events ]]--
-
+-- frame events
 function RadioGroup:OnShow()
 	self:Layout()
 	self:UpdateValue()
@@ -91,9 +81,7 @@ function RadioGroup:AddItem(value, text)
 	end
 end
 
-
---[[ Update Methods ]]--
-
+-- update methods
 function RadioGroup:UpdateValue()
 	self:Select(self:GetSelectedValue(), true)
 end
@@ -117,12 +105,11 @@ end
 
 function RadioGroup:Layout()
 	local spacing = self.spacing or 0
-	local width, height = self:GetWidth(), self:GetHeight()
 	local cols = self.columns or 1
 	local rows = max(#self.buttons / cols)
 	local w, h = (self:GetWidth()-16) / cols, (self:GetHeight()-16) / rows
 	local index = 0
-	
+
 	for row = 1, rows do
 		for col = 1, cols do
 			index = index + 1
@@ -135,8 +122,10 @@ function RadioGroup:Layout()
 	end
 end
 
---[[ Accessors ]]--
-
+-- accessors
 function RadioGroup:GetSelectedValue()
 	error(format('Undefined method: %s:GetSelectedValue()', self:GetName()))
 end
+
+-- exports
+Addon.RadioGroup = RadioGroup

@@ -4,9 +4,11 @@
 		provides ways of switching between tabs & groups
 --]]
 
+local _, Addon = ...
+local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
-StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
+StaticPopupDialogs['OMNICC_CONFIRM_CREATE_GROUP'] = {
 	text = 'Enter Group Name',
 	button1 = ACCEPT,
 	button2 = CANCEL,
@@ -14,26 +16,26 @@ StaticPopupDialogs['OmniCC_CONFIG_CREATE_GROUP'] = {
 	maxLetters = 24,
 
 	OnAccept = function(self)
-		local groupId = _G[self:GetName()..'EditBox']:GetText()
+		local groupId = self.editBox:GetText()
 		if groupId ~= '' then
-			OmniCCOptions:AddGroup(groupId)
+			Addon:AddGroup(groupId)
 		end
 	end,
 
 	EditBoxOnEnterPressed = function(self)
 		local groupId = self:GetText()
 		if groupId ~= '' then
-			OmniCCOptions:AddGroup(groupId)
+			Addon:AddGroup(groupId)
 		end
 		self:GetParent():Hide()
 	end,
 
 	OnShow = function(self)
-		_G[self:GetName()..'EditBox']:SetFocus()
+		self.editBox:SetFocus()
 	end,
 
 	OnHide = function(self)
-		_G[self:GetName()..'EditBox']:SetText('')
+		self.editBox:SetText('')
 	end,
 
 	timeout = 0, exclusive = 1, hideOnEscape = 1, preferredIndex = STATICPOPUP_NUMDIALOGS
@@ -51,15 +53,15 @@ local function groupSelector_Create(parent)
 	title:SetText(_G.GROUP)
 	f.title = title
 
-	local picker = _G.OmniCCOptions.Dropdown:New{
+	local picker = Addon.Dropdown:New{
 		parent = parent,
 
 		get = function()
-			return OmniCCOptions:GetGroupId()
+			return Addon:GetGroupId()
 		end,
 
 		set = function(self, value)
-			OmniCCOptions:SetGroupId(value)
+			Addon:SetGroupId(value)
 		end,
 
 		items = function()
@@ -79,21 +81,21 @@ local function groupSelector_Create(parent)
 	local add = CreateFrame('Button', nil, f, 'UIPanelButtonTemplate')
 	add:SetText(_G.ADD)
 	add:SetWidth(add:GetTextWidth() + 16)
-	add:SetScript('OnClick', function() StaticPopup_Show('OmniCC_CONFIG_CREATE_GROUP') end)
+	add:SetScript('OnClick', function() StaticPopup_Show('OMNICC_CONFIRM_CREATE_GROUP') end)
 	f.add = add
 
 	local remove = CreateFrame('Button', nil, f, 'UIPanelButtonTemplate')
 	remove:SetText(_G.REMOVE)
 	remove:SetWidth(remove:GetTextWidth() + 16)
 	remove:SetScript('OnClick', function()
-		OmniCCOptions:RemoveGroup(OmniCCOptions:GetGroupId())
+		Addon:RemoveGroup(Addon:GetGroupId())
 	end)
 	f.remove = remove
 
 	f.Refresh = function(self)
 		picker:UpdateText()
 
-		if OmniCCOptions:GetGroupId() == "base" then
+		if Addon:GetGroupId() == "base" then
 			remove:Disable()
 		else
 			remove:Enable()
@@ -217,7 +219,7 @@ local function panelArea_Add(self, panel)
 end
 
 local function panelArea_Create(parent)
-	local f = CreateFrame('Frame', parent:GetName() .. '_PanelArea', parent, 'OmniCC_TabPanelTemplate')
+	local f = CreateFrame('Frame', "$parentPanelArea", parent, 'OmniCC_TabPanelTemplate')
 	f:SetPoint('TOPLEFT', 4, -56)
 	f:SetPoint('BOTTOMRIGHT', -4, 4)
 	f.Add = panelArea_Add
@@ -278,7 +280,7 @@ local function optionsPanel_SetGroup(self, groupId)
 end
 
 local function optionsPanel_Create(name)
-	local f = CreateFrame('Frame', 'OmniCC_Config', InterfaceOptionsFrame)
+	local f = CreateFrame('Frame', 'OmniccOptionsPanel', InterfaceOptionsFrame)
 	f.name = name
 
 	f.GetCurrentPanel = optionsPanel_GetCurrentPanel
@@ -304,33 +306,33 @@ end
 do
 	local f = optionsPanel_Create('OmniCC')
 
-	OmniCCOptions.AddTab = function(self, id, name, panel)
+	Addon.AddTab = function(self, id, name, panel)
 		tab_Create(f, id, name, panel)
 		optionsPanel_SetGroup(f, self:GetGroupId())
 	end
 
-	OmniCCOptions.GetGroupSets = function(self)
+	Addon.GetGroupSets = function(self)
 		return OmniCC:GetGroupSettings(f.selectedGroup or 'base')
 	end
 
-	OmniCCOptions.AddGroup = function(self, groupId)
+	Addon.AddGroup = function(self, groupId)
 		if OmniCC:AddGroup(groupId) then
 			self:SetGroupId(groupId)
 		end
 	end
 
-	OmniCCOptions.RemoveGroup = function(self, groupId)
+	Addon.RemoveGroup = function(self, groupId)
 		if groupId and groupId ~= "base" then
 			self.SetGroupId('base')
 			OmniCC:RemoveGroup(groupId)
 		end
 	end
 
-	OmniCCOptions.GetGroupId = function(self)
+	Addon.GetGroupId = function(self)
 		return f.selectedGroup or 'base'
 	end
 
-	OmniCCOptions.SetGroupId = function(self, groupId)
+	Addon.SetGroupId = function(self, groupId)
 		optionsPanel_SetGroup(f, groupId)
 		f.selector:Refresh()
 	end

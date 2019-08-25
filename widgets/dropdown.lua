@@ -1,5 +1,6 @@
-OmniCCOptions = _G.OmniCCOptions or {}
+-- a dropdown widget
 
+local _, Addon = ...
 local Dropdown = LibStub('Classy-1.0'):New('Frame')
 
 do
@@ -108,4 +109,5 @@ do
 	end
 end
 
-_G.OmniCCOptions.Dropdown = Dropdown
+-- exports
+Addon.Dropdown = Dropdown
