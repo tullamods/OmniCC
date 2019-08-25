@@ -26,8 +26,8 @@ L.Remove = "Remove"
 L.FinishEffect = "Finish Effect"
 L.MinEffectDuration = "Minimum duration to display a finish effect"
 
-L.MMSSDuration = "Minimum duration to display text as MM:SS"
-L.TenthsDuration = "Minimum duration to display tenths of seconds"
+L.MMSSDuration = "MM:SS Threshold"
+L.TenthsDuration = "Tenths of Seconds Threshold"
 
 L.ColorAndScale = "Color & Scale"
 L.Color_soon = "Soon to expire"
