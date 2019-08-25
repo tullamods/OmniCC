@@ -15,7 +15,7 @@ local function groupIdToGroup(groupId)
 	end
 end
 
-local RuleOptions = CreateFrame('Frame', 'OmniCCOptions_Rules')
+local RuleOptions = CreateFrame('Frame', 'OmniCCGroupRulesOptionsPanel')
 RuleOptions:SetScript('OnShow', function(self)
 	self:AddWidgets()
 	self:SetScript('OnShow', nil)

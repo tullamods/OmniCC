@@ -21,7 +21,7 @@ local ANCHOR_POINTS = {
 	"BOTTOMRIGHT"
 }
 
-local PositionOptions = CreateFrame("Frame", "OmniCCOptions_Position")
+local PositionOptions = CreateFrame("Frame", "OmniCCTextPositionOptionsPanel")
 PositionOptions:SetScript(
 	"OnShow",
 	function(self)

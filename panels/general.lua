@@ -1,7 +1,4 @@
---[[
-	General configuration settings for OmniCC
---]]
-local GeneralOptions = CreateFrame("Frame", "OmniCCOptions_General")
+-- General configuration settings for OmniCC
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
@@ -9,6 +6,8 @@ local SUBSECONDS_ABBR = "%.1f" .. (SECONDS_ABBR:match("%%d(.+)"))
 local MINUTES_ABBR = "%.1f" .. (MINUTES_ABBR:match("%%d(.+)"))
 local BUTTON_SPACING = 8
 local SLIDER_SPACING = 24
+
+local GeneralOptions = CreateFrame("Frame", "OmniCCGeneralOptionsPanel")
 
 function GeneralOptions:AddWidgets()
 	local enableCDText = self:CreateEnableTextCheckbox()
@@ -20,7 +19,7 @@ function GeneralOptions:AddWidgets()
 	local finishEffect = self:CreateFinishEffectPicker()
 	finishEffect:SetPoint("TOPLEFT", scaleText, "BOTTOMLEFT", 4, -BUTTON_SPACING)
 
-	--sliders
+	-- sliders
 	-- local spiralOpacity = self:CreateSpiralOpacitySlider()
 	-- spiralOpacity:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 16, 10)
 	-- spiralOpacity:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 10)
@@ -48,19 +47,19 @@ end
 
 function GeneralOptions:UpdateValues()
 	if self.buttons then
-		for i, b in pairs(self.buttons) do
+		for _, b in pairs(self.buttons) do
 			b:UpdateChecked()
 		end
 	end
 
 	if self.sliders then
-		for i, s in pairs(self.sliders) do
+		for _, s in pairs(self.sliders) do
 			s:UpdateValue()
 		end
 	end
 
 	if self.dropdowns then
-		for i, dd in pairs(self.dropdowns) do
+		for _, dd in pairs(self.dropdowns) do
 			dd:UpdateValue()
 		end
 	end

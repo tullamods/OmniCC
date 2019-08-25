@@ -2,9 +2,10 @@
 	font.lua: the OmniCC font styles panel
 --]]
 
-local FontOptions = CreateFrame("Frame", "OmniCCOptions_Font")
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
+
+local FontOptions = CreateFrame("Frame", "OmniCCFontOptionsPanel")
 
 local BUTTON_SPACING = 24
 
