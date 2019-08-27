@@ -29,7 +29,7 @@ function Addon:Initialize()
 
 	SlashCmdList[AddonName] = function(...)
 		if ... == "version" then
-			print(L.Version:format(self:GetVersion()))
+			print(L.Version:format(self.db.global.addonVersion))
 		elseif self.ShowOptionsMenu or LoadAddOn(CONFIG_ADDON) then
 			if type(self.ShowOptionsMenu) == "function" then
 				self:ShowOptionsMenu()
@@ -41,11 +41,9 @@ end
 -- events
 function Addon:ADDON_LOADED(event, addonName)
 	if AddonName ~= addonName then return end
-
 	self.frame:UnregisterEvent(event)
 
-	self:StartupSettings()
-
+	self:InitializeDB()
 	self.Cooldown:SetupHooks()
 end
 
@@ -71,12 +69,6 @@ function Addon:PLAYER_LOGOUT()
 end
 
 -- utility methods
-function Addon:New(name, module)
-	self[name] = module or LibStub("Classy-1.0"):New("Frame")
-
-	return self[name]
-end
-
 function Addon:CreateHiddenFrame(...)
 	local f = CreateFrame(...)
 

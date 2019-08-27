@@ -18,9 +18,14 @@ function Cooldown:CanShow()
         return false
     end
 
-    -- over min duration
+    -- text enabled
     local sets = self._occ_settings
-    if not (sets and sets.enabled and duration > (sets.minDuration or 0)) then
+    if not (sets and sets.enableText) then
+        return false
+    end
+
+    -- at least min duration
+    if duration < sets.minDuration then
         return false
     end
 

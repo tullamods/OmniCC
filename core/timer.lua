@@ -49,7 +49,7 @@ function Timer:GetOrCreate(cooldown)
     local endTime = cooldown._occ_start * 1000 + cooldown._occ_duration * 1000
     local kind = cooldown._occ_kind
     local settings = cooldown._occ_settings
-    local key = strjoin("-", endTime, kind, settings and settings.id or "base")
+    local key = strjoin("-", endTime, kind, settings and settings.id or "unknown")
 
     local timer = active[key]
     if not timer then
