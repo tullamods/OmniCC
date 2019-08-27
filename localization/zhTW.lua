@@ -54,7 +54,7 @@ L.Anchor_BOTTOMRIGHT = '右下'
 
 --分組
 L.Groups = '分組'
-L.Group_base = '預設'
+L.Group_default = '預設'
 L.Group_action = '動作'
 L.Group_aura = '光環'
 L.Group_pet = '寵物動作'

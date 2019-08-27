@@ -55,7 +55,7 @@ L.Anchor_BOTTOMRIGHT = 'Fundo Direito'
 
 --groups
 L.Groups = 'Grupos'
-L.Group_base = 'Padrão'
+L.Group_default = 'Padrão'
 L.Group_action = 'Ações'
 L.Group_pet = 'Ações do Animal'
 L.AddGroup = 'Adicionar Grupo...'

@@ -56,7 +56,7 @@ L.Anchor_BOTTOMRIGHT = 'Bas Droite'
 
 --groups
 L.Groups = 'Groupes'
-L.Group_base = 'Défaut'
+L.Group_default = 'Défaut'
 L.Group_action = 'Actions'
 L.Group_aura = 'Auras'
 L.Group_pet = 'Sorts des familiers'

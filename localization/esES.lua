@@ -55,7 +55,7 @@ L.Anchor_BOTTOMRIGHT = 'Abajo a la Derecha'
 
 --groups
 L.Groups = 'Grupos'
-L.Group_base = 'Defecto'
+L.Group_default = 'Defecto'
 L.Group_action = 'Acciónes'
 L.Group_pet = 'Acciónes del Animal'
 L.AddGroup = 'Añadir Grupo...'

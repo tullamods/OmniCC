@@ -58,7 +58,7 @@ L.Anchor_BOTTOMRIGHT = 'Unten rechts'
 
 --groups
 L.Groups = 'Gruppen'
-L.Group_base = 'Standard'
+L.Group_default = 'Standard'
 L.Group_action = 'Aktionen'
 L.Group_aura = 'Auren'
 L.Group_pet = 'Begleiteraktionen'

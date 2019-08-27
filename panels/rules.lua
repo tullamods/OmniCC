@@ -3,14 +3,6 @@ local _, Addon = ...
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 
-local function groupIdToGroup(groupId)
-	for _, group in pairs(OmniCC.sets.groups) do
-		if group.id == groupId then
-			return group
-		end
-	end
-end
-
 local RuleOptions = CreateFrame('Frame', 'OmniCCGroupRulesOptionsPanel')
 
 RuleOptions:SetScript('OnShow', function(self)
@@ -19,7 +11,7 @@ RuleOptions:SetScript('OnShow', function(self)
 end)
 
 function RuleOptions:GetGroupRules()
-	return groupIdToGroup(Addon:GetGroupId()).rules
+	return OmniCC:GetGroupRules(Addon:GetGroupId())
 end
 
 function RuleOptions:AddWidgets()

@@ -66,11 +66,11 @@ local function groupSelector_Create(parent)
 
 		items = function()
 			local t = {
-				{ value = "base", text = L['Group_base'] }
+				{ value = "default", text = L['Group_default'] }
 			}
 
-			for _, v in ipairs(_G.OmniCC.sets.groups) do
-				tinsert(t, { value = v.id, text = v.id })
+			for _, groupId in OmniCC:GetActiveGroups() do
+				tinsert(t, { value = groupId, text = groupId })
 			end
 
 			return t
@@ -95,7 +95,7 @@ local function groupSelector_Create(parent)
 	f.Refresh = function(self)
 		picker:UpdateText()
 
-		if Addon:GetGroupId() == "base" then
+		if Addon:GetGroupId() == "default" then
 			remove:Disable()
 		else
 			remove:Enable()
@@ -249,11 +249,11 @@ local function optionsPanel_GetCurrentTab(self)
 end
 
 local function optionsPanel_SetGroup(self, groupId)
-	self.selectedGroup = groupId or 'base'
+	self.selectedGroup = groupId or 'default'
 
-	--special handling for the base tab
-	--since we don't want the user to mess with the rules tab
-	if groupId == 'base' then
+	-- special handling for the default group
+	-- since we don't want the user to mess with the rules tab on it
+	if groupId == 'default' then
 		--if we're on the rules tab, then move to the general tab
 		if optionsPanel_GetCurrentTab(self).id == 'rules' then
 			tab_OnClick(optionsPanel_GetTabById(self, 'general'))
@@ -312,7 +312,7 @@ do
 	end
 
 	Addon.GetGroupSets = function(self)
-		return OmniCC:GetGroupSettings(f.selectedGroup or 'base')
+		return OmniCC:GetGroupSettings(f.selectedGroup or 'default')
 	end
 
 	Addon.AddGroup = function(self, groupId)
@@ -322,14 +322,14 @@ do
 	end
 
 	Addon.RemoveGroup = function(self, groupId)
-		if groupId and groupId ~= "base" then
-			self.SetGroupId('base')
+		if groupId and groupId ~= "default" then
+			self.SetGroupId('default')
 			OmniCC:RemoveGroup(groupId)
 		end
 	end
 
 	Addon.GetGroupId = function(self)
-		return f.selectedGroup or 'base'
+		return f.selectedGroup or 'default'
 	end
 
 	Addon.SetGroupId = function(self, groupId)
@@ -341,4 +341,9 @@ do
 		InterfaceOptionsFrame:Show()
 		InterfaceOptionsFrame_OpenToCategory(f)
 	end
+
+	-- add profile selector
+	local dbOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(OmniCC.db, true)
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("OmniCC", dbOptions)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", "Profiles", f)
 end

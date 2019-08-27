@@ -52,7 +52,7 @@ L.Anchor_BOTTOMRIGHT = 'BottomСправа'
 
 --groups
 L.Groups = 'Группы'
-L.Group_base = 'По умолчанию'
+L.Group_default = 'По умолчанию'
 L.Group_action = 'Действия'
 L.Group_aura = 'Ауры'
 L.Group_pet = 'Действия питомца'

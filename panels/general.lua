@@ -2,6 +2,7 @@
 local _, Addon = ...
 local OmniCC = _G.OmniCC
 local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
+local GUI = LibStub("AceGUI-3.0")
 
 local SUBSECONDS_ABBR = "%.1f" .. (SECONDS_ABBR:match("%%d(.+)"))
 local MINUTES_ABBR = "%.1f" .. (MINUTES_ABBR:match("%%d(.+)"))
@@ -84,11 +85,11 @@ function GeneralOptions:CreateEnableTextCheckbox()
 	local b = self:NewCheckbox(L.EnableText)
 
 	b.OnEnableSetting = function(_, enable)
-		parent:GetGroupSets().enabled = enable
+		parent:GetGroupSets().enableText = enable
 	end
 
 	b.IsSettingEnabled = function()
-		return parent:GetGroupSets().enabled
+		return parent:GetGroupSets().enableText
 	end
 
 	return b

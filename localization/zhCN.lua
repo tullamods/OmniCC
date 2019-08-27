@@ -52,7 +52,7 @@ L.Anchor_BOTTOMRIGHT = '右下'
 
 --分组
 L.Groups = '分组'
-L.Group_base = '默认'
+L.Group_default = '默认'
 L.Group_action = '动作'
 L.Group_aura = '光环'
 L.Group_pet = '宠物动作'

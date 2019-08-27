@@ -56,7 +56,7 @@ L.Anchor_BOTTOMRIGHT = '우측 하단'
 
 --groups
 L.Groups = '그룹'
-L.Group_base = '기본'
+L.Group_default = '기본'
 L.Group_action = '행동 단축바'
 L.Group_aura = '오라'
 L.Group_pet = '소환수 행동 단축바'
