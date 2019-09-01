@@ -5,9 +5,5 @@
 ## Author: Tuller
 ## Version: 8.2.4
 ## SavedVariables: OmniCCDB, OmniCC4Config
-libs\libs.xml
-localization\localization.xml
-main.lua
-core\core.xml
-settings\settings.xml
-effects\effects.xml
+
+main\main.xml

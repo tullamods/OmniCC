@@ -1,8 +1,8 @@
 -- a flare finish effect. Artwork by Renaitre
-local AddonName, Addon = ...
-local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
+local ADDON, Addon = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(ADDON)
 
-local SHINE_TEXTURE = ([[Interface\Addons\%s\media\flare]]):format(AddonName)
+local SHINE_TEXTURE = ([[Interface\Addons\%s\media\flare]]):format(ADDON)
 local SHINE_DURATION = 0.75
 local SHINE_SCALE = 5
 

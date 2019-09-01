@@ -1,0 +1,8 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Include file="..\libs\config.xml"/>
+
+	<Include file="localization\localization.xml"/>
+  <Include file="widgets\widgets.xml"/>
+	<Script file="config.lua"/>
+  <Include file="panels\panels.xml"/>
+</Ui>

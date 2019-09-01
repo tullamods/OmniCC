@@ -1,7 +1,7 @@
 -- code to drive the addon
-local AddonName, Addon = ...
-local CONFIG_ADDON = AddonName .. "_Config"
-local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
+local ADDON, Addon = ...
+local CONFIG_ADDON = ADDON .. "_Config"
+local L = LibStub("AceLocale-3.0"):GetLocale(ADDON)
 
 function Addon:Initialize()
 	-- create and setup options frame and event loader
@@ -24,10 +24,10 @@ function Addon:Initialize()
 	self.frame = frame
 
 	-- setup slash commands
-	_G[("SLASH_%s1"):format(AddonName)] = ("/%s"):format(AddonName:lower())
-	_G[("SLASH_%s2"):format(AddonName)] = "/occ"
+	_G[("SLASH_%s1"):format(ADDON)] = ("/%s"):format(ADDON:lower())
+	_G[("SLASH_%s2"):format(ADDON)] = "/occ"
 
-	SlashCmdList[AddonName] = function(...)
+	SlashCmdList[ADDON] = function(...)
 		if ... == "version" then
 			print(L.Version:format(self.db.global.addonVersion))
 		elseif self.ShowOptionsMenu or LoadAddOn(CONFIG_ADDON) then
@@ -40,7 +40,7 @@ end
 
 -- events
 function Addon:ADDON_LOADED(event, addonName)
-	if AddonName ~= addonName then return end
+	if ADDON ~= addonName then return end
 	self.frame:UnregisterEvent(event)
 
 	self:InitializeDB()
@@ -98,4 +98,4 @@ end
 Addon:Initialize()
 
 -- exports
-_G[AddonName] = Addon
+_G[ADDON] = Addon
