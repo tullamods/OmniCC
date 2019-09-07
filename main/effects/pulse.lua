@@ -28,8 +28,7 @@ function PulseEffect:Start(pulse, icon)
 	local r, g, b = icon:GetVertexColor()
 	pulse.icon:SetVertexColor(r, g, b, 0.7)
 	pulse.icon:SetTexture(icon:GetTexture())
-
-	PulseEffect:Show()
+	pulse:Show()
 	pulse.animation:Play()
 end
 

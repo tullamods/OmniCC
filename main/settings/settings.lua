@@ -113,7 +113,7 @@ function Addon:UpgradeDB()
 end
 
 function Addon:MigrateLegacySettings(legacyDb)
-	if not type(legacyDb) == "table" then
+	if type(legacyDb) ~= "table" then
 		return
 	end
 
@@ -126,7 +126,7 @@ function Addon:MigrateLegacySettings(legacyDb)
 	end
 
 	local function copyTable(src, dest)
-		if not type(dest) == "table" then
+		if type(dest) ~= "table" then
 			dest = {}
 		end
 
@@ -141,7 +141,7 @@ function Addon:MigrateLegacySettings(legacyDb)
 		return dest
 	end
 
-	local oldGroupSettings = legacyDb.groupSettings
+	local oldGroupSettings = legacyDb and legacyDb.groupSettings
 	if type(oldGroupSettings) == "table" then
 		for id, group in pairs(oldGroupSettings) do
 			-- apply the old settings
