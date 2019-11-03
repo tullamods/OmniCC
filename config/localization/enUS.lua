@@ -133,3 +133,7 @@ offset of text.]]
 L.YOffsetTip =
 [[Controls the vertical
 offset of text.]]
+
+-- cooldown styles feature
+L.EnableCooldownSwipes = "Enable cooldown swipes"
+L.EnableCooldownSwipesTip = "Cooldown swipes are the dark background behind cooldowns. Uncheck to hide"

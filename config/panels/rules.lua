@@ -11,7 +11,7 @@ RuleOptions:SetScript('OnShow', function(self)
 end)
 
 function RuleOptions:GetGroupRules()
-	return OmniCC:GetGroupRules(Addon:GetGroupId())
+	return OmniCC:GetGroupRules(Addon:GetGroupID())
 end
 
 function RuleOptions:AddWidgets()

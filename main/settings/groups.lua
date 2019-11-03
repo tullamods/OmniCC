@@ -1,103 +1,48 @@
--- the omnicc groups API
+-- Groups API
+-- Here for compatibility. A group in OmniCC is a 1-1 mapping between a theme and a ruleset
 
 local _, Addon = ...
 
-local function getFirstAncestorWithName(cooldown)
-	local frame = cooldown
-	repeat
-		local name = frame:GetName()
-		if name then
-			return name
-		end
-		frame = frame:GetParent()
-	until not frame
-end
-
-local function nextActiveGroup(profile, index)
-	if not profile then return end
-
-	for i = index + 1, #profile.groupOrder do
-		local groupId = profile.groupOrder[i]
-		local groupSettings = profile.groupSettings[groupId]
-
-		if groupSettings.active then
-			return i, groupId, groupSettings
-		end
-	end
-end
-
-function Addon:GetCooldownSettings(cooldown)
-	local id = self:GetCooldownGroupID(cooldown)
-	if id then
-		return self:GetGroupSettings(id)
-	end
-end
-
-function Addon:GetCooldownGroupID(cooldown)
-	local name = getFirstAncestorWithName(cooldown)
-
-	if name then
-		for _, id, settings in self:GetActiveGroups() do
-			for _, pattern in pairs(settings.rules) do
-				if name:match(pattern) then
-					return id
-				end
-			end
-		end
-	end
-
-	return "default"
-end
-
-function Addon:GetGroupSettings(id)
-	return self.db.profile.groupSettings[id]
-end
-
-function Addon:GetGroupIndex(id)
-	for i, groupId in pairs(self.db.profile.groupOrder) do
-		if groupId == id then
-			return i
-		end
-	end
-end
-
-function Addon:GetActiveGroups()
-	return nextActiveGroup, self.db.profile, 0
-end
-
-function Addon:GetAllGroups()
-	return next, self.db.profile.groupSettings, nil
-end
-
-
--- modifications
+-- Groups API
+-- Here for compatibility
 function Addon:AddGroup(id)
-	if not self:GetGroupIndex(id) then
-		tinsert(self.db.profile.groupOrder, id)
-		self.db.profile.groupSettings[id] = CopyTable(self.db.profile.groupSettings.default)
+	if self:AddTheme(id) and self:AddRuleset(id, id) then
+		self:UpdateGroups()
+		return true
 	end
-
-	self:UpdateGroups()
-	return true
 end
 
 function Addon:RemoveGroup(id)
-	for i, groupId in pairs(self.db.profile.groupOrder) do
-		if groupId == id then
-			tremove(self.db.profile.groupOrder, i)
-			break
-		end
+	if self:RemoveTheme(id) and self:RemoveRuleset(id) then
+		self:UpdateGroups()
+		return true
+	end
+end
+
+function Addon:GetGroupSettings(id)
+	return self:GetTheme(id)
+end
+
+function Addon:GetActiveGroups()
+	local groups = {}
+
+	for _, ruleset in Addon:GetActiveRulesets() do
+		tinsert(groups, ruleset.theme)
 	end
 
-	self.db.profile.groupSettings[id] = nil
-	return true
+	return ipairs(groups)
 end
 
 function Addon:GetGroupRules(id)
-	return self.db.profile.groupSettings[id].rules
+	local ruleset = self:GetRuleset(id)
+	if ruleset then
+		return ruleset.rules
+	end
+	return {}
 end
 
 function Addon:UpdateGroups()
 	self.Cooldown:UpdateSettings()
 	self.Display:ForActive("UpdateCooldownText")
 end
+

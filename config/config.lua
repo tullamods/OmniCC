@@ -16,16 +16,16 @@ StaticPopupDialogs['OMNICC_CONFIRM_CREATE_GROUP'] = {
 	maxLetters = 24,
 
 	OnAccept = function(self)
-		local groupId = self.editBox:GetText()
-		if groupId ~= '' then
-			Addon:AddGroup(groupId)
+		local groupID = self.editBox:GetText()
+		if groupID ~= '' then
+			Addon:AddGroup(groupID)
 		end
 	end,
 
 	EditBoxOnEnterPressed = function(self)
-		local groupId = self:GetText()
-		if groupId ~= '' then
-			Addon:AddGroup(groupId)
+		local groupID = self:GetText()
+		if groupID ~= '' then
+			Addon:AddGroup(groupID)
 		end
 		self:GetParent():Hide()
 	end,
@@ -38,7 +38,10 @@ StaticPopupDialogs['OMNICC_CONFIRM_CREATE_GROUP'] = {
 		self.editBox:SetText('')
 	end,
 
-	timeout = 0, exclusive = 1, hideOnEscape = 1, preferredIndex = STATICPOPUP_NUMDIALOGS
+	timeout = 0,
+	exclusive = 1,
+	hideOnEscape = 1,
+	preferredIndex = STATICPOPUP_NUMDIALOGS
 }
 
 --[[
@@ -57,20 +60,26 @@ local function groupSelector_Create(parent)
 		parent = parent,
 
 		get = function()
-			return Addon:GetGroupId()
+			return Addon:GetGroupID()
 		end,
 
 		set = function(self, value)
-			Addon:SetGroupId(value)
+			Addon:SetGroupID(value)
 		end,
 
 		items = function()
 			local t = {
-				{ value = "default", text = L['Group_default'] }
+				{
+					value = OmniCC:GetDefaultThemeID(),
+					text = OmniCC:GetDefaultThemeID()
+				}
 			}
 
-			for _, groupId in OmniCC:GetActiveGroups() do
-				tinsert(t, { value = groupId, text = groupId })
+			for _, id in OmniCC:GetActiveGroups() do
+				tinsert(t, {
+					value = id,
+					text = id
+				})
 			end
 
 			return t
@@ -88,14 +97,14 @@ local function groupSelector_Create(parent)
 	remove:SetText(_G.REMOVE)
 	remove:SetWidth(remove:GetTextWidth() + 16)
 	remove:SetScript('OnClick', function()
-		Addon:RemoveGroup(Addon:GetGroupId())
+		Addon:RemoveGroup(Addon:GetGroupID())
 	end)
 	f.remove = remove
 
 	f.Refresh = function(self)
 		picker:UpdateText()
 
-		if Addon:GetGroupId() == "default" then
+		if Addon:GetGroupID() == "default" then
 			remove:Disable()
 		else
 			remove:Enable()
@@ -248,12 +257,12 @@ local function optionsPanel_GetCurrentTab(self)
 	return self.tabs[PanelTemplates_GetSelectedTab(self)]
 end
 
-local function optionsPanel_SetGroup(self, groupId)
-	self.selectedGroup = groupId or 'default'
+local function optionsPanel_SetGroup(self, groupID)
+	self.selectedGroup = groupID or OmniCC:GetDefaultThemeID()
 
 	-- special handling for the default group
 	-- since we don't want the user to mess with the rules tab on it
-	if groupId == 'default' then
+	if groupID == OmniCC:GetDefaultThemeID() then
 		--if we're on the rules tab, then move to the general tab
 		if optionsPanel_GetCurrentTab(self).id == 'rules' then
 			tab_OnClick(optionsPanel_GetTabById(self, 'general'))
@@ -306,34 +315,34 @@ end
 do
 	local f = optionsPanel_Create('OmniCC')
 
-	Addon.AddTab = function(self, id, name, panel)
+	function Addon:AddTab(id, name, panel)
 		tab_Create(f, id, name, panel)
-		optionsPanel_SetGroup(f, self:GetGroupId())
+		optionsPanel_SetGroup(f, self:GetGroupID())
 	end
 
-	Addon.GetGroupSets = function(self)
-		return OmniCC:GetGroupSettings(f.selectedGroup or 'default')
+	function Addon:GetGroupSets()
+		return OmniCC:GetGroupSettings(self:GetGroupID())
 	end
 
-	Addon.AddGroup = function(self, groupId)
-		if OmniCC:AddGroup(groupId) then
-			self:SetGroupId(groupId)
+	function Addon:AddGroup(id)
+		if OmniCC:AddGroup(id) then
+			self:SetGroupID(id)
 		end
 	end
 
-	Addon.RemoveGroup = function(self, groupId)
-		if groupId and groupId ~= "default" then
-			self.SetGroupId('default')
-			OmniCC:RemoveGroup(groupId)
+	function Addon:RemoveGroup(id)
+		if id and id ~= OmniCC:GetDefaultThemeID() then
+			self.SetGroupID(OmniCC:GetDefaultThemeID())
+			OmniCC:RemoveGroup(id)
 		end
 	end
 
-	Addon.GetGroupId = function(self)
-		return f.selectedGroup or 'default'
+	function Addon:GetGroupID()
+		return f.selectedGroup or OmniCC:GetDefaultThemeID()
 	end
 
-	Addon.SetGroupId = function(self, groupId)
-		optionsPanel_SetGroup(f, groupId)
+	function Addon:SetGroupID(id)
+		optionsPanel_SetGroup(f, id)
 		f.selector:Refresh()
 	end
 

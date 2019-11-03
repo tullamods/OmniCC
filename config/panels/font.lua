@@ -92,13 +92,13 @@ function FontOptions:CreateStylePicker(state, parent)
 	_G[slider:GetName() .. "Text"]:Hide()
 
 	slider.SetSavedValue = function(_, value)
-		Addon:GetGroupSets().styles[state].scale = value
+		Addon:GetGroupSets().textStyles[state].scale = value
 
 		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	slider.GetSavedValue = function(_)
-		return Addon:GetGroupSets().styles[state].scale
+		return Addon:GetGroupSets().textStyles[state].scale
 	end
 
 	slider.GetFormattedText = function(_, value)
@@ -110,14 +110,14 @@ function FontOptions:CreateStylePicker(state, parent)
 	picker:SetPoint("BOTTOMLEFT", slider, "TOPLEFT")
 
 	picker.OnSetColor = function(_, r, g, b, a)
-		local style = Addon:GetGroupSets().styles[state]
+		local style = Addon:GetGroupSets().textStyles[state]
 		style.r, style.g, style.b, style.a = r, g, b, a
 
 		OmniCC.Display:ForAll("UpdateCooldownTextStyle")
 	end
 
 	picker.GetColor = function(_)
-		local style = Addon:GetGroupSets().styles[state]
+		local style = Addon:GetGroupSets().textStyles[state]
 		return style.r, style.g, style.b, style.a
 	end
 

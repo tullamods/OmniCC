@@ -18,17 +18,28 @@ function Cooldown:CanShow()
         return false
     end
 
-    -- text enabled
-    local sets = self._occ_settings
-    if not (sets and sets.enableText) then
+    -- config checks
+    local settings = self._occ_settings
+    if not settings then
         return false
     end
 
     -- at least min duration
-    if duration < sets.minDuration then
+    if duration < settings.minDuration then
         return false
     end
 
+    -- hide text if we don't want to display it for this kind of cooldown
+    local showText = settings.cooldownStyles[self._occ_kind].text
+    if showText == "hide" then
+        return false
+    end
+
+    if showText == "default" and not settings.enableText then
+        return false
+    end
+
+    -- time checks
     local t = GetTime()
 
     -- expired cooldowns
@@ -79,10 +90,22 @@ function Cooldown:Initialize()
 
     self._occ_start = 0
     self._occ_duration = 0
-    self._occ_settings = Addon:GetCooldownSettings(self)
+    self._occ_settings = Cooldown.GetTheme(self)
 
     self:HookScript("OnShow", Cooldown.OnVisibilityUpdated)
     self:HookScript("OnHide", Cooldown.OnVisibilityUpdated)
+
+    -- this is a hack to make sure that text for charge cooldowns can appear
+    -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
+    -- frame level
+    local parent = self:GetParent()
+    if parent and parent.chargeCooldown == self then
+        local cooldown = parent.cooldown
+        if cooldown then
+            self:SetFrameStrata(cooldown:GetFrameStrata())
+            self:SetFrameLevel(cooldown:GetFrameLevel() + 7)
+        end
+    end
 end
 
 function Cooldown:ShowText()
@@ -119,6 +142,13 @@ function Cooldown:UpdateText()
     end
 end
 
+function Cooldown:UpdateStyle()
+    local settings = self._occ_settings
+    if settings and not settings.drawSwipes then
+        self:SetDrawSwipe(false)
+    end
+end
+
 do
     local pending = {}
 
@@ -127,13 +157,14 @@ do
     updater:SetScript("OnUpdate", function(self)
         for cooldown in pairs(pending) do
             Cooldown.UpdateText(cooldown)
+            Cooldown.UpdateStyle(cooldown)
             pending[cooldown] = nil
         end
 
         self:Hide()
     end)
 
-    function Cooldown:RequestUpdateText()
+    function Cooldown:RequestUpdate()
         if not pending[self] then
             pending[self] = true
             updater:Show()
@@ -167,7 +198,7 @@ function Cooldown:SetTimer(start, duration)
     self._occ_show = Cooldown.CanShow(self)
     self._occ_priority = Cooldown.GetPriority(self)
 
-    Cooldown.RequestUpdateText(self)
+    Cooldown.RequestUpdate(self)
 end
 
 function Cooldown:SetNoCooldownCount(disable, owner)
@@ -210,7 +241,7 @@ end
 function Cooldown:OnVisibilityUpdated()
     if self.noCooldownCount or self:IsForbidden() then return end
 
-    Cooldown.RequestUpdateText(self)
+    Cooldown.RequestUpdate(self)
 end
 
 -- misc
@@ -222,15 +253,39 @@ function Cooldown:SetupHooks()
     hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", Cooldown.SetDisplayAsPercentage)
 end
 
-function Cooldown:UpdateSettings()
+function Cooldown:UpdateSettings(force)
     for cd in pairs(cooldowns) do
-        local newSettings = Addon:GetCooldownSettings(cd)
+        local newSettings = Cooldown.GetTheme(cd)
 
-        if cd._occ_settings ~= newSettings then
+        if force or cd._occ_settings ~= newSettings then
             cd._occ_settings = newSettings
             Cooldown.Refresh(cd, true)
         end
     end
+end
+
+local function getFirstAncestorWithName(cooldown)
+	local frame = cooldown
+	repeat
+		local name = frame:GetName()
+		if name then
+			return name
+		end
+		frame = frame:GetParent()
+	until not frame
+end
+
+function Cooldown:GetTheme()
+    local name = getFirstAncestorWithName(self)
+
+    if name then
+        local ruleset = Addon:FindRuleset(name)
+        if ruleset then
+            return Addon:GetTheme(ruleset.theme)
+        end
+    end
+
+    return Addon:GetDefaultTheme()
 end
 
 -- exports

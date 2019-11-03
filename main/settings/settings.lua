@@ -1,4 +1,4 @@
--- OmniCC's configuration API
+-- Saved settings setup for OmniCC
 
 local AddonName, Addon = ...
 
@@ -23,29 +23,88 @@ end
 function Addon:GetDBDefaults()
 	return {
 		global = {},
+
 		profile = {
-			groupOrder = {
-				"default"
-			},
-			groupSettings = {
+			rulesets = {
 				["**"] = {
-					-- should we show text for the group
+					-- what theme to apply for this ruleset
+					theme = DEFAULT,
+
+					-- enable checking the ruleset
+					enabled = true,
+
+					-- ruleset evaluation order
+					priority = 0,
+
+					-- lua patterns to check against frame names
+					rules = {}
+				}
+			},
+
+			defaultTheme = DEFAULT,
+
+			themes = {
+				["**"] = {
+					-- cooldown text configuration
 					enableText = true,
-					scaleText = true,
-					spiralOpacity = 1,
+
+					-- what font to use (an actual path)
 					fontFace = STANDARD_TEXT_FONT,
+
+					-- the default font size
 					fontSize = 18,
+
+					-- font outline settings (NONE, OUTLINE, THICKOUTLINE, MONOCHROME)
 					fontOutline = "OUTLINE",
-					minDuration = 2,
+
+					-- font shadow color and offsets
+					fontShadow = {
+						-- color
+						r = 1,
+						g = 1,
+						b = 1,
+						a = 0,
+
+						-- offset
+						x = 0,
+						y = 0
+					},
+
+					-- enable/disable resizing text based off of frame size
+					scaleText = true,
+
+					-- text display conditions
+					-- how big something must be to display cooldown text
+					-- this is a percentage of the size of an action button
 					minSize = 0.5,
-					effect = "pulse",
-					minEffectDuration = 30,
+
+					-- how long a cooldown (in seconds) must be to display text
+					minDuration = 2,
+
+					-- at what duration (in seconds) remaining should start
+					-- displaying cooldowns in tenths of seconds format (ex, 3.1)
 					tenthsDuration = 0,
+
+					-- at what duration (in seconds) remaining should start
+					-- displaying cooldowns in MM:SS format
 					mmSSDuration = 0,
+
+					-- what finish effect to display
+					effect = "pulse",
+
+					-- how long a cooldown must be (in seconds) to trigger
+					-- a finish effect
+					minEffectDuration = 30,
+
+					-- where to position cooldown text within a frame
+					anchor = "CENTER",
 					xOff = 0,
 					yOff = 0,
-					anchor = "CENTER",
-					styles = {
+
+					-- draw cooldown backgrounds
+					drawSwipes = true,
+
+					textStyles = {
 						["**"] = {
 							r = 1,
 							g = 1,
@@ -88,8 +147,7 @@ function Addon:GetDBDefaults()
 							b = .1,
 							scale = 1.5
 						}
-					},
-					rules = {}
+					}
 				}
 			}
 		}
@@ -117,9 +175,9 @@ function Addon:MigrateLegacySettings(legacyDb)
 		return
 	end
 
-	local function getNewGroupId(id)
+	local function getThemeID(id)
 		if id == "base" then
-			return "default"
+			return DEFAULT
 		end
 
 		return id
@@ -141,29 +199,39 @@ function Addon:MigrateLegacySettings(legacyDb)
 		return dest
 	end
 
+	-- groupSettings -> themes
 	local oldGroupSettings = legacyDb and legacyDb.groupSettings
 	if type(oldGroupSettings) == "table" then
 		for id, group in pairs(oldGroupSettings) do
 			-- apply the old settings
-			local newGroupSettings = copyTable(group, self.db.profile.groupSettings[getNewGroupId(id)])
+			local theme = copyTable(group, self.db.profile.themes[getThemeID(id)])
 
-			-- apply field changes
-			newGroupSettings.enableText = newGroupSettings.enabled
-			newGroupSettings.enabled = nil
+			-- enabled -> enableText
+			theme.enableText = theme.enabled
+			theme.enabled = nil
+
+			theme.textStyles = theme.styles
+			theme.styles = nil
 		end
 	end
 
-	local oldGroupOrder = legacyDb.groups
-	if type(oldGroupOrder) == "table" then
-		for i = #oldGroupOrder, 1, -1 do
-			local group = oldGroupOrder[i]
-			local newGroupId = getNewGroupId(group.id)
+	-- groups -> rulesets
+	local oldGroups = legacyDb.groups
+	if type(oldGroups) == "table" then
+		for i = #oldGroups, 1, -1 do
+			local group = oldGroups[i]
 
-			copyTable(group.rules, self.db.profile.groupSettings[newGroupId].rules)
-
-			if group.enabled then
-				tinsert(self.db.profile.groupOrder, 1, newGroupId)
-			end
+			tinsert(
+				self.db.profile.rulesets,
+				1,
+				{
+					id = getThemeID(group.id),
+					theme = getThemeID(group.id),
+					rules = copyTable(group.rules),
+					enabled = group.enabled,
+					priority = i,
+				}
+			)
 		end
 	end
 

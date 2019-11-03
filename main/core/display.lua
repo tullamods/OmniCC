@@ -3,6 +3,7 @@ local _, Addon = ...
 
 -- the expected size of an icon
 local ICON_SIZE = 36
+local DEFAULT_STYLE = "seconds"
 
 local After = _G.C_Timer.After
 local GetTickTime = _G.GetTickTime
@@ -251,7 +252,7 @@ function Display:UpdateCooldownTextStyle()
     local text = self.text
     local face = sets.fontFace
     local outline = sets.fontOutline
-    local style = sets.styles[self.timer and self.timer.state or "seconds"]
+    local style = sets.textStyles[self.timer and self.timer.state or DEFAULT_STYLE]
 
     local size = sets.fontSize * style.scale
     if sets.scaleText then

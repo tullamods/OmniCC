@@ -1,4 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="settings.lua"/>
+	<Script file="themes.lua"/>
+	<Script file="rulesets.lua"/>
 	<Script file="groups.lua"/>
 </Ui>

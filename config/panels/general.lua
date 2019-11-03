@@ -15,16 +15,14 @@ function GeneralOptions:AddWidgets()
 	local enableCDText = self:CreateEnableTextCheckbox()
 	enableCDText:SetPoint("TOPLEFT", self, "TOPLEFT", 12, -10)
 
+	local enableCooldownSwipes = self:CreateEnableCooldownSwipesCheckbox()
+	enableCooldownSwipes:SetPoint("TOPLEFT", enableCDText, "BOTTOMLEFT", 0, -BUTTON_SPACING)
+
 	local scaleText = self:CreateScaleTextCheckbox()
-	scaleText:SetPoint("TOPLEFT", enableCDText, "BOTTOMLEFT", 0, -BUTTON_SPACING)
+	scaleText:SetPoint("TOPLEFT", enableCooldownSwipes, "BOTTOMLEFT", 0, -BUTTON_SPACING)
 
 	local finishEffect = self:CreateFinishEffectPicker()
 	finishEffect:SetPoint("TOPLEFT", scaleText, "BOTTOMLEFT", 4, -BUTTON_SPACING)
-
-	-- sliders
-	-- local spiralOpacity = self:CreateSpiralOpacitySlider()
-	-- spiralOpacity:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 16, 10)
-	-- spiralOpacity:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 10)
 
 	local minEffectDuration = self:CreateMinEffectDurationSlider()
 	minEffectDuration:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 16, 10)
@@ -86,6 +84,7 @@ function GeneralOptions:CreateEnableTextCheckbox()
 
 	b.OnEnableSetting = function(_, enable)
 		parent:GetGroupSets().enableText = enable
+		OmniCC.Cooldown:UpdateSettings()
 	end
 
 	b.IsSettingEnabled = function()
@@ -95,18 +94,34 @@ function GeneralOptions:CreateEnableTextCheckbox()
 	return b
 end
 
+function GeneralOptions:CreateEnableCooldownSwipesCheckbox()
+	local b = self:NewCheckbox(L.EnableCooldownSwipes)
+
+	b.OnEnableSetting = function(_, enable)
+		self:GetGroupSets().drawSwipes = enable
+		OmniCC.Cooldown:UpdateSettings()
+	end
+
+	b.IsSettingEnabled = function()
+		return self:GetGroupSets().drawSwipes
+	end
+
+	b.tooltip = L.EnableCooldownSwipesTip
+
+	return b
+end
+
 -- scale text
 function GeneralOptions:CreateScaleTextCheckbox()
-	local parent = self
 	local b = self:NewCheckbox(L.ScaleText)
 
 	b.OnEnableSetting = function(_, enable)
-		parent:GetGroupSets().scaleText = enable
+		self:GetGroupSets().scaleText = enable
 		OmniCC.Display:ForActive("UpdateCooldownTextStyle")
 	end
 
 	b.IsSettingEnabled = function()
-		return parent:GetGroupSets().scaleText
+		return self:GetGroupSets().scaleText
 	end
 
 	b.tooltip = L.ScaleTextTip
