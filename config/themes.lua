@@ -270,7 +270,7 @@ local function addThemeOptions(owner, theme, id)
     owner.args[key] = {
         type = "group",
         name = theme.name or id,
-        order = 200,
+        order = id == DEFAULT and 0 or 200,
         childGroups = "tab",
         args = {
             display = {
@@ -337,7 +337,7 @@ local function addThemeOptions(owner, theme, id)
                                 width = "full",
                                 order = 30,
                                 min = 0,
-                                softMax = 30,
+                                softMax = 60,
                                 step = 1,
                                 get = function()
                                     return theme.minDuration
@@ -354,7 +354,7 @@ local function addThemeOptions(owner, theme, id)
                                 width = "full",
                                 order = 32,
                                 min = 0,
-                                softMax = 60,
+                                softMax = 600,
                                 step = 1,
                                 get = function()
                                     return theme.mmSSDuration
