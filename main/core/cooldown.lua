@@ -30,12 +30,7 @@ function Cooldown:CanShow()
     end
 
     -- hide text if we don't want to display it for this kind of cooldown
-    local showText = settings.cooldownStyles[self._occ_kind].text
-    if showText == "hide" then
-        return false
-    end
-
-    if showText == "default" and not settings.enableText then
+    if not settings.enableText then
         return false
     end
 
@@ -146,6 +141,8 @@ function Cooldown:UpdateStyle()
     local settings = self._occ_settings
     if settings and not settings.drawSwipes then
         self:SetDrawSwipe(false)
+    else
+        self:SetDrawSwipe(self._occ_draw_swipe)
     end
 end
 
@@ -197,6 +194,7 @@ function Cooldown:SetTimer(start, duration)
     self._occ_kind = Cooldown.GetKind(self)
     self._occ_show = Cooldown.CanShow(self)
     self._occ_priority = Cooldown.GetPriority(self)
+    self._occ_draw_swipe = self:GetDrawSwipe()
 
     Cooldown.RequestUpdate(self)
 end
@@ -254,13 +252,10 @@ function Cooldown:SetupHooks()
 end
 
 function Cooldown:UpdateSettings(force)
-    for cd in pairs(cooldowns) do
-        local newSettings = Cooldown.GetTheme(cd)
-
-        if force or cd._occ_settings ~= newSettings then
-            cd._occ_settings = newSettings
-            Cooldown.Refresh(cd, true)
-        end
+    local newSettings = Cooldown.GetTheme(self)
+    if force or self._occ_settings ~= newSettings then
+        self._occ_settings = newSettings
+        Cooldown.Refresh(self, true)
     end
 end
 
@@ -279,13 +274,24 @@ function Cooldown:GetTheme()
     local name = getFirstAncestorWithName(self)
 
     if name then
-        local ruleset = Addon:FindRuleset(name)
-        if ruleset then
-            return Addon:GetTheme(ruleset.theme)
+        local rule = Addon:GetMatchingRule(name)
+        if rule then
+            return Addon:GetTheme(rule.theme)
         end
     end
 
     return Addon:GetDefaultTheme()
+end
+
+function Cooldown:ForAll(method, ...)
+    local func = self[method]
+    if type(func) ~= "function" then
+        error(("Cooldown method %q not found"):format(method), 2)
+    end
+
+    for cooldown in pairs(cooldowns) do
+        func(cooldown, ...)
+    end
 end
 
 -- exports

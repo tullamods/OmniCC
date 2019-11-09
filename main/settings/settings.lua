@@ -17,7 +17,7 @@ function Addon:InitializeDB()
 end
 
 function Addon:OnProfileChanged(...)
-	self.Cooldown:UpdateSettings()
+	self.Cooldown:ForAll("UpdateSettings")
 end
 
 function Addon:GetDBDefaults()
@@ -25,19 +25,19 @@ function Addon:GetDBDefaults()
 		global = {},
 
 		profile = {
-			rulesets = {
+			rules = {
 				["**"] = {
-					-- what theme to apply for this ruleset
+					-- what theme to apply for this rule
 					theme = DEFAULT,
 
-					-- enable checking the ruleset
+					-- enable checking the rule
 					enabled = true,
 
-					-- ruleset evaluation order
+					-- rule evaluation order
 					priority = 0,
 
 					-- lua patterns to check against frame names
-					rules = {}
+					patterns = {}
 				}
 			},
 
@@ -134,6 +134,12 @@ function Addon:GetDBDefaults()
 							b = .7,
 							scale = .75
 						},
+						days = {
+							r = .7,
+							g = .7,
+							b = .7,
+							scale = .75
+						},
 						charging = {
 							r = 0.8,
 							g = 1,
@@ -148,7 +154,8 @@ function Addon:GetDBDefaults()
 							scale = 1.5
 						}
 					}
-				}
+				},
+				[DEFAULT] = {}
 			}
 		}
 	}
@@ -210,24 +217,28 @@ function Addon:MigrateLegacySettings(legacyDb)
 			theme.enableText = theme.enabled
 			theme.enabled = nil
 
-			theme.textStyles = theme.styles
+			-- styles -> textStyles
+			copyTable(theme.styles, theme.textStyles)
 			theme.styles = nil
 		end
 	end
 
-	-- groups -> rulesets
+	-- groups -> rules
 	local oldGroups = legacyDb.groups
 	if type(oldGroups) == "table" then
 		for i = #oldGroups, 1, -1 do
 			local group = oldGroups[i]
 
 			tinsert(
-				self.db.profile.rulesets,
+				self.db.profile.rules,
 				1,
 				{
 					id = getThemeID(group.id),
 					theme = getThemeID(group.id),
-					rules = copyTable(group.rules),
+
+					-- group.rules -> patterns
+					patterns = copyTable(group.rules),
+
 					enabled = group.enabled,
 					priority = i,
 				}

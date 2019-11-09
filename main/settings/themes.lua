@@ -13,7 +13,7 @@ function Addon:AddTheme(id, name)
 	local theme = rawget(themes, id)
 	if not theme then
 		theme = CopyTable(self:GetDefaultTheme())
-		theme.name = name
+		theme.name = name or id
 		themes[id] = theme
 
 		return theme
@@ -27,16 +27,15 @@ function Addon:RemoveTheme(id)
 
 	local themes = self.db.profile.themes
 	if rawget(themes, id) ~= nil then
-		themes[id] = nil
-
-		-- when a theme is removed, adjust any rulesets using that theme
+		-- when a theme is removed, adjust any rules using that theme
 		-- to use the default theme instead
-		for _, ruleset in pairs(self.db.profile.rulesets) do
-			if ruleset.theme == id then
-				ruleset.theme = self:GetDefaultThemeID()
+		for _, rule in pairs(self.db.profile.rules) do
+			if rule.theme == id then
+				rule.theme = self:GetDefaultThemeID()
 			end
 		end
 
+		themes[id] = nil
 		return true
 	end
 end
