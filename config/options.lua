@@ -32,9 +32,9 @@ local options = {
 LibStub("AceConfig-3.0"):RegisterOptionsTable("OmniCC", options)
 
 OptionsFrameChildren = {
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", options.args.themes.name, OptionsFrame, "themes"),
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", options.args.rules.name, OptionsFrame, "rules"),
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", options.args.profiles.name, OptionsFrame, "profiles")
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", options.args.themes.name, "OmniCC", "themes"),
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", options.args.rules.name, "OmniCC", "rules"),
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("OmniCC", options.args.profiles.name, "OmniCC", "profiles")
 }
 
 function Addon:OnProfileChanged()
