@@ -257,10 +257,14 @@ end
 
 function Cooldown:UpdateSettings(force)
     local newSettings = Cooldown.GetTheme(self)
+
     if force or self._occ_settings ~= newSettings then
         self._occ_settings = newSettings
         Cooldown.Refresh(self, true)
+        return true
     end
+
+    return false
 end
 
 local function getFirstAncestorWithName(cooldown)
@@ -275,6 +279,10 @@ local function getFirstAncestorWithName(cooldown)
 end
 
 function Cooldown:GetTheme()
+    if self._occ_settings_force then
+        return self._occ_settings_force
+    end
+
     local name = getFirstAncestorWithName(self)
 
     if name then
