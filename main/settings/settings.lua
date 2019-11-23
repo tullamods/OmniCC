@@ -45,6 +45,8 @@ function Addon:GetDBDefaults()
 
 			themes = {
 				["**"] = {
+					-- name = "localized theme name",
+
 					-- cooldown text configuration
 					enableText = true,
 
@@ -155,7 +157,9 @@ function Addon:GetDBDefaults()
 						}
 					}
 				},
-				[DEFAULT] = {}
+				[DEFAULT] = {
+					name = DEFAULT,
+				}
 			}
 		}
 	}
