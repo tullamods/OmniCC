@@ -434,28 +434,37 @@ local function addThemeOptions(owner, theme, id)
                             theme.drawSwipes = enable
                             OmniCC.Cooldown:ForAll("UpdateStyle")
                         end
-                    },
-
-                    remove = {
-                        type = "execute",
-                        order = 9001,
-                        name = L.ThemeRemove,
-                        desc = L.ThemeRemoveDesc,
-                        func = function()
-                            if OmniCC:RemoveTheme(id) then
-                                owner.args[key] = nil
-                            end
-                        end,
-                        disabled = function()
-                            return theme == OmniCC:GetDefaultTheme()
-                        end
-                    },
+                    }
                 },
             },
 
             text = createTextOptionsForTheme(theme, id, 200),
 
-            state = createStateOptionsForTheme(theme, id, 300)
+            state = createStateOptionsForTheme(theme, id, 300),
+
+            preview = {
+                type = "execute",
+                order = 9000,
+                name = "Preview",
+                func = function()
+                    Addon.PreviewDialog:SetTheme(theme)
+                end
+            },
+
+            remove = {
+                type = "execute",
+                order = 9001,
+                name = L.ThemeRemove,
+                desc = L.ThemeRemoveDesc,
+                func = function()
+                    if OmniCC:RemoveTheme(id) then
+                        owner.args[key] = nil
+                    end
+                end,
+                disabled = function()
+                    return theme == OmniCC:GetDefaultTheme()
+                end
+            }
         }
     }
 end
