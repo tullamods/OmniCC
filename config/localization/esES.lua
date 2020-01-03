@@ -29,7 +29,7 @@ L.MinEffectDuration = "Duración mínima para mostrar un efecto final"
 L.MMSSDuration = "Duración mínima para mostrar texto en MM:SS"
 L.TenthsDuration = "Duración mínima para mostrar las décimas de segundo"
 
-L.ColorAndScale = "Cor e Tamaño"
+L.ColorAndScale = "Color y Escala"
 L.Color_soon = "Cerca a expirar"
 L.Color_seconds = "Menos de un minuto"
 L.Color_minutes = "Menos de una hora"
@@ -49,7 +49,7 @@ L.Anchor_RIGHT = 'Derecha'
 L.Anchor_TOPLEFT = 'Arriba a la Izquierda'
 L.Anchor_TOP = 'Arriba'
 L.Anchor_TOPRIGHT = 'Arriba a la Derecha'
-L.Anchor_BOTTOMLEFT = 'Abajo a la Esquerdo'
+L.Anchor_BOTTOMLEFT = 'Abajo a la Izquierda'
 L.Anchor_BOTTOM = 'Abajo'
 L.Anchor_BOTTOMRIGHT = 'Abajo a la Derecha'
 
