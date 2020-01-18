@@ -31,13 +31,9 @@ function Display:Create(owner)
     local display = setmetatable(Addon:CreateHiddenFrame("Frame", nil, owner), Display)
 
     display.text = display:CreateFontString(nil, "OVERLAY")
-    -- display:UpdateCooldownTextFont()
-    -- display:UpdateCooldownTextPosition()
-
     display:SetScript("OnSizeChanged", self.OnSizeChanged)
     display._onScaleUpdated = function() display:OnScaleChanged() end
     display.cooldowns = {}
-
 
     displays[owner] = display
     return display
@@ -50,8 +46,6 @@ function Display:OnSizeChanged()
 
     if oldSize ~= self:CalculateSizeRatio() then
         self:UpdateCooldownTextSizeAndColor()
-        -- self:UpdateCooldownTextFont()
-        -- self:UpdateCooldownTextPosition()
     end
 end
 
@@ -268,8 +262,10 @@ function Display:UpdateCooldownTextPosition()
     local sets = self:GetSettings()
 
     if sets then
+        local textScale = self.text:GetScale()
+
         self.text:ClearAllPoints()
-        self.text:SetPoint(sets.anchor, sets.xOff, sets.yOff)
+        self.text:SetPoint(sets.anchor, sets.xOff / textScale, sets.yOff / textScale)
     else
         self.text:ClearAllPoints()
         self.text:SetPoint("CENTER")
@@ -288,9 +284,12 @@ function Display:UpdateCooldownTextSizeAndColor()
     local styleRatio = style and style.scale or 1
 
     if (sizeRatio * scaleRatio * styleRatio) >= (sets.minSize or 0) then
+        local textScale = sizeRatio * styleRatio
+
         self.text:Show()
-        self.text:SetScale(sizeRatio * styleRatio)
+        self.text:SetScale(textScale)
         self.text:SetTextColor(style.r, style.g, style.b, style.a)
+        self.text:SetPoint(sets.anchor, sets.xOff / textScale, sets.yOff / textScale)
     else
         self.text:Hide()
     end
