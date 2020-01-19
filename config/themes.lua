@@ -327,7 +327,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.minSize = val / 100
-                                    OmniCC.Display:ForAll("UpdateCooldownTextShown")
+                                    OmniCC.Display:ForAll("UpdateCooldownTextSizeAndColor")
                                 end
                             },
                             minDuration = {
