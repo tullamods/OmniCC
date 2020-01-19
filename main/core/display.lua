@@ -40,7 +40,7 @@ function Display:Create(owner)
 
     display.updateSize = function()
         local oldSize = display.sizeRatio
-        local newSize = display:CalculateScaleRatio()
+        local newSize = display:CalculateSizeRatio()
 
         local oldScale = display.scaleRatio
         local newScale = display:CalculateScaleRatio()
