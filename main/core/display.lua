@@ -11,10 +11,6 @@ local min = math.min
 local round = _G.Round
 local UIParent = _G.UIParent
 
-local function AreCloseEnough(x, y)
-    return math.abs(x - y) < 0.1
-end
-
 local displays = {}
 
 local Display = Addon:CreateHiddenFrame("Frame")
@@ -37,7 +33,6 @@ function Display:Create(owner)
     display.text = display:CreateFontString(nil, "OVERLAY")
     display.cooldowns = {}
 
-
     display.updateSize = function()
         local oldSize = display.sizeRatio
         local newSize = display:CalculateSizeRatio()
@@ -52,6 +47,7 @@ function Display:Create(owner)
         display.updatingSize = nil
     end
 
+    display:UpdateSize()
     display:SetScript("OnSizeChanged", self.UpdateSize)
 
     displays[owner] = display
@@ -270,11 +266,11 @@ function Display:UpdateCooldownTextPositionSizeAndColor()
 
     local sizeRatio = self.sizeRatio or self:CalculateSizeRatio()
     local scaleRatio = self.scaleRatio or self:CalculateScaleRatio()
-    local style = sets.textStyles[self.state or DEFAULT_STATE]
-    local styleRatio = style and style.scale or 1
 
     -- hide text if it would be too small
-    if (sizeRatio * scaleRatio * styleRatio) >= (sets.minSize or 0) then
+    if (sizeRatio * scaleRatio) >= (sets.minSize or 0) then
+        local style = sets.textStyles[self.state or DEFAULT_STATE]
+        local styleRatio = style and style.scale or 1
         local textScale = sizeRatio * styleRatio
 
         self.text:Show()
