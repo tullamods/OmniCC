@@ -264,24 +264,32 @@ function Display:UpdateCooldownTextPositionSizeAndColor()
     local sets = self:GetSettings()
     if not sets then return end
 
+    local text = self.text
     local sizeRatio = self.sizeRatio or self:CalculateSizeRatio()
     local scaleRatio = self.scaleRatio or self:CalculateScaleRatio()
 
-    -- hide text if it would be too small
-    if (sizeRatio * scaleRatio) >= (sets.minSize or 0) then
-        local style = sets.textStyles[self.state or DEFAULT_STATE]
-        local styleRatio = style and style.scale or 1
-        local textScale = sizeRatio * styleRatio
-
-        self.text:Show()
-        self.text:SetScale(textScale)
-        self.text:SetTextColor(style.r, style.g, style.b, style.a)
-
-        self.text:ClearAllPoints()
-        self.text:SetPoint(sets.anchor, sets.xOff / textScale, sets.yOff / textScale)
-    else
-        self.text:Hide()
+    -- hide text if the display size is below our min ratio
+    if (sizeRatio * scaleRatio) <= (sets.minSize or 0) then
+        text:Hide()
+        return
     end
+
+    local style = sets.textStyles[self.state or DEFAULT_STATE]
+    local styleRatio = style and style.scale or 1
+
+    -- hide text if the scale ratio is zero or below
+    if styleRatio <= 0 then
+        text:Hide()
+        return
+    end
+
+    local textScale = sizeRatio * styleRatio
+    text:Show()
+    text:SetScale(textScale)
+    text:SetTextColor(style.r, style.g, style.b, style.a)
+
+    text:ClearAllPoints()
+    text:SetPoint(sets.anchor, sets.xOff / textScale, sets.yOff / textScale)
 end
 
 function Display:GetSettings()
