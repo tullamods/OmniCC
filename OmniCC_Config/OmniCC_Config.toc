@@ -1,0 +1,8 @@
+## Interface: 80300
+## Title: OmniCC Config
+## Notes: OmniCC's configuration menu
+## Notes-koKR: OmniCC의 설정 메뉴
+## Author: Tuller
+## Dependencies: OmniCC
+## LoadOnDemand: 1
+..\OmniCC\config\config.xml
