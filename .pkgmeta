@@ -1,0 +1,9 @@
+package-as: OmniCC
+
+manual-changelog:
+  filename: changelog.md
+  markup-type: markdown
+
+move-folders:
+  OmniCC/OmniCC: OmniCC
+  OmniCC/OmniCC_Config: OmniCC_Config
