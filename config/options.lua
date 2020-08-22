@@ -59,3 +59,8 @@ end
 OmniCC.db.RegisterCallback(Addon, 'OnProfileChanged', 'OnProfileChanged')
 OmniCC.db.RegisterCallback(Addon, 'OnProfileCopied', 'OnProfileChanged')
 OmniCC.db.RegisterCallback(Addon, 'OnProfileReset', 'OnProfileChanged')
+
+-- open to the main category if the options menu is already shown
+if OptionsFrame:IsShown() then
+    showOptionsMenu()
+end
