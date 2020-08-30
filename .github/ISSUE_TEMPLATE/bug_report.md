@@ -6,7 +6,7 @@ labels: ':beetle: bug'
 assignees: ''
 ---
 
-**Give us a clear and concice description of the problem, and what you expect to happen**
+**Give us a clear and concise description of the problem, and what you expect to happen**
 
 Screenshots can help quite a bit.
 
