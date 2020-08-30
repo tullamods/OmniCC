@@ -1,6 +1,11 @@
 -- hooks for watching cooldown events
 local _, Addon = ...
 
+-- how far in the future a cooldown can be before we show text for it
+-- this is used to filter out buggy cooldowns (usually ones that started)
+-- before a user rebooted
+local WAIT_MAX_MS = 86400
+
 local GCD_SPELL_ID = 61304
 local COOLDOWN_TYPE_LOSS_OF_CONTROL = _G.COOLDOWN_TYPE_LOSS_OF_CONTROL
 local GetSpellCooldown = _G.GetSpellCooldown
@@ -48,13 +53,7 @@ function Cooldown:CanShow()
 
     -- future cooldowns that don't start for at least a day
     -- these are probably buggy ones
-    if (start - t) > 86400 then
-        return false
-    end
-
-    -- filter GCD
-    local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
-    if start == gcdStart and duration == gcdDuration then
+    if (start - t) > WAIT_MAX_MS then
         return false
     end
 
@@ -63,19 +62,19 @@ end
 
 function Cooldown:GetKind()
     if self.currentCooldownType == COOLDOWN_TYPE_LOSS_OF_CONTROL then
-        return "loc"
+        return 'loc'
     end
 
     local parent = self:GetParent()
     if parent and parent.chargeCooldown == self then
-        return "charge"
+        return 'charge'
     end
 
-    return "default"
+    return 'default'
 end
 
 function Cooldown:GetPriority()
-    if self._occ_kind ==  "charge" then
+    if self._occ_kind == 'charge' then
         return 2
     end
 
@@ -84,15 +83,17 @@ end
 
 -- actions
 function Cooldown:Initialize()
-    if cooldowns[self] then return end
+    if cooldowns[self] then
+        return
+    end
     cooldowns[self] = true
 
     self._occ_start = 0
     self._occ_duration = 0
     self._occ_settings = Cooldown.GetTheme(self)
 
-    self:HookScript("OnShow", Cooldown.OnVisibilityUpdated)
-    self:HookScript("OnHide", Cooldown.OnVisibilityUpdated)
+    self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
+    self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
 
     -- this is a hack to make sure that text for charge cooldowns can appear
     -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
@@ -129,7 +130,7 @@ function Cooldown:HideText()
 
     if display then
         display:RemoveCooldown(self)
-        self._occ_display  = nil
+        self._occ_display = nil
     end
 end
 
@@ -155,15 +156,18 @@ do
 
     local updater = Addon:CreateHiddenFrame('Frame')
 
-    updater:SetScript("OnUpdate", function(self)
-        for cooldown in pairs(pending) do
-            Cooldown.UpdateText(cooldown)
-            Cooldown.UpdateStyle(cooldown)
-            pending[cooldown] = nil
-        end
+    updater:SetScript(
+        'OnUpdate',
+        function(self)
+            for cooldown in pairs(pending) do
+                Cooldown.UpdateText(cooldown)
+                Cooldown.UpdateStyle(cooldown)
+                pending[cooldown] = nil
+            end
 
-        self:Hide()
-    end)
+            self:Hide()
+        end
+    )
 
     function Cooldown:RequestUpdate()
         if not pending[self] then
@@ -219,29 +223,48 @@ end
 
 -- events
 function Cooldown:OnSetCooldown(start, duration)
-    if self.noCooldownCount or self:IsForbidden() then return end
+    if self.noCooldownCount or self:IsForbidden() then
+        return
+    end
+
+    -- hook methods when we first see the cooldown
+    Cooldown.Initialize(self)
 
     start = start or 0
     duration = duration or 0
 
-    Cooldown.Initialize(self)
+    -- ignore SetCooldowns triggered by GCD so that
+    -- finish effects can run
+    if start > 0 and duration > 0 then
+        local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+        if start == gcdStart and duration == gcdDuration then
+            return
+        end
+    end
+
     Cooldown.SetTimer(self, start, duration)
 end
 
 function Cooldown:OnSetCooldownDuration()
-    if self.noCooldownCount or self:IsForbidden() then return end
+    if self.noCooldownCount or self:IsForbidden() then
+        return
+    end
 
     Cooldown.Refresh(self)
 end
 
 function Cooldown:SetDisplayAsPercentage()
-    if self.noCooldownCount or self:IsForbidden() then return end
+    if self.noCooldownCount or self:IsForbidden() then
+        return
+    end
 
     Cooldown.SetNoCooldownCount(self, true)
 end
 
 function Cooldown:OnVisibilityUpdated()
-    if self.noCooldownCount or self:IsForbidden() then return end
+    if self.noCooldownCount or self:IsForbidden() then
+        return
+    end
 
     Cooldown.RequestUpdate(self)
 end
@@ -250,9 +273,9 @@ end
 function Cooldown:SetupHooks()
     local Cooldown_MT = getmetatable(ActionButton1Cooldown).__index
 
-    hooksecurefunc(Cooldown_MT, "SetCooldown", Cooldown.OnSetCooldown)
-    hooksecurefunc(Cooldown_MT, "SetCooldownDuration", Cooldown.OnSetCooldownDuration)
-    hooksecurefunc("CooldownFrame_SetDisplayAsPercentage", Cooldown.SetDisplayAsPercentage)
+    hooksecurefunc(Cooldown_MT, 'SetCooldown', Cooldown.OnSetCooldown)
+    hooksecurefunc(Cooldown_MT, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
+    hooksecurefunc('CooldownFrame_SetDisplayAsPercentage', Cooldown.SetDisplayAsPercentage)
 end
 
 function Cooldown:UpdateSettings(force)
@@ -268,14 +291,14 @@ function Cooldown:UpdateSettings(force)
 end
 
 local function getFirstAncestorWithName(cooldown)
-	local frame = cooldown
-	repeat
-		local name = frame:GetName()
-		if name then
-			return name
-		end
-		frame = frame:GetParent()
-	until not frame
+    local frame = cooldown
+    repeat
+        local name = frame:GetName()
+        if name then
+            return name
+        end
+        frame = frame:GetParent()
+    until not frame
 end
 
 function Cooldown:GetTheme()
@@ -297,8 +320,8 @@ end
 
 function Cooldown:ForAll(method, ...)
     local func = self[method]
-    if type(func) ~= "function" then
-        error(("Cooldown method %q not found"):format(method), 2)
+    if type(func) ~= 'function' then
+        error(('Cooldown method %q not found'):format(method), 2)
     end
 
     for cooldown in pairs(cooldowns) do

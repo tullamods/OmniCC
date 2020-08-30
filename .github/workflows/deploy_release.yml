@@ -1,0 +1,44 @@
+# this is derived from https://github.com/BigWigsMods/packager/wiki/GitHub-Actions-workflow
+# the only real modifications I've made are to handle only specific tag formats
+name: Package and build release versions
+
+# when a tag is created with the format vx.y.z or x.y.z
+on:
+  push:
+    tags:
+      - "*.*.*"
+      - "v*.*.*"
+      - "!v*.*.*-*"
+      - "!*.*.*-*"
+
+# a workflow is built up as jobs, and within these jobs are steps
+jobs:
+  # "release" here can be anything in one word
+  release:
+    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
+    runs-on: ubuntu-latest
+
+    # specify the environment variables used by the packager, matching the secrets from the project on GitHub
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+    # "steps" holds a list of all the steps needed to package and release our AddOn
+    steps:
+
+      # we first have to clone the AddOn project, which is simple enough, and is a required step
+      - name: Clone project
+        uses: actions/checkout@v2
+
+      # once cloned, we just run the GitHub Action for the packager project
+      - name: Package and release
+        uses: BigWigsMods/packager@master
+        with:
+          args: -p 2057
+
+      # another example where we supply additional arguments, this example is specifically to release
+      # for the Classic version of the game
+      - name: Package and release for Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g 1.13.5 -p 2057
