@@ -2,36 +2,30 @@
 name: Bug report
 about: Create a report to help us improve
 title: ''
-labels: ''
+labels: ':beetle: bug'
 assignees: ''
-
 ---
 
-**Running Software (issues missing this information will be deleted):**
- - Addon version:
- - Server patch: [e.g. Build 8.0.1.27178]
+**Give us a clear and concice description of the problem, and what you expect to happen**
 
- **Have you read the changelog? (please don't waste our time)**
- Mark if read.
+Screenshots can help quite a bit.
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Do you have any steps to reproduce this issue?**
 
-**To Reproduce**
-Steps to reproduce the behaviour:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+The best way for us to fix an issue is to know how to reproduce it.
 
-**Expected behaviour**
-A clear and concise description of what you expected to happen.
+**Are you getting any error messages?**
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+World of Warcraft disables errors by default. Install [BugSack](https://www.curseforge.com/wow/addons/bugsack) or addon error messages via `/console scriptErrors 1` and reload the game. If an error window appears, write here the first message (labelled 1/Many) that appeared. If you're getting especially low FPS, it probably means that you're getting a bunch of errors that are hidden.
 
-**Error Logs**
-Type `/console scriptErrors 1` in the chat and reload the game. If an error window appears, write here the first message (labelled 1/Many) that appeared.
+**What version of OmniCC are you running?**
 
-**Additional context**
-Add any other context about the problem here.
+You can get this via the slash command `/omnicc version`. If you're not running the latest release, please try that version first.
+
+**What version of World of Warcraft are you on?**
+
+You can get this via the command, `/dump GetBuildInfo()`.
+
+**What other addons are you running?**
+
+Lot of times, OmniCC issues are AddOn specific.
