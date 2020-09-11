@@ -4,8 +4,7 @@ local _, Addon = ...
 -- how far in the future a cooldown can be before we show text for it
 -- this is used to filter out buggy cooldowns (usually ones that started)
 -- before a user rebooted
-local WAIT_MAX_MS = 86400
-
+local MAX_START_DELAY_MS = 86400
 local GCD_SPELL_ID = 61304
 local COOLDOWN_TYPE_LOSS_OF_CONTROL = _G.COOLDOWN_TYPE_LOSS_OF_CONTROL
 local GetSpellCooldown = _G.GetSpellCooldown
@@ -15,12 +14,13 @@ local cooldowns = {}
 local Cooldown = {}
 
 -- queries
-function Cooldown:CanShow()
+function Cooldown:CanShowText()
     if self.noCooldownCount then
         return false
     end
 
-    local start, duration = self._occ_start, self._occ_duration
+    local start = self._occ_start or 0
+    local duration = self._occ_duration or 0
 
     -- no active cooldown
     if start <= 0 or duration <= 0 then
@@ -34,7 +34,7 @@ function Cooldown:CanShow()
     end
 
     -- at least min duration
-    if duration < settings.minDuration then
+    if duration < (settings.minDuration or math.huge) then
         return false
     end
 
@@ -53,11 +53,52 @@ function Cooldown:CanShow()
 
     -- future cooldowns that don't start for at least a day
     -- these are probably buggy ones
-    if (start - t) > WAIT_MAX_MS then
+    if (start - t) > MAX_START_DELAY_MS then
+        return false
+    end
+
+    -- filter GCD
+    local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+    if start == gcdStart and duration == gcdDuration then
         return false
     end
 
     return true
+end
+
+function Cooldown:CanShowFinishEffect()
+    local settings = self._occ_settings
+
+    -- no config, do nothing
+    if not settings then
+        return false
+    end
+
+    -- no effect, do nothing
+    local effect = settings.effect or 'none'
+    if effect == 'none' then
+        return false
+    end
+
+    -- not long enough, do nothing
+    if (self._occ_duration or 0) < (settings.minEffectDuration or math.huge) then
+        return false
+    end
+
+    -- cooldown just finished, return true
+    local remain = math.max((self._occ_start + self._occ_duration) - GetTime(), 0)
+    if remain == 0 then
+        return true, effect
+    end
+
+    -- GCD active and cooldown will complete within GCD
+    local _, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+
+    if gcdDuration ~= 0 and remain <= gcdDuration then
+        return true, effect
+    end
+
+    return false
 end
 
 function Cooldown:GetKind()
@@ -86,6 +127,7 @@ function Cooldown:Initialize()
     if cooldowns[self] then
         return
     end
+
     cooldowns[self] = true
 
     self._occ_start = 0
@@ -94,6 +136,7 @@ function Cooldown:Initialize()
 
     self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
     self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
+    self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
 
     -- this is a hack to make sure that text for charge cooldowns can appear
     -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
@@ -178,29 +221,36 @@ do
 end
 
 function Cooldown:Refresh(force)
-    local start, duration = self:GetCooldownTimes()
-
-    start = (start or 0) / 1000
-    duration = (duration or 0) / 1000
-
     if force then
         self._occ_start = nil
         self._occ_duration = nil
     end
+
+    local start, duration = self:GetCooldownTimes()
+
+    start = (start or 0) / 1000
+    duration = (duration or 0) / 1000
 
     Cooldown.Initialize(self)
     Cooldown.SetTimer(self, start, duration)
 end
 
 function Cooldown:SetTimer(start, duration)
+    -- both the wow api and addons (espcially auras) have a habit of resetting
+    -- cooldowns every time there's an update to an aura
+    -- we chack and do nothing if there's an exact start/duration match
     if self._occ_start == start and self._occ_duration == duration then
         return
     end
 
+    -- attempt to show a finish effect here, because there are cases where a
+    -- cooldown can be ovewritten before it has actually completed
+    Cooldown.TryShowFinishEffect(self)
+
     self._occ_start = start
     self._occ_duration = duration
     self._occ_kind = Cooldown.GetKind(self)
-    self._occ_show = Cooldown.CanShow(self)
+    self._occ_show = Cooldown.CanShowText(self)
     self._occ_priority = Cooldown.GetPriority(self)
     self._occ_draw_swipe = self:GetDrawSwipe()
 
@@ -221,27 +271,37 @@ function Cooldown:SetNoCooldownCount(disable, owner)
     end
 end
 
+-- attempts to trigger a finish effect
+function Cooldown:TryShowFinishEffect()
+    local show, effect = Cooldown.CanShowFinishEffect(self)
+
+    if show then
+        Addon.FX:Run(self, effect)
+
+        -- reset start/duration so that we don't trigger again
+        self._occ_start = 0
+        self._occ_duration = 0
+    end
+end
+
 -- events
+function Cooldown:OnCooldownDone()
+    if self.noCooldownCount or self:IsForbidden() then
+        return
+    end
+
+    Cooldown.TryShowFinishEffect(self)
+end
+
 function Cooldown:OnSetCooldown(start, duration)
     if self.noCooldownCount or self:IsForbidden() then
         return
     end
 
-    -- hook methods when we first see the cooldown
+    start = tonumber(start) or 0
+    duration = tonumber(duration) or 0
+
     Cooldown.Initialize(self)
-
-    start = start or 0
-    duration = duration or 0
-
-    -- ignore SetCooldowns triggered by GCD so that
-    -- finish effects can run
-    if start > 0 and duration > 0 then
-        local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
-        if start == gcdStart and duration == gcdDuration then
-            return
-        end
-    end
-
     Cooldown.SetTimer(self, start, duration)
 end
 
