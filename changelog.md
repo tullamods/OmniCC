@@ -1,6 +1,6 @@
 # OmniCC Changelog
 
-## 9.0.0-beta
+## 9.0.0
 
 * Finish effects will now trigger immediately for cooldowns that are soon to complete, but were overridden by the GCD.
 * Added a new setting, Timer Offset, to adjust the end point for timers to account for things like spell queue windows and latency.

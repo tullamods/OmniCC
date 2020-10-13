@@ -34,11 +34,11 @@ jobs:
       - name: Package and release
         uses: BigWigsMods/packager@master
         with:
-          args: -p 2057
+          args: -p 2057 -w 4836
 
       # another example where we supply additional arguments, this example is specifically to release
       # for the Classic version of the game
       - name: Package and release for Classic
         uses: BigWigsMods/packager@master
         with:
-          args: -g 1.13.5 -p 2057
+          args: -g 1.13.5 -p 2057 -w 4836
