@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.0.1
+
+* Apply default rulesets only when a profile is first created. This fixes an issue with deleting the defaults.
+
 ## 9.0.0
 
 * Finish effects will now trigger immediately for cooldowns that are soon to complete, but were overridden by the GCD.
