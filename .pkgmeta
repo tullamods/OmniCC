@@ -7,3 +7,14 @@ manual-changelog:
 move-folders:
   OmniCC/OmniCC: OmniCC
   OmniCC/OmniCC_Config: OmniCC_Config
+
+# externals:
+#   OmniCC/libs/AceConfig-3.0: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0
+#   OmniCC/libs/AceDB-3.0: https://repos.wowace.com/wow/ace3/trunk/AceDB-3.0
+#   OmniCC/libs/AceDBOptions-3.0: https://repos.wowace.com/wow/ace3/trunk/AceDBOptions-3.0
+#   OmniCC/libs/AceGUI-3.0: https://repos.wowace.com/wow/ace3/trunk/AceGUI-3.0
+#   OmniCC/libs/AceGUI-3.0-SharedMediaWidgets: https://repos.curseforge.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
+#   OmniCC/libs/AceLocale-3.0: https://repos.wowace.com/wow/ace3/trunk/AceLocale-3.0
+#   OmniCC/libs/CallbackHandler-1.0: https://repos.wowace.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+#   OmniCC/libs/LibSharedMedia-3.0: https://repos.curseforge.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
+#   OmniCC/libs/LibStub: https://repos.wowace.com/wow/libstub/tags/1.0
