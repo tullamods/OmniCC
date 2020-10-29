@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.0.2
+
+* Fixed an error for when OmniCC attempts to display configuration for rules with missing id values
+
 ## 9.0.1
 
 * Apply default rulesets only when a profile is first created. This fixes an issue with deleting the defaults.
