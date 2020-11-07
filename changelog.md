@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.0.3
+
+* Fix cases where cooldowns may not properly refresh
+
 ## 9.0.2
 
 * Fixed an error for when OmniCC attempts to display configuration for rules with missing id values
