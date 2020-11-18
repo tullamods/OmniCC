@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.0.4
+
+* Updated TOCs for 9.0.2
+
 ## 9.0.3
 
 * Fix cases where cooldowns may not properly refresh
