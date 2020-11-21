@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: ':beetle: bug'
-assignees: ''
+assignees: 'Tuller'
 ---
 
 **Give us a clear and concise description of the problem, and what you expect to happen**
