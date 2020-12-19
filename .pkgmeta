@@ -8,7 +8,7 @@ move-folders:
   OmniCC/OmniCC: OmniCC
   OmniCC/OmniCC_Config: OmniCC_Config
 
-# externals:
+externals:
   OmniCC_Config/libs/AceConfig-3.0: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0
   OmniCC_Config/libs/AceDBOptions-3.0: https://repos.wowace.com/wow/ace3/trunk/AceDBOptions-3.0
   OmniCC_Config/libs/AceGUI-3.0-SharedMediaWidgets: https://repos.curseforge.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
