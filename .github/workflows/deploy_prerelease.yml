@@ -39,5 +39,5 @@ jobs:
       - name: Package and release for Classic
         uses: BigWigsMods/packager@master
         with:
-          args: -g 1.13.5 -p 2057 -w 17076
+          args: -g 1.13.6 -p 2057 -w 17076
 

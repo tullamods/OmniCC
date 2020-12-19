@@ -10,4 +10,9 @@
 ## Author: Tuller
 ## Dependencies: OmniCC
 ## LoadOnDemand: 1
-..\OmniCC\config\config.xml
+embeds.xml
+localization\localization.xml
+preview.lua
+themes.lua
+rules.lua
+options.lua

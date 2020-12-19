@@ -2,7 +2,7 @@
 ## Interface: 90002
 #@end-retail@
 #@non-retail@
-# ## Interface: 11305
+# ## Interface: 11306
 #@end-non-retail@
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
@@ -10,4 +10,9 @@
 ## Author: Tuller
 ## Version: @project-version@
 ## SavedVariables: OmniCCDB, OmniCC4Config
-main\main.xml
+embeds.xml
+localization\localization.xml
+main.lua
+core\core.xml
+settings\settings.xml
+effects\effects.xml
