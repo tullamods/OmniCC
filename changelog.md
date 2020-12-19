@@ -1,5 +1,11 @@
 # OmniCC Changelog
 
+## 9.0.5
+
+* Update TOCs for 1.13.6
+* Add a nil check when deciding to hide cooldown spirals or not
+* Build process updates
+
 ## 9.0.4
 
 * Updated TOCs for 9.0.2
