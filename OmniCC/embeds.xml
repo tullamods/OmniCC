@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="LibStub\LibStub.lua"/>
-	<Include file="CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
-	<Include file="AceLocale-3.0\AceLocale-3.0.xml"/>
-	<Include file="AceDB-3.0\AceDB-3.0.xml"/>
-	<Include file="LibSharedMedia-3.0\lib.xml"/>
+	<Script file="libs\LibStub\LibStub.lua"/>
+	<Include file="libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
+	<Include file="libs\AceLocale-3.0\AceLocale-3.0.xml"/>
+	<Include file="libs\AceDB-3.0\AceDB-3.0.xml"/>
+	<Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 </Ui>
