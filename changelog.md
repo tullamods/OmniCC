@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.0.6 (Unreleased)
+
+* Updated Russian Localization (thanks, Artur91425)
+
 ## 9.0.5
 
 * Update TOCs for 1.13.6
