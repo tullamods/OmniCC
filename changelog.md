@@ -1,8 +1,9 @@
 # OmniCC Changelog
 
-## 9.0.6 (Unreleased)
+## 9.0.6
 
-* Updated Russian Localization (thanks, Artur91425)
+* Replaced the Draw Cooldown Swipes with a Cooldown Opacity slider
+* Updated Russian Localization (thanks, Artur91425)1
 
 ## 9.0.5
 
