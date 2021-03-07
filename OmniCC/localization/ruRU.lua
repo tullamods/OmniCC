@@ -6,7 +6,7 @@ if not L then return end
 L.DayFormat = "%dd"
 L.HourFormat = "%dч"
 L.MinuteFormat = "%dм"
-L.MMSSFormat = "%d:%02д"
+L.MMSSFormat = "%d:%02d"
 L.SecondsFormat = "%d"
 L.TenthsFormat = "%0.1f"
 
