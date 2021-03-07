@@ -142,9 +142,7 @@ function Addon:UpgradeDB()
     if dbVersion ~= DB_VERSION then
         if dbVersion == nil then
             self:MigrateLegacySettings(_G[LEGACY_DB_NAME])
-        end
-
-        if dbVersion < 6 then
+        elseif dbVersion < 6 then
             self:MigrateDrawSwipesSetting()
         end
 
@@ -158,16 +156,22 @@ function Addon:UpgradeDB()
 end
 
 function Addon:MigrateLegacySettings(legacyDb)
-    if type(legacyDb) ~= 'table' then return end
+    if type(legacyDb) ~= 'table' then
+        return
+    end
 
     local function getThemeID(id)
-        if id == 'base' then return DEFAULT end
+        if id == 'base' then
+            return DEFAULT
+        end
 
         return id
     end
 
     local function copyTable(src, dest)
-        if type(dest) ~= 'table' then dest = {} end
+        if type(dest) ~= 'table' then
+            dest = {}
+        end
 
         for k, v in pairs(src) do
             if type(v) == 'table' then
