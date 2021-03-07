@@ -1,9 +1,16 @@
 # OmniCC Changelog
 
+## 9.0.7
+
+* Updated Korean translation (thanks, WetU)
+* Updated Russian translation (thanks mone-ennen)
+* Fixed an issue when upgrading from OmniCC versions prior to 8.1 or so
+* Added a setting to disable auto disabling of blizzard cooldown text `/run OmniCC.db.global.disableBlizzardCooldownText = false; ReloadUI()`
+
 ## 9.0.6
 
 * Replaced the Draw Cooldown Swipes with a Cooldown Opacity slider
-* Updated Russian Localization (thanks, Artur91425)1
+* Updated Russian Localization (thanks, Artur91425)
 
 ## 9.0.5
 
