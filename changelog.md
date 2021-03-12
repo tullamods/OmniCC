@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.0.8
+
+* The cooldown opacity setting is now only applied when set at an opacity value under 100%
+
 ## 9.0.7
 
 * Updated Korean translation (thanks, WetU)
