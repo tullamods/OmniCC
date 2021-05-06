@@ -22,6 +22,8 @@ jobs:
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
 
     # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
@@ -34,11 +36,11 @@ jobs:
       - name: Package and release
         uses: BigWigsMods/packager@master
         with:
-          args: -p 2057 -w 4836
+          args: -p 2057 -w 4836 -a baNDDpNo
 
       # another example where we supply additional arguments, this example is specifically to release
       # for the Classic version of the game
       - name: Package and release for Classic
         uses: BigWigsMods/packager@master
         with:
-          args: -g 1.13.6 -p 2057 -w 4836
+          args: -g classic -p 2057 -w 4836 -a baNDDpNo
