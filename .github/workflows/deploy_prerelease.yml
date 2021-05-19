@@ -25,16 +25,9 @@ jobs:
 
     # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
-
       # we first have to clone the AddOn project, which is simple enough, and is a required step
       - name: Clone project
         uses: actions/checkout@v2
-
-      # once cloned, we just run the GitHub Action for the packager project
-      - name: Package and release
-        uses: BigWigsMods/packager@master
-        with:
-          args: -p 2057 -w 17076 -a baNDDpNo
 
       # another example where we supply additional arguments, this example is specifically to release
       # for the Classic version of the game
@@ -49,5 +42,12 @@ jobs:
         uses: BigWigsMods/packager@master
         with:
           args: -g bcc -p 2057 -w 17076 -a baNDDpNo
+
+      # once cloned, we just run the GitHub Action for the packager project
+      - name: Package and release
+        uses: BigWigsMods/packager@master
+        with:
+          args: -p 2057 -w 17076 -a baNDDpNo
+
 
 
