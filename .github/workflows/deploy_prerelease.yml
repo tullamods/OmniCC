@@ -48,6 +48,6 @@ jobs:
       - name: Package and release for BC Classic
         uses: BigWigsMods/packager@master
         with:
-          args: -g bc -p 2057 -w 17076 -a baNDDpNo
+          args: -g bcc -p 2057 -w 17076 -a baNDDpNo
 
 

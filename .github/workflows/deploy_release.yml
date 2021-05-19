@@ -44,3 +44,10 @@ jobs:
         uses: BigWigsMods/packager@master
         with:
           args: -g classic -p 2057 -w 4836 -a baNDDpNo
+
+      # another example where we supply additional arguments, this example is specifically to release
+      # for the BC Classic version of the game
+      - name: Package and release for BC Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g bcc -p 2057 -w 4836 -a baNDDpNo
