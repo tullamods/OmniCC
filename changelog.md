@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.1.0
+
+* TOC updates for WoW 9.1.0
+
 ## 9.0.10
 
 * Update TOCs for Burning Crusade Classic
