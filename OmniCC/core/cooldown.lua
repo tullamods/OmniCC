@@ -64,6 +64,11 @@ function Cooldown:CanShowText()
         return false
     end
 
+    -- at most max duration
+    if duration > (settings.maxDuration or 0) then
+        return false
+    end
+
     -- hide text if we don't want to display it for this kind of cooldown
     if not settings.enableText then
         return false
