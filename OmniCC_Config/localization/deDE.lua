@@ -16,6 +16,7 @@ L.Outline_OUTLINE = "Dünn"
 L.Outline_THICKOUTLINE = "Dick"
 L.Outline_OUTLINEMONOCHROME = "Einfarbig"
 
+L.MaxDuration = "Maximaldauer zur Anzeige von Text"
 L.MinDuration = "Minimaldauer zur Anzeige von Text"
 L.MinSize = "Minimalgröße zur Anzeige von Text"
 L.ScaleText = "Text automatisch skalieren, damit dieser in Frames passt"
@@ -86,6 +87,12 @@ L.MinDurationTip =
 damit ein Text angezeigt wird.
 Diese Einstellung wird hauptsächlich verwendet,
 um die globale Abklingzeit auszublenden.]]
+
+L.MaxDurationTip =
+[[Bestimmt, wie groß die Abklingzeit sein darf,
+damit ein Text angezeigt wird.
+Diese Einstellung wird hauptsächlich verwendet,
+um sehr lange Abklingzeiten auszublenden.]]
 
 L.MinSizeTip =
 [[Bestimmt, wie groß ein Frame sein muss,
