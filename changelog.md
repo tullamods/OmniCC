@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.1.1
+
+* TOC updates for WoW Classic
+
 ## 9.1.0
 
 * TOC updates for WoW 9.1.0
