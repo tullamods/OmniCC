@@ -1,6 +1,6 @@
 ## Interface: 90100
 ## Interface-BCC: 20501
-## Interface-Classic: 11307
+## Interface-Classic: 11401
 ## Title: OmniCC Config
 ## Notes: OmniCC's configuration menu
 ## Notes-koKR: OmniCC의 설정 메뉴
