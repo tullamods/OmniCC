@@ -2,7 +2,7 @@
 
 ## 9.1.1
 
-* TOC updates for WoW Classic
+* TOC updates for 1.14.1 and 9.1.5
 
 ## 9.1.0
 
