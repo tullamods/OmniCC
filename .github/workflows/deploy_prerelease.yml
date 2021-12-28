@@ -32,20 +32,20 @@ jobs:
       # another example where we supply additional arguments, this example is specifically to release
       # for the Classic version of the game
       - name: Package and release for Classic
-        uses: BigWigsMods/packager@master
+        uses: BigWigsMods/packager@v1
         with:
           args: -g classic -p 2057 -w 17076 -a baNDDpNo
 
       # another example where we supply additional arguments, this example is specifically to release
       # for the BC Classic version of the game
       - name: Package and release for BC Classic
-        uses: BigWigsMods/packager@master
+        uses: BigWigsMods/packager@v1
         with:
           args: -g bcc -p 2057 -w 17076 -a baNDDpNo
 
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
-        uses: BigWigsMods/packager@master
+        uses: BigWigsMods/packager@v1
         with:
           args: -p 2057 -w 17076 -a baNDDpNo
 
