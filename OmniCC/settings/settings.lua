@@ -83,7 +83,8 @@ function Addon:GetDBDefaults()
                     -- how long a cooldown (in seconds) must be to display text
                     minDuration = 2,
                     -- how long a cooldown (in seconds) can at most be to display text
-                    maxDuration = 600,
+                    -- set to zero for unlimited maximum durations
+                    maxDuration = 0,
                     -- at what duration (in seconds) remaining should start
                     -- displaying cooldowns in tenths of seconds format (ex, 3.1)
                     tenthsDuration = 0,

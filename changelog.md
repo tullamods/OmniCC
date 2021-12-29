@@ -1,5 +1,11 @@
 # OmniCC Changelog
 
+## 9.1.6
+
+* Whoops, I forgot that 9.1.5 introduced a new Maximum Cooldown Duration setting (thanks Lyrex)
+* Setting the maximum duration slider to 0 will enable cooldowns of any duration
+* Adjusted default for max duration to be 0 instead of 600
+
 ## 9.1.5
 
 * TOC updates for 1.14.1 and 9.1.5

@@ -65,7 +65,8 @@ function Cooldown:CanShowText()
     end
 
     -- at most max duration
-    if duration > (settings.maxDuration or 0) then
+    local maxDuration = settings.maxDuration or 0
+    if maxDuration > 0 and duration > maxDuration then
         return false
     end
 

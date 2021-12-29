@@ -352,7 +352,7 @@ local function addThemeOptions(owner, theme, id)
                                 name = L.MaxDuration,
                                 desc = L.MaxDurationDesc,
                                 width = 'full',
-                                order = 30,
+                                order = 31,
                                 min = 0,
                                 softMax = 600,
                                 step = 1,
