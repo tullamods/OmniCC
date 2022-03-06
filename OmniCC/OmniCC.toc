@@ -1,6 +1,6 @@
-## Interface: 90105
-## Interface-BCC: 20502
-## Interface-Classic: 11401
+## Interface: 90200
+## Interface-BCC: 20503
+## Interface-Classic: 11402
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트

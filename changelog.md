@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 9.2.0
+
+* Updated TOCs for 9.2.0, 2.5.3, and 1.14.2
+
 ## 9.1.6
 
 * Whoops, I forgot that 9.1.5 introduced a new Maximum Cooldown Duration setting (thanks Lyrex)
