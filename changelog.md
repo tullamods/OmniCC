@@ -1,5 +1,16 @@
 # OmniCC Changelog
 
+## 10.0.1
+
+* Tagging as release
+
+## 10.0.0
+
+* Update TOCs for 10.0.0
+* NOTE: OmniCC's options menu is now no longer a part of the main options menu,
+  to avoid issues introduced with Dragonflight's UI changes. To bring up the
+  options menu, use either the /omnicc or /occ slash commands.
+
 ## 9.2.1
 
 * Updated TOCs for 9.2.5, 3.4.0, 2.5.4, and 1.14.3.
