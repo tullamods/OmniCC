@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 10.0.1
+
+* Tagging as release
+
 ## 10.0.0
 
 * Update TOCs for 10.0.0
