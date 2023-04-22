@@ -129,3 +129,4 @@ Addon:OnLoad()
 
 -- exports
 _G[ADDON] = Addon
+_G[ADDON .. '_Launch'] = function() Addon:ShowOptionsFrame() end
