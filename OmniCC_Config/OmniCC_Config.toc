@@ -1,7 +1,7 @@
 ## Interface: 100100
 ## Interface-BCC: 20504
 ## Interface-Classic: 11403
-## Interface-Wrath: 30401
+## Interface-Wrath: 30402
 ## Title: OmniCC Config
 ## Notes: OmniCC's configuration menu
 ## Notes-koKR: OmniCC의 설정 메뉴
