@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 10.1.1
+
+* Update TOCs for 3.4.3
+
 ## 10.1.0
 
 * Update TOCs for 10.1.0
