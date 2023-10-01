@@ -138,7 +138,7 @@ function Addon:AddDefaultRulesets(db)
         id = 'actions',
         enabled = false,
         name = ACTIONBARS_LABEL,
-        patterns = {'ActionButton'}
+        patterns = {'ActionButton', "MultiBar"}
     })
 end
 
