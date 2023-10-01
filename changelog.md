@@ -1,5 +1,10 @@
 # OmniCC Changelog
 
+## 10.1.2
+
+* Update TOCs for 10.1.7 and 1.14.4
+* Add Multi Action Burs to the default Action Bars rule
+
 ## 10.1.1
 
 * Update TOCs for 3.4.3
