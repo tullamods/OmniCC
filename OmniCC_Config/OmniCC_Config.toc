@@ -1,5 +1,5 @@
-## Interface: 100107
-## Interface-Wrath: 30402
+## Interface: 100200
+## Interface-Wrath: 30403
 ## Interface-Classic: 11404
 ## Title: OmniCC Config
 ## Notes: OmniCC's configuration menu
