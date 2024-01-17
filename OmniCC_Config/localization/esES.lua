@@ -2,129 +2,92 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "esES") or LibStub("AceLocale-3.0"):NewLocale("OmniCC", "esMX")
 if not L then return end
 
-L.GeneralSettings = "General"
-L.FontSettings = "Aspecto del Texto"
-L.RuleSettings = "Reglas"
-L.PositionSettings = "Posición del Texto"
-
-L.Font = "Fonte"
-L.FontSize = "Tamaño del Texto"
-L.FontOutline = "Contorno del Texto"
-
-L.Outline_OUTLINE = "Fino"
-L.Outline_THICKOUTLINE = "Grueso"
-L.Outline_OUTLINEMONOCHROME = "Monocromo"
-
-L.MinDuration = "Duración mínima para mostrar texto"
-L.MinSize = "Tamaño mínimo para mostrar texto"
-L.ScaleText = "Redimensionar texto automáticamente"
-L.EnableText = "Activar texto"
-
-L.Add = "Añadir"
-L.Remove = "Eliminar"
-
-L.FinishEffect = "Efecto final"
-L.MinEffectDuration = "Duración mínima para mostrar un efecto final"
-
-L.MMSSDuration = "Duración mínima para mostrar texto en MM:SS"
-L.TenthsDuration = "Duración mínima para mostrar las décimas de segundo"
-
-L.ColorAndScale = "Color y Escala"
-L.Color_soon = "Cerca a expirar"
-L.Color_seconds = "Menos de un minuto"
-L.Color_minutes = "Menos de una hora"
-L.Color_hours = "Más de una hora"
-
-L.SpiralOpacity = "Transparencia de los espirales"
-L.UseAniUpdater = "Optimizar rendimiento"
-
---text positioning
-L.XOffset = "X"
-L.YOffset = "Y"
-
 L.Anchor = 'Posición'
-L.Anchor_LEFT = 'Izquierda'
-L.Anchor_CENTER = 'Centro'
-L.Anchor_RIGHT = 'Derecha'
-L.Anchor_TOPLEFT = 'Arriba a la Izquierda'
-L.Anchor_TOP = 'Arriba'
-L.Anchor_TOPRIGHT = 'Arriba a la Derecha'
-L.Anchor_BOTTOMLEFT = 'Abajo a la Izquierda'
 L.Anchor_BOTTOM = 'Abajo'
-L.Anchor_BOTTOMRIGHT = 'Abajo a la Derecha'
+L.Anchor_BOTTOMLEFT = 'Abajo a la izquierda'
+L.Anchor_BOTTOMRIGHT = 'Abajo a la derecha'
+L.Anchor_CENTER = 'Centro'
+L.Anchor_LEFT = 'Izquierda'
+L.Anchor_RIGHT = 'Derecha'
+L.Anchor_TOP = 'Arriba'
+L.Anchor_TOPLEFT = 'Arriba a la izquierda'
+L.Anchor_TOPRIGHT = 'Arriba a la derecha'
+L.ColorAndScale = "Color y escala"
+L.ColorAndScaleDesc = 'Ajusta la configuración de color y escala para diferentes estados de reutilización'
+L.CooldownText = 'Texto de reutilización'
+L.CooldownOpacity = 'Opacidad de reutilización'
+L.CooldownOpacityDesc = 'Ajusta la opacidad de reutilización.'
+L.CreateTheme = 'Crear tema'
+L.Display = DISPLAY
+L.DisplayGroupDesc = 'Ajusta qué información mostrar en las reutilizaciones y cuándo'
+L.Duration = 'Duración'
+L.EnableCooldownSwipes = 'Barridos de tiempo de reutilización'
+L.EnableCooldownSwipesDesc = 'Los barridos de tiempo de reutilización son el fondo oscuro que indica el tiempo restante en los tiempos de reutilización.'
+L.EnableText = "Activar texto"
+L.EnableTextDesc = 'Muestra tiempo restante de reutilización'
+L.FinishEffect = 'Efecto de terminación'
+L.FinishEffectDesc = 'Ajusta qué efecto activar cuando termina un tiempo de reutilización.'
+L.FinishEffects = 'Efectos de terminación'
+L.FontFace = 'Fuente'
+L.FontOutline = "Contorno del texto"
+L.FontSize = "Tamaño del texto"
+L.HorizontalOffset = 'Desplazamiento horizontal'
+L.MaxDuration = 'Duración máxima para mostrar texto'
+L.MaxDurationDesc = 'Duración máxima de reutilización para mostrar texto.'
+L.MinDuration = "Duración mínima para mostrar texto"
+L.MinDurationDesc = "Duración mínima de reutilización para mostrar texto."
+L.MinEffectDuration = "Duración mínima para mostrar efecto de terminación"
+L.MinEffectDurationDesc = "Duración mínima para mostrar un efecto de terminación."
+L.MinSize = "Tamaño mínimo para mostrar texto"
+L.MinSizeDesc = 'Cuán grande debe ser algo para mostrar el texto de reutilización. 100 es el tamaño de un botón de acción normal, 80 es aproximadamente el tamaño de un botón de acción de mascota, y 47 es aproximadamente el tamaño de un perjuicio en el marco de objetivo de Blizzard.'
+L.MMSSDuration = "Duración mínima para mostrar texto en MM:SS"
+L.MMSSDurationDesc = 'Duración a empezar a mostrar el tiempo restante de reutilización en formato MM:SS.'
+L.Outline_NONE = NONE
+L.Outline_OUTLINE = "Fino"
+L.Outline_OUTLINEMONOCHROME = "Monocromo"
+L.Outline_THICKOUTLINE = "Grueso"
+L.Preview = PREVIEW
+L.RuleAdd = 'Añadir regla'
+L.RuleAddDesc = 'Crea una nueva regla'
+L.RuleEnable = ENABLE
+L.RuleEnableDesc = 'Activa o desactiva esta regla. Si una regla está desactivada, OmniCC la omitirá al verificarla.'
+L.RulePatterns = 'Patrones'
+L.RulePatternsDesc = 'Nombres o partes de nombres de elementos de la interfaz de usuario a los que esta regla debe aplicarse. Cada patrón debe ingresarse en una línea separada.'
+L.RulePriority = 'Prioridad'
+L.RulePriorityDesc = 'Las reglas se evalúan en orden ascendente. La primera coincidencia es la que se aplicará a una reutilización.'
+L.RuleRemove = REMOVE
+L.RuleRemoveDesc = 'Quita esta regla'
+L.Rules = 'Reglas'
+L.RulesDesc = 'Las reglas se pueden utilizar para aplicar temas a elementos específicos de tu interfaz de usuario. Si no hay coincidencias para un elemento específico, se utilizará el tema predeterminado.'
+L.Rulesets = 'Conjuntos de Reglas'
+L.RuleTheme = 'Tema'
+L.RuleThemeDesc = 'Qué tema aplicar a los elementos de la interfaz de usuario que coincidan con esta regla'
+L.ScaleText = "Redimensionar texto automáticamente"
+L.State_charging = 'Restaurando cargas'
+L.State_controlled = 'Perdió el control'
+L.State_days = 'Al menos un día restante'
+L.State_hours = 'Horas restantes'
+L.State_minutes = 'Menos de una hora restante'
+L.State_seconds = 'Menos de un minuto restante'
+L.State_soon = 'Pronto a expirar'
+L.TenthsDuration = 'Duración mínima para mostrar las décimas de segundo'
+L.TenthsDurationDesc = 'Duración a empezar a mostrar el tiempo restante de reutilización en formato de décimas (0.1).'
+L.TextColor = 'Color de texto'
+L.TextFont = 'Fuente del texto'
+L.TextPosition = 'Posición de texto'
+L.TextShadow = 'Sombras de texto'
+L.TextShadowColor = COLOR
+L.TextSize = 'Tamaño de texto'
+L.Theme = 'Tema'
+L.ThemeAdd = 'Añadir tema'
+L.ThemeAddDesc = 'Crea un nuevo tema'
+L.ThemeRemove = REMOVE
+L.ThemeRemoveDesc = 'Quita este tema'
+L.Themes = 'Temas'
+L.ThemesDesc = "Un tema es una colección de configuraciones de apariencia de OmniCC. Los temas se pueden utilizar junto con reglas para cambiar la apariencia de OmniCC en partes específicas de tu interfaz de usuario."
+L.Typography = 'Tipografía'
+L.TypographyDesc = 'Ajusta cómo se ve el texto de la reutilización, como la fuente a utilizar'
+L.VerticalOffset = 'Desplazamiento vertical'
 
---groups
-L.Groups = 'Grupos'
-L.Group_default = 'Defecto'
-L.Group_action = 'Acciónes'
-L.Group_pet = 'Acciónes del Animal'
-L.AddGroup = 'Añadir Grupo...'
-
---[[ Tooltips ]]--
-
-L.ScaleTextTip =
-[[Cuando está activada, esta opción
-hace reducir el tamaño del texto para
-que quepa en pequeños elementos.]]
-
-L.SpiralOpacityTip =
-[[Establece la transparencia de los espirales negros que por lo
-general se visualizan en botones en tiempo de reutilización.]]
-
-L.UseAniUpdaterTip =
-[[Optimiza el rendimiento del procesador, pero puede
-causar bloqueos en algunos sistemas.
-Desactivar esta opción va a resolver el problema.]]
-
-L.MinDurationTip =
-[[Determina el tiempo mínimo que un tiempo de reutilización
-debe tener a fin de mostrar el texto.
-
-Esta configuración se utiliza principalmente para
-filtrado del GCD.]]
-
-L.MinSizeTip =
-[[Determina el tamaño mínimo que un elemento debe tener para mostrar texto.
-
-Algunos ejemplos:
-100 - El tamaño de un botón de acción
-80 - El tamaño de un botón de clase o de acción de animal
-55 - El tamaño de un aficionado de ventana del enimigo]]
-
-L.MinEffectDurationTip =
-[[Determina el tiempo mínimo para un tiempo
-de reutilización mostrar el efecto final.]]
-
-L.MMSSDurationTip =
-[[Determina el tiempo mínimo para mostrar
-un tiempo de reutilización en MM:SS.]]
-
-L.TenthsDurationTip =
-[[Determina el tiempo mínimo para
-mostrar décimas de segundo.]]
-
-L.FontSizeTip =
-[[Controla el tamaño del texto.]]
-
-L.FontOutlineTip =
-[[Controla a espessura do
-contorno à volta do texto.]]
-
-L.UseBlacklistTip =
-[[Activa el uso de la lista negra.
-Cuando está activado, cualquier elemento con un nombre
-que coincide con un elemento de la lista negra
-no mostrará texto.]]
-
-L.FrameStackTip =
-[[Si activado, muestran los nombres
-de los elementos cuando se pasan
-el puntero del ratón sobre ellos.]]
-
-L.XOffsetTip =
-[[Controles de desplazamiento
-horizontal del texto.]]
-
-L.YOffsetTip =
-[[Controla de desplazamiento
-vertical del texto.]]
+L.TimerOffset = 'Desplazamiento del temporizador (ms)'
+L.TimerOffsetDesc = 'Resta una cantidad de tiempo de la visualización del texto del temporizador de tu tiempo de reutilización. Puedes usar esto, por ejemplo, para que el texto del temporizador termine cuando puedas poner en cola una habilidad.'
