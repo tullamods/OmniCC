@@ -1,5 +1,12 @@
 # OmniCC Changelog
 
+## 10.2.2
+
+### Thank you to [anon1231823](https://github.com/anon1231823) for these contributions
+
+* Update TOCs for 10.2.5
+* Updated French, Portuguese, and Spanish translations 
+
 ## 10.2.1
 
 * Update TOCs for 1.15.0
