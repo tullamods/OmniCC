@@ -4,6 +4,10 @@
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트
+## Notes-esMX: Contador de tiempo de reutilización
+## Notes-esES: Contador de tiempo reutilización
+## Notes-ptBR: Contagem de tempo de recarga
+## Notes-frFR: Compte à rebours du temps de recharge
 ## Author: Tuller
 ## Version: @project-version@
 ## SavedVariables: OmniCCDB, OmniCC4Config
