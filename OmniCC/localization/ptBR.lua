@@ -17,4 +17,4 @@ L.PulseTip = [[Pulsa o ícone de tempo de recarga.]]
 
 -- other
 L.ConfigMissing = "%s não pôde ser carregado porque o addon está %s"
-L.Version = "Você está usando a |cffFCF75EVersão OmniCC (%s)|r"
+L.Version = "Você está usando a |cffFCF75EOmniCC Versão (%s)|r"
