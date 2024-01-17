@@ -16,5 +16,4 @@ L.PulseTip = [[Pulsa el icono de reutilización.]]
 
 -- other
 L.ConfigMissing = "%s no se puede cargar porque el addon está %s"
-L.Updated = "Actualizado a la versión %s"
 L.Version = "Está utilizando |cffFCF75EOmniCC versión (%s)|r"
