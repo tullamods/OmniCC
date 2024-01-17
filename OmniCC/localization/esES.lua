@@ -3,11 +3,12 @@ local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "esES") or LibStub("AceL
 if not L then return end
 
 -- effect names
+L.Activate = "Activar"
+L.Alert = "Avisar"
+L.Flare = "Llamear"
+L.None = NONE
 L.Pulse = "Pulsar"
 L.Shine = "Brillar"
-L.Alert = "Avisar"
-L.Activate = "Activar"
-L.Flare = "Llamear"
 
 -- effect tooltips
 L.ActivateTip = [[Imita el efecto predeterminado que se muestra en los botones de acción cuando un facultad "procs".]]
