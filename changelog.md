@@ -2,6 +2,10 @@
 
 ## 10.2.3
 
+* Updated Portuguese translation (thanks to [anon1231823](https://github.com/anon1231823))
+
+## 10.2.3
+
 * Update TOCs for 1.15.1
 
 ## 10.2.2
