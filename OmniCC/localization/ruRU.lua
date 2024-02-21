@@ -11,7 +11,7 @@ L.SecondsFormat = "%d"
 L.TenthsFormat = "%0.1f"
 
 -- effect names
-L.Activate = "Activate"
+L.Activate = "Активировать"
 L.Alert = "Оповещение"
 L.Flare = "Вспышка"
 L.None = NONE
@@ -20,9 +20,9 @@ L.Shine = "Сияние"
 
 -- effect tooltips
 L.ActivateTip = [[Применяет эффект срабатывания способности к значку перезарядки.]]
-L.AlertTip = [[Пульсирует значок завершенного восстановления в центре экрана. .]]
+L.AlertTip = [[Пульсирует значок завершенного восстановления в центре экрана.]]
 L.PulseTip = [[Пульсирует значок восстановления .]]
 
 -- other
-L.ConfigMissing = "%s не может быть загружен, потому что аддон %s"
-L.Version = "Вы используете |cffFCF75EOmniCC версии (%s)|r"
+L.ConfigMissing = "%s не удалось загрузить, поскольку этот аддон %s"
+L.Version = "Вы используете версию |cffFCF75EOmniCC (%s)|r"
