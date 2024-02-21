@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 10.2.5
+
+* Updated Russian translation (thanks to [Hollicsh](https://github.com/Hollicsh))
+
 ## 10.2.4
 
 * Updated Portuguese translation (thanks to [anon1231823](https://github.com/anon1231823))
