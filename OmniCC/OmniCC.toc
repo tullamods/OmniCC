@@ -8,6 +8,7 @@
 ## Notes-esES: Contador de tiempo de reutilización
 ## Notes-ptBR: Contagem de tempo de recarga
 ## Notes-frFR: Compte à rebours du temps de recharge
+## Notes-ruRU: Время восстановления абилок и т.п.
 ## Author: Tuller
 ## Version: @project-version@
 ## SavedVariables: OmniCCDB, OmniCC4Config
