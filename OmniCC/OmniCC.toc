@@ -1,6 +1,7 @@
-## Interface: 100205
+## Interface: 100206
+## Interface-Cata: 40400
+## Interface-Classic: 11502
 ## Interface-Wrath: 30403
-## Interface-Classic: 11501
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트
