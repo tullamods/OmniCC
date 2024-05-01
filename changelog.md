@@ -1,6 +1,6 @@
 # OmniCC Changelog
 
-## 10.2.5
+## 10.2.6
 
 * Update TOCs
 
