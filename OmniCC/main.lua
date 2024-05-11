@@ -79,7 +79,7 @@ end
 
 -- utility methods
 function Addon:ShowOptionsFrame()
-    if self:IsConfigAddonEnabled() and LoadAddOn(CONFIG_ADDON) then
+    if self:IsConfigAddonEnabled() and C_AddOns.LoadAddOn(CONFIG_ADDON) then
         local dialog = LibStub('AceConfigDialog-3.0')
 
         dialog:Open(ADDON)
@@ -92,11 +92,7 @@ function Addon:ShowOptionsFrame()
 end
 
 function Addon:IsConfigAddonEnabled()
-    if GetAddOnEnableState(UnitName('player'), CONFIG_ADDON) >= 1 then
-        return true
-    end
-
-    return false
+    return C_AddOns.GetAddOnEnableState(CONFIG_ADDON, UnitName('player')) > 0
 end
 
 function Addon:CreateHiddenFrame(...)

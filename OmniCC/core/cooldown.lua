@@ -15,24 +15,52 @@ local cooldowns = {}
 local Cooldown = {}
 
 -- queries
-local function IsGlobalCooldown(start, duration)
-    if start == 0 or duration == 0 then
-        return false
+local IsGlobalCooldown, GetGCDTimeRemaining
+
+if C_Spell and type(C_Spell.GetSpellCooldown) == "function" then
+    IsGlobalCooldown = function (start, duration)
+        if start == 0 or duration == 0 then
+            return false
+        end
+
+        local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
+
+        return gcd and start == gcd.startTime and duration == gcd.duration
     end
 
-    local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+    GetGCDTimeRemaining = function()
+        local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
 
-    return start == gcdStart and duration == gcdDuration
-end
+        if not gcd then
+            return 0
+        end
 
-local function GetGCDTimeRemaining()
-    local start, duration = GetSpellCooldown(GCD_SPELL_ID)
+        if gcd.startTime == 0 or gcd.duration == 0 then
+            return 0
+        end
 
-    if start == 0 or duration == 0 then
-        return 0
+        return (gcd.startTime + gcd.duration) - GetTime()
+    end
+else
+    IsGlobalCooldown = function (start, duration)
+        if start == 0 or duration == 0 then
+            return false
+        end
+
+        local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+
+        return start == gcdStart and duration == gcdDuration
     end
 
-    return (start + duration) - GetTime()
+    GetGCDTimeRemaining = function()
+        local start, duration = GetSpellCooldown(GCD_SPELL_ID)
+
+        if start == 0 or duration == 0 then
+            return 0
+        end
+
+        return (start + duration) - GetTime()
+    end
 end
 
 function Cooldown:CanShowText()

@@ -1,4 +1,4 @@
-## Interface: 100207, 40400
+## Interface: 110000, 100207, 40400
 ## Interface-Classic: 11502
 ## Title: OmniCC Config
 ## Title-ruRU: Конфигурация OmniCC

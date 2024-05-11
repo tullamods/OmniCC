@@ -3,6 +3,7 @@
 ## 10.2.7
 
 * Update TOCs
+* Preliminary War Within support
 
 ## 10.2.6
 
