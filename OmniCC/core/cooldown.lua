@@ -253,7 +253,7 @@ function Cooldown:HideText()
 end
 
 function Cooldown:UpdateText()
-    if self._occ_show and self:IsVisible() then
+    if self._occ_show and (not self:IsForbidden()) and self:IsVisible() then
         Cooldown.ShowText(self)
     else
         Cooldown.HideText(self)
