@@ -141,7 +141,7 @@ function Display:UpdateActiveCooldown()
         -- reposition the display to be above the cooldown
         if cooldown then
             self:SetAllPoints(cooldown)
-            self:SetFrameLevel(cooldown:GetFrameLevel() + 7)
+            self:SetFrameLevel(cooldown:GetFrameLevel() + 507)
             self:UpdateCooldownTextFont()
             self:UpdateCooldownTextPositionSizeAndColor()
         end
