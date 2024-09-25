@@ -3,9 +3,9 @@ local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "zhTW")
 if not L then return end
 
 -- timer formats
-L.DayFormat = "%d天"
-L.HourFormat = "%d小時"
-L.MinuteFormat = "%d分"
+L.DaysFormat = "%d天"
+L.HoursFormat = "%d小時"
+L.MinutesFormat = "%d分"
 L.MMSSFormat = "%d:%02d"
 L.SecondsFormat = "%d"
 L.TenthsFormat = "%0.1f"

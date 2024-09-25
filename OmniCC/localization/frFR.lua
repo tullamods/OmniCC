@@ -6,9 +6,9 @@ if not L then return end
 L.TenthsFormat = "%0.1f"
 L.SecondsFormat = "%d"
 L.MMSSFormat = "%d:%02d"
-L.MinuteFormat = "%dm"
-L.HourFormat = "%dh"
-L.DayFormat = "%dd"
+L.MinutesFormat = "%dm"
+L.HoursFormat = "%dh"
+L.DaysFormat = "%dd"
 
 -- Noms des effects
 L.None = NONE

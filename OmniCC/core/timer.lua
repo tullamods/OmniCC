@@ -15,7 +15,7 @@ local DAY = 86400000
 local HOUR = 3600000
 local MINUTE = 60000
 local SECOND = 1000
-local TENTHS = 100
+local TENTH = 100
 local TICK = 10
 
 -- rounding values in ms
@@ -23,7 +23,7 @@ local HALF_DAY = 43200000
 local HALF_HOUR = 1800000
 local HALF_MINUTE = 30000
 local HALF_SECOND = 500
-local HALF_TENTHS = 50
+local HALF_TENTH = 50
 
 -- transition points in ms
 local HOURS_THRESHOLD = 84600000 -- 23.5 hours
@@ -185,9 +185,9 @@ function Timer:GetTimerText(remain)
 
     if remain < tenthsThreshold then
         -- tenths of seconds
-        local tenths = (remain + HALF_TENTHS) - (remain + HALF_TENTHS) % TENTHS
+        local tenths = (remain + HALF_TENTH) - (remain + HALF_TENTH) % TENTH
 
-        local sleep = remain - (tenths - HALF_TENTHS)
+        local sleep = remain - (tenths - HALF_TENTH)
 
         if tenths > 0 then
             return L.TenthsFormat:format(tenths / SECOND), sleep
@@ -201,7 +201,7 @@ function Timer:GetTimerText(remain)
         local sleep = remain - max(seconds - HALF_SECOND, tenthsThreshold)
 
         if seconds > 0 then
-            return seconds / SECOND, sleep
+            return L.SecondsFormat:format(seconds / SECOND), sleep
         end
 
         return '', sleep
@@ -228,21 +228,21 @@ function Timer:GetTimerText(remain)
 
         local sleep = remain - wait
 
-        return L.MinuteFormat:format(minutes / MINUTE), sleep
+        return L.MinutesFormat:format(minutes / MINUTE), sleep
     elseif remain < HOURS_THRESHOLD then
         -- hours
         local hours = (remain + HALF_HOUR) - (remain + HALF_HOUR) % HOUR
 
         local sleep = remain - max(hours - HALF_HOUR, MINUTES_THRESHOLD)
 
-        return L.HourFormat:format(hours / HOUR), sleep
+        return L.HoursFormat:format(hours / HOUR), sleep
     else
         -- days
         local days = (remain + HALF_DAY) - (remain + HALF_DAY) % DAY
 
         local sleep = remain - max(days - HALF_DAY, HOURS_THRESHOLD)
 
-        return L.DayFormat:format(days / DAY), sleep
+        return L.DaysFormat:format(days / DAY), sleep
     end
 end
 

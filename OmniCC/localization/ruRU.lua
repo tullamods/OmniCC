@@ -3,9 +3,9 @@ local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "ruRU")
 if not L then return end
 
 -- timer formats
-L.DayFormat = "%dd"
-L.HourFormat = "%dч"
-L.MinuteFormat = "%dм"
+L.DaysFormat = "%dd"
+L.HoursFormat = "%dч"
+L.MinutesFormat = "%dм"
 L.MMSSFormat = "%d:%02d"
 L.SecondsFormat = "%d"
 L.TenthsFormat = "%0.1f"

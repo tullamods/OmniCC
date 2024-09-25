@@ -2,9 +2,9 @@ local AddonName = ...
 local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "enUS", true)
 
 -- timer formats
-L.DayFormat = "%dd"
-L.HourFormat = "%dh"
-L.MinuteFormat = "%dm"
+L.DaysFormat = "%dd"
+L.HoursFormat = "%dh"
+L.MinutesFormat = "%dm"
 L.MMSSFormat = "%d:%02d"
 L.SecondsFormat = "%d"
 L.TenthsFormat = "%0.1f"

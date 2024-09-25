@@ -3,9 +3,9 @@ local L = LibStub("AceLocale-3.0"):NewLocale(AddonName, "koKR")
 if not L then return end
 
 -- timer formats
-L.DayFormat = "%d일"
-L.HourFormat = "%d시간"
-L.MinuteFormat = "%d분"
+L.DaysFormat = "%d일"
+L.HoursFormat = "%d시간"
+L.MinutesFormat = "%d분"
 L.MMSSFormat = "%d:%02d"
 L.SecondsFormat = "%d"
 L.TenthsFormat = "%0.1f"
