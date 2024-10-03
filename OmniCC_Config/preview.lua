@@ -63,13 +63,14 @@ container:SetPoint("BOTTOMRIGHT", -7, 9)
 -- contianer bg
 local bg = container:CreateTexture(nil, "BACKGROUND")
 bg:SetColorTexture(1, 1, 1, 0.3)
-bg:SetAllPoints(container)
+bg:SetAllPoints()
 
 -- action icon
 local icon = container:CreateTexture(nil, "ARTWORK")
-icon:SetPoint("TOP", 0, -4)
 icon:SetSize(ActionButton1:GetWidth() * 2, ActionButton1:GetHeight() * 2)
+icon:SetPoint("TOP", 0, -4)
 PreviewDialog.icon = icon
+container.icon = icon
 
 -- cooldown
 local cooldown = CreateFrame("Cooldown", nil, container, "CooldownFrameTemplate")
