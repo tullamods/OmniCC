@@ -32,8 +32,7 @@ end
 function FX:Run(cooldown, effectID)
     if cooldown:IsForbidden() then return end
 
-    local fx = self:Get(effectID)
-
+    local fx = effects[effectID]
     if fx then
         fx:Run(cooldown)
     end
