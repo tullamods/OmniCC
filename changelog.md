@@ -1,5 +1,10 @@
 # OmniCC Changelog
 
+## 11.0.3
+
+* Add modRate to display duration calculations
+* Update TOCs
+
 ## 11.0.2
 
 * Fixed bug in PreviewDialog that caused some effects not to show
