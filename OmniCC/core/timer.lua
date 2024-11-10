@@ -47,14 +47,17 @@ function Timer:GetOrCreate(cooldown)
 
     local endTime = cooldown._occ_start * 1000 + cooldown._occ_duration * 1000
     local kind = cooldown._occ_kind
+    local modRate = cooldown._occ_modRate
     local settings = cooldown._occ_settings
-    local key = strjoin('-', endTime, kind, tostring(settings or 'NONE'))
+    
+    local key = strjoin('/', endTime, modRate, kind, tostring(settings or 'NONE'))
 
     local timer = active[key]
     if not timer then
         timer = self:Restore() or self:Create()
 
         timer.endTime = endTime
+        timer.modRate = modRate
         timer.key = key
         timer.kind = kind
         timer.settings = settings
@@ -101,11 +104,12 @@ function Timer:Destroy()
 
     -- reset fields
     self.duration = nil
+    self.endTime = nil
     self.finished = nil
     self.key = nil
     self.kind = nil
+    self.modRate = nil
     self.settings = nil
-    self.endTime = nil
     self.state = nil
     self.subscribers = nil
     self.text = nil
@@ -118,7 +122,7 @@ function Timer:Update()
         return
     end
 
-    local remain = self.endTime - (GetTime() * SECOND)
+    local remain = (self.endTime - (GetTime() * SECOND)) / self.modRate
 
     if remain > 0 then
         local text, textSleep = self:GetTimerText(remain)
@@ -216,8 +220,7 @@ function Timer:GetTimerText(remain)
         -- minutes
         local minutes = (remain + HALF_MINUTE) - (remain + HALF_MINUTE) % MINUTE
 
-        local wait =
-            max(
+        local wait = max(
             -- transition point of showing one minute versus another (29.5s, 89.5s, 149.5s, ...)
             minutes - HALF_MINUTE,
             -- transition point of displaying minutes to displaying seconds (59.5s)

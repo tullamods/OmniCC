@@ -17,49 +17,64 @@ local Cooldown = {}
 -- queries
 local IsGlobalCooldown, GetGCDTimeRemaining
 
-if C_Spell and type(C_Spell.GetSpellCooldown) == "function" then
-    IsGlobalCooldown = function (start, duration)
-        if start == 0 or duration == 0 then
+if type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" then
+    IsGlobalCooldown = function (start, duration, modRate)
+        if not (start > 0 and duration > 0 and modRate > 0) then
             return false
         end
 
         local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
 
-        return gcd and start == gcd.startTime and duration == gcd.duration
+        return gcd 
+            and start == gcd.startTime
+            and duration == gcd.duration
+            and modRate == gcd.modRate
     end
 
     GetGCDTimeRemaining = function()
         local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
-
-        if not gcd then
+        if not (gcd and gcd.isEnabled) then
             return 0
         end
 
-        if gcd.startTime == 0 or gcd.duration == 0 then
+        local start, duration, modRate = gcd.startTime, gcd.duration, gcd.modRate
+        if not (start > 0 and duration > 0 and modRate > 0) then
             return 0
         end
 
-        return (gcd.startTime + gcd.duration) - GetTime()
+        local remain = (start + duration) - GetTime()
+        if remain > 0 then
+            return remain / modRate
+        end
+
+        return 0
     end
 else
-    IsGlobalCooldown = function (start, duration)
-        if start == 0 or duration == 0 then
+    IsGlobalCooldown = function (start, duration, modRate)
+        if not (start > 0 and duration > 0 and modRate > 0) then
             return false
         end
 
-        local gcdStart, gcdDuration = GetSpellCooldown(GCD_SPELL_ID)
+        local gcdStart, gcdDuration, gcdEnabled, gcdModRate = GetSpellCooldown(GCD_SPELL_ID)
 
-        return start == gcdStart and duration == gcdDuration
+        return gcdEnabled
+            and start == gcdStart 
+            and duration == gcdDuration 
+            and modRate == gcdModRate
     end
 
     GetGCDTimeRemaining = function()
-        local start, duration = GetSpellCooldown(GCD_SPELL_ID)
-
-        if start == 0 or duration == 0 then
+        local start, duration, enabled, modRate = GetSpellCooldown(GCD_SPELL_ID)
+        if (not enabled and start > 0 and duration > 0 and modRate > 0) then
             return 0
         end
 
-        return (start + duration) - GetTime()
+        local remain = (start + duration) - GetTime()
+        if remain > 0 then
+            return remain / modRate
+        end
+
+        return 0
     end
 end
 
@@ -75,9 +90,10 @@ function Cooldown:CanShowText()
 
     local start = self._occ_start or 0
     local duration = self._occ_duration or 0
+    local modRate = self._occ_modRate or 1
 
     -- no active cooldown
-    if start <= 0 or duration <= 0 then
+    if not (start > 0 and duration > 0 and modRate > 0) then
         return false
     end
 
@@ -129,13 +145,14 @@ function Cooldown:CanShowFinishEffect()
 
     local start = self._occ_start or 0
     local duration = self._occ_duration or 0
+    local modRate = self._occ_modRate or 1
 
     -- invalid cooldown
-    if start == 0 or duration == 0 then
+    if not (start > 0 and duration > 0 and modRate > 0) then
         return false
     end
 
-    local remain = (start + duration) - GetTime()
+    local remain = ((start + duration) - GetTime()) / modRate
 
     -- cooldown expired too long ago
     if remain < FINISH_EFFECT_BUFFER then
@@ -178,7 +195,6 @@ function Cooldown:GetKind()
 
     if cdType == COOLDOWN_TYPE_NORMAL then
         return 'default'
-
     end
 
     local parent = self:GetParent()
@@ -207,6 +223,7 @@ function Cooldown:Initialize()
 
     self._occ_start = 0
     self._occ_duration = 0
+    self._occ_modRate = 1
     self._occ_settings = Cooldown.GetTheme(self)
 
     self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
@@ -301,22 +318,31 @@ function Cooldown:Refresh(force)
     if force then
         self._occ_start = nil
         self._occ_duration = nil
+        self._occ_modRate = nil
     end
 
     local start, duration = self:GetCooldownTimes()
+    local rawDuration = self:GetCooldownDisplayDuration()
 
     start = (start or 0) / 1000
     duration = (duration or 0) / 1000
 
+    local modRate
+    if rawDuration > 0 then
+        modRate = duration / rawDuration
+    else
+        modRate = 1
+    end
+
     Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, start, duration)
+    Cooldown.SetTimer(self, start, duration, modRate)
 end
 
-function Cooldown:SetTimer(start, duration)
+function Cooldown:SetTimer(start, duration, modRate)
     -- both the wow api and addons (espcially auras) have a habit of resetting
     -- cooldowns every time there's an update to an aura
     -- we chack and do nothing if there's an exact start/duration match
-    if self._occ_start == start and self._occ_duration == duration then
+    if self._occ_start == start and self._occ_duration == duration and self._occ_modRate == modRate then
         return
     end
 
@@ -326,7 +352,9 @@ function Cooldown:SetTimer(start, duration)
 
     self._occ_start = start
     self._occ_duration = duration
-    self._occ_gcd = IsGlobalCooldown(start, duration)
+    self._occ_modRate = modRate
+
+    self._occ_gcd = IsGlobalCooldown(start, duration, modRate)
     self._occ_kind = Cooldown.GetKind(self)
     self._occ_priority = Cooldown.GetPriority(self)
     self._occ_show = Cooldown.CanShowText(self)
@@ -370,24 +398,30 @@ function Cooldown:OnCooldownDone()
     Cooldown.TryShowFinishEffect(self)
 end
 
-function Cooldown:OnSetCooldown(start, duration)
+function Cooldown:OnSetCooldown(start, duration, modRate)
     if self.noCooldownCount or self:IsForbidden() then
         return
     end
 
     start = tonumber(start) or 0
     duration = tonumber(duration) or 0
+    modRate = tonumber(modRate) or 1
 
     Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, start, duration)
+    Cooldown.SetTimer(self, start, duration, modRate)
 end
 
-function Cooldown:OnSetCooldownDuration()
+function Cooldown:OnSetCooldownDuration(duration, modRate)
     if self.noCooldownCount or self:IsForbidden() then
         return
     end
 
-    Cooldown.Refresh(self)
+    local start = GetTime()
+    duration = tonumber(duration) or 0
+    modRate = tonumber(modRate) or 1
+
+    Cooldown.Initialize(self)
+    Cooldown.SetTimer(self, start, duration, modRate)
 end
 
 function Cooldown:SetDisplayAsPercentage()
