@@ -5,86 +5,63 @@
 local AddonName, Addon = ...
 local L = LibStub('AceLocale-3.0'):GetLocale(AddonName)
 
-local After = _G.C_Timer.After
-local GetTime = _G.GetTime
-local max = math.max
-local min = math.min
-
 -- time units in ms
-local DAY = 86400000
-local HOUR = 3600000
-local MINUTE = 60000
-local SECOND = 1000
 local TENTH = 100
-local TICK = 10
+local SECOND = TENTH * 10
+local MINUTE = SECOND * 60
+local HOUR = MINUTE * 60
+local DAY = HOUR * 24
 
 -- rounding values in ms
-local HALF_DAY = 43200000
-local HALF_HOUR = 1800000
-local HALF_MINUTE = 30000
-local HALF_SECOND = 500
-local HALF_TENTH = 50
+local HALF_TENTH = TENTH / 2
+local HALF_SECOND = SECOND / 2
+local HALF_MINUTE = MINUTE / 2
+local HALF_HOUR = HOUR / 2
+local HALF_DAY = DAY / 2
 
 -- transition points in ms
-local HOURS_THRESHOLD = 84600000 -- 23.5 hours
-local MINUTES_THRESHOLD = 3570000 -- 59.5 minutes
-local SECONDS_THRESHOLD = 59500 -- 59.5 seconds
-local SOON_THRESHOLD = 5500 -- 5.5 seconds
+local SOON_THRESHOLD = SECOND * 5.5 -- 5.5 seconds
+local SECONDS_THRESHOLD = MINUTE - HALF_SECOND -- 59.5 seconds
+local MINUTES_THRESHOLD = HOUR - HALF_MINUTE -- 59.5 minutes
+local HOURS_THRESHOLD = DAY - HALF_HOUR -- 23.5 hours
 
--- internal state!
+---@type { [string]: OmniCCTimer }
 local active = {}
--- we use a weak table so that inactive timers are cleaned up on gc
+
+---@type { [OmniCCTimer]: true }
 local inactive = setmetatable({}, {__mode = 'k'})
 
+---@class OmniCCTimer
 local Timer = {}
 
 Timer.__index = Timer
 
+---@param cooldown OmniCCCooldown
 function Timer:GetOrCreate(cooldown)
-    if not cooldown then
-        return
-    end
-
-    local endTime = cooldown._occ_start * 1000 + cooldown._occ_duration * 1000
+    local endTime = (cooldown._occ_start + cooldown._occ_duration) * SECOND
     local kind = cooldown._occ_kind
-    local modRate = cooldown._occ_modRate
     local settings = cooldown._occ_settings
-    
-    local key = strjoin('/', endTime, modRate, kind, tostring(settings or 'NONE'))
+    local key = strjoin('/', endTime, kind, tostring(settings or 'NONE'))
 
     local timer = active[key]
     if not timer then
-        timer = self:Restore() or self:Create()
+        timer = next(inactive)
+
+        if timer then
+            inactive[timer] = nil
+        else
+            timer = setmetatable({}, Timer)
+        end
 
         timer.endTime = endTime
-        timer.modRate = modRate
         timer.key = key
         timer.kind = kind
         timer.settings = settings
         timer.subscribers = {}
+        timer.callback = function() timer:Update(key) end
+        timer:Update(key)
 
         active[key] = timer
-        timer:Update()
-    end
-
-    return timer
-end
-
-function Timer:Restore()
-    local timer = next(inactive)
-
-    if timer then
-        inactive[timer] = nil
-    end
-
-    return timer
-end
-
-function Timer:Create()
-    local timer = setmetatable({}, Timer)
-
-    timer.callback = function()
-        timer:Update()
     end
 
     return timer
@@ -103,12 +80,9 @@ function Timer:Destroy()
     end
 
     -- reset fields
-    self.duration = nil
     self.endTime = nil
-    self.finished = nil
     self.key = nil
     self.kind = nil
-    self.modRate = nil
     self.settings = nil
     self.state = nil
     self.subscribers = nil
@@ -117,37 +91,36 @@ function Timer:Destroy()
     inactive[self] = true
 end
 
-function Timer:Update()
-    if not self.key then
+function Timer:Update(key)
+    if self.key ~= key then return end
+
+    local remain = self.endTime - (GetTime() * SECOND)
+    if remain <= 0 then
+        if self.key then
+            self:Destroy()
+        end
         return
     end
-
-    local remain = (self.endTime - (GetTime() * SECOND)) / self.modRate
-
-    if remain > 0 then
-        local text, textSleep = self:GetTimerText(remain)
-        if self.text ~= text then
-            self.text = text
-            for subscriber in pairs(self.subscribers) do
-                subscriber:OnTimerTextUpdated(self, text)
-            end
+            
+    local text, textSleep = self:GetTimerText(remain)
+    if self.text ~= text then
+        self.text = text
+        for subscriber in pairs(self.subscribers) do
+            subscriber:OnTimerTextUpdated(self, text)
         end
+    end
 
-        local state, stateSleep = self:GetTimerState(remain)
-        if self.state ~= state then
-            self.state = state
-            for subscriber in pairs(self.subscribers) do
-                subscriber:OnTimerStateUpdated(self, state)
-            end
+    local state, stateSleep = self:GetTimerState(remain)
+    if self.state ~= state then
+        self.state = state
+        for subscriber in pairs(self.subscribers) do
+            subscriber:OnTimerStateUpdated(self, state)
         end
+    end
 
-        local sleep = min(textSleep, stateSleep)
-        if sleep < math.huge then
-            After((sleep + TICK) / SECOND, self.callback)
-        end
-    elseif not self.finished then
-        self.finished = true
-        self:Destroy()
+    local sleep = min(textSleep, stateSleep)
+    if sleep < DAY then
+        C_Timer.After(max(sleep / SECOND, GetTickTime()), self.callback)
     end
 end
 
@@ -175,7 +148,15 @@ function Timer:Unsubscribe(subscriber)
     end
 end
 
+-- Calculates timer text
+---@param remain number -- The remaining time on the timer, in miliseconds
+---@return stringView? -- The formatted text for the time remaining
+---@return number -- How long, in miliseconds, until the the next text update
 function Timer:GetTimerText(remain)
+    if remain <= 0 then
+        return '', DAY
+    end
+
     local tenthsThreshold, mmSSThreshold
 
     local sets = self.settings
@@ -239,16 +220,22 @@ function Timer:GetTimerText(remain)
         local sleep = remain - max(hours - HALF_HOUR, MINUTES_THRESHOLD)
 
         return L.HoursFormat:format(hours / HOUR), sleep
-    else
+    elseif remain <= (DAY * 7) then
         -- days
         local days = (remain + HALF_DAY) - (remain + HALF_DAY) % DAY
 
         local sleep = remain - max(days - HALF_DAY, HOURS_THRESHOLD)
 
         return L.DaysFormat:format(days / DAY), sleep
+    else
+        return '', DAY
     end
 end
 
+-- Calculates timer state
+---@param remain number -- The remaining time on the timer, in miliseconds
+---@return OmniCCTimerState -- The curent state of the timer
+---@return number -- How long, in miliseconds, until the next timer state
 function Timer:GetTimerState(remain)
     if self.kind == 'loc' then
         return 'controlled', math.huge

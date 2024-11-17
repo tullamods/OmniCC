@@ -5,22 +5,23 @@ local _, Addon = ...
 local ICON_SIZE = 36
 local DEFAULT_STATE = 'seconds'
 
-local After = _G.C_Timer.After
-local GetTickTime = _G.GetTickTime
-local min = math.min
-local round = _G.Round
-local UIParent = _G.UIParent
 
+---@type { [Region]: OmniCCDisplay }
 local displays = {}
 
+---@class OmniCCDisplay
 local Display = Addon:CreateHiddenFrame('Frame')
 
 Display.__index = Display
 
+---@param owner Frame
+---@return OmniCCDisplay
 function Display:Get(owner)
     return displays[owner]
 end
 
+---@param owner Frame?
+---@return OmniCCDisplay?
 function Display:GetOrCreate(owner)
     if not owner then
         return
@@ -64,10 +65,11 @@ function Display:UpdateSize()
     end
 
     self.updatingSize = true
-    After(GetTickTime(), self.updateSize)
+    C_Timer.After(GetTickTime(), self.updateSize)
 end
 
--- update text when the timer notifies us of a change
+---@param timer OmniCCTimer
+---@param text string
 function Display:OnTimerTextUpdated(timer, text)
     if timer ~= self.timer then
         return
@@ -76,6 +78,8 @@ function Display:OnTimerTextUpdated(timer, text)
     self.text:SetText(text or '')
 end
 
+---@param timer OmniCCTimer
+---@param state OmniCCTimerState?
 function Display:OnTimerStateUpdated(timer, state)
     if timer ~= self.timer then
         return
@@ -89,6 +93,7 @@ function Display:OnTimerStateUpdated(timer, state)
     end
 end
 
+---@param timer OmniCCTimer
 function Display:OnTimerDestroyed(timer)
     if self.timer == timer then
         self:RemoveCooldown(self.activeCooldown)
@@ -100,7 +105,7 @@ function Display:CalculateSizeRatio()
     local sets = self:GetSettings()
 
     if sets and sets.scaleText then
-        sizeRatio = round(min(self:GetSize())) / ICON_SIZE
+        sizeRatio = Round(min(self:GetSize())) / ICON_SIZE
     else
         sizeRatio = 1
     end
@@ -156,6 +161,7 @@ function Display:UpdateTimer()
     local oldTimer = self.timer and self.timer
     local oldTimerKey = oldTimer and oldTimer.key
 
+    ---@type OmniCCTimer?
     local newTimer = self.activeCooldown and Addon.Timer:GetOrCreate(self.activeCooldown)
     local newTimerKey = newTimer and newTimer.key
 
@@ -187,6 +193,9 @@ end
 
 do
     -- given two cooldown cooldowns, returns the more important one
+    ---@param lhs OmniCCCooldown
+    ---@param rhs OmniCCCooldown?
+    ---@return OmniCCCooldown?
     local function cooldown_Compare(lhs, rhs)
         if lhs == rhs then
             return lhs
@@ -293,6 +302,7 @@ function Display:GetSettings()
     return self.activeCooldown and self.activeCooldown._occ_settings
 end
 
+---@param method string
 function Display:ForAll(method, ...)
     for _, display in pairs(displays) do
         local func = display[method]
@@ -302,6 +312,7 @@ function Display:ForAll(method, ...)
     end
 end
 
+---@param method string
 function Display:ForActive(method, ...)
     for _, display in pairs(displays) do
         if display.timer ~= nil then

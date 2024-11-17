@@ -1,0 +1,72 @@
+---@class OmniCCCooldownSettings
+---@field anchor FramePoint
+---@field cooldownOpacity number?
+---@field effect string?
+---@field enableText boolean?
+---@field fontFace string?
+---@field fontOutline string?
+---@field fontShadow { r:number, g:number, b:number, a:number, x:number, y:number }
+---@field fontSize number
+---@field maxDuration number?
+---@field minDuration number?
+---@field minEffectDuration number?
+---@field minSize number?
+---@field mmSSDuration number?
+---@field scaleText boolean?
+---@field tenthsDuration number?
+---@field textStyles { [string]: OmniCCTextStyle }
+---@field xOff number
+---@field yOff number
+
+---@class OmniCCCooldown: Cooldown
+---@field noCooldownCount Frame|boolean|nil?
+---@field currentCooldownType 1|2|nil
+---@field _occ_duration number?
+---@field _occ_gcd boolean?
+---@field _occ_kind OmniCCCooldownKind
+---@field _occ_modRate number?
+---@field _occ_priority OmniCCCooldownPriority
+---@field _occ_settings OmniCCCooldownSettings?
+---@field _occ_settings_force OmniCCCooldownSettings?
+---@field _occ_show boolean?
+---@field _occ_start number?
+---@field _occ_display OmniCCDisplay?
+
+---@class OmniCCTimer
+---@field callback function
+---@field endTime number?
+---@field finished true|nil
+---@field key string?
+---@field kind OmniCCCooldownKind?
+---@field settings OmniCCCooldownSettings?
+---@field state OmniCCTimerState?
+---@field subscribers { [any]: true }
+---@field text string?
+
+---@class OmniCCDisplay: Frame
+---@field text FontString
+---@field cooldowns { [OmniCCCooldown]: true }
+---@field updateSize function
+---@field activeCooldown OmniCCCooldown?
+---@field state OmniCCTimerState?
+---@field timer OmniCCTimer?
+---@field updatingSize true|nil
+
+---@class OmniCCTextStyle
+---@field scale number
+---@field r number
+---@field g number
+---@field b number
+---@field a number
+
+---@alias OmniCCCooldownKind 'default'|'charge'|'loc'
+
+---@alias OmniCCTimerState
+---|'controlled'
+---|'charging'
+---|'soon'
+---|'seconds'
+---|'minutes'
+---|'hours'
+
+---@alias OmniCCCooldownPriority 1|2

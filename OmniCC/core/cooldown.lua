@@ -1,31 +1,42 @@
 -- hooks for watching cooldown events
 local _, Addon = ...
 
+-------------------------------------------------------------------------------
+-- Constants
+-------------------------------------------------------------------------------
+
 -- how far in the future a cooldown can be before we show text for it
 -- this is used to filter out buggy cooldowns (usually ones that started)
 -- before a user rebooted
-local MAX_START_DELAY_MS = 86400
+local MIN_START_OFFSET = -86400
+
+-- the global cooldown spell id
 local GCD_SPELL_ID = 61304
 
 -- how much of a buffer we give finish effets (in seconds)
 local FINISH_EFFECT_BUFFER = -0.15
 
-local cooldowns = {}
+-------------------------------------------------------------------------------
+-- Utility Methods
+-------------------------------------------------------------------------------
 
-local Cooldown = {}
+local IsGCD, GetGCDTimeRemaining
 
--- queries
-local IsGlobalCooldown, GetGCDTimeRemaining
-
+-- gcd tests
 if type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" then
-    IsGlobalCooldown = function (start, duration, modRate)
+    ---@param start number
+    ---@param duration number
+    ---@param modRate number
+    ---@return boolean
+    IsGCD = function (start, duration, modRate)
         if not (start > 0 and duration > 0 and modRate > 0) then
             return false
         end
 
         local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
 
-        return gcd 
+        return gcd
+            and gcd.isEnabled
             and start == gcd.startTime
             and duration == gcd.duration
             and modRate == gcd.modRate
@@ -50,7 +61,11 @@ if type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" the
         return 0
     end
 else
-    IsGlobalCooldown = function (start, duration, modRate)
+    ---@param start number
+    ---@param duration number
+    ---@param modRate number
+    ---@return boolean    
+    IsGCD = function (start, duration, modRate)
         if not (start > 0 and duration > 0 and modRate > 0) then
             return false
         end
@@ -58,8 +73,8 @@ else
         local gcdStart, gcdDuration, gcdEnabled, gcdModRate = GetSpellCooldown(GCD_SPELL_ID)
 
         return gcdEnabled
-            and start == gcdStart 
-            and duration == gcdDuration 
+            and start == gcdStart
+            and duration == gcdDuration
             and modRate == gcdModRate
     end
 
@@ -71,29 +86,61 @@ else
 
         local remain = (start + duration) - GetTime()
         if remain > 0 then
-            return remain / modRate
+            return remain
         end
 
         return 0
     end
 end
 
+---Retrieves the name of the given region. If no name is found, checks ancestors
+---@param frame Region
+---@return string?
+local function getFirstName(frame)
+    while frame do
+        local name = frame:GetName()
+
+        if name then
+            return name
+        end
+
+        frame = frame:GetParent()
+    end
+end
+
+-------------------------------------------------------------------------------
+-- Cooldown Tracking
+-------------------------------------------------------------------------------
+
+local Cooldown = {}
+
+---@type { [OmniCCCooldown]: true }
+local cooldowns = {}
+
+---@param self OmniCCCooldown
+---@return boolean
 function Cooldown:CanShowText()
-    if self.noCooldownCount then
+    if self.noCooldownCount or self._occ_gcd then
         return false
     end
 
-    -- filter gcd
-    if self._occ_gcd then
+    local duration = self._occ_duration or 0
+    if duration <= 0 then
+        return false
+    end
+
+    local modRate = self._occ_modRate or 1
+    if modRate <= 0 then
         return false
     end
 
     local start = self._occ_start or 0
-    local duration = self._occ_duration or 0
-    local modRate = self._occ_modRate or 1
+    if start <= 0 then
+        return false
+    end
 
-    -- no active cooldown
-    if not (start > 0 and duration > 0 and modRate > 0) then
+    local elapsed = GetTime() - start
+    if elapsed >= duration or elapsed <= MIN_START_OFFSET then
         return false
     end
 
@@ -119,49 +166,36 @@ function Cooldown:CanShowText()
         return false
     end
 
-    -- time checks
-    local t = GetTime()
-
-    -- expired cooldowns
-    if (start + duration) <= t then
-        return false
-    end
-
-    -- future cooldowns that don't start for at least a day
-    -- these are probably buggy ones
-    if (start - t) > MAX_START_DELAY_MS then
-        return false
-    end
-
-    -- filter GCD
     return true
 end
 
+---@param self OmniCCCooldown
 function Cooldown:CanShowFinishEffect()
-    -- filter gcd
-    if self._occ_gcd then
+    if self.noCooldownCount or self._occ_gcd then
+        return false
+    end
+
+    local duration = self._occ_duration or 0
+    if duration <= 0 then
+        return false
+    end
+ 
+    local modRate = self._occ_modRate or 1
+    if modRate <= 0 then
         return false
     end
 
     local start = self._occ_start or 0
-    local duration = self._occ_duration or 0
-    local modRate = self._occ_modRate or 1
-
-    -- invalid cooldown
-    if not (start > 0 and duration > 0 and modRate > 0) then
+    if start <= 0 then
         return false
     end
 
-    local remain = ((start + duration) - GetTime()) / modRate
+    local remain = (start + duration) - GetTime()
 
     -- cooldown expired too long ago
-    if remain < FINISH_EFFECT_BUFFER then
-        return false
-    end
-
     -- cooldown outside of GCD bounds
-    -- or has time remaining if we're outside of GCD
-    if remain > GetGCDTimeRemaining() then
+    -- or has time remaining if we're outside of GCD    
+    if remain < FINISH_EFFECT_BUFFER or remain > GetGCDTimeRemaining() then
         return false
     end
 
@@ -186,6 +220,8 @@ function Cooldown:CanShowFinishEffect()
     return true, effect
 end
 
+---@param self OmniCCCooldown
+---@return OmniCCCooldownKind
 function Cooldown:GetKind()
     local cdType = self.currentCooldownType
 
@@ -197,6 +233,7 @@ function Cooldown:GetKind()
         return 'default'
     end
 
+    ---@type Frame|{ chargeCooldown: Cooldown? }?
     local parent = self:GetParent()
     if parent and parent.chargeCooldown == self then
         return 'charge'
@@ -205,6 +242,8 @@ function Cooldown:GetKind()
     return 'default'
 end
 
+---@param self OmniCCCooldown
+---@return OmniCCCooldownPriority
 function Cooldown:GetPriority()
     if self._occ_kind == 'charge' then
         return 2
@@ -213,38 +252,37 @@ function Cooldown:GetPriority()
     return 1
 end
 
--- actions
+---@param self OmniCCCooldown
 function Cooldown:Initialize()
-    if cooldowns[self] then
-        return
-    end
+    if not cooldowns[self] then
+        self._occ_settings = Cooldown.GetTheme(self)
 
-    cooldowns[self] = true
-
-    self._occ_start = 0
-    self._occ_duration = 0
-    self._occ_modRate = 1
-    self._occ_settings = Cooldown.GetTheme(self)
-
-    self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
-    self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
-    self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
-
-    -- this is a hack to make sure that text for charge cooldowns can appear
-    -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
-    -- frame level
-    local parent = self:GetParent()
-    if parent and parent.chargeCooldown == self then
-        local cooldown = parent.cooldown
-        if cooldown then
-            self:SetFrameStrata(cooldown:GetFrameStrata())
-            self:SetFrameLevel(cooldown:GetFrameLevel() + 7)
+        self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
+        self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
+        self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
+    
+        -- this is a hack to make sure that text for charge cooldowns can appear
+        -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
+        -- frame level
+        ---@type Frame|{ chargeCooldown: Cooldown?, cooldown: Cooldown? }?
+        local parent = self:GetParent()
+        
+        if parent and parent.chargeCooldown == self then
+            local cooldown = parent.cooldown
+            if cooldown then
+                self:SetFrameStrata(cooldown:GetFrameStrata())
+                self:SetFrameLevel(cooldown:GetFrameLevel() + 7)
+            end
         end
+
+        cooldowns[self] = true
     end
 end
 
+---@param self OmniCCCooldown
 function Cooldown:ShowText()
     local oldDisplay = self._occ_display
+    ---@type OmniCCDisplay?
     local newDisplay = Addon.Display:GetOrCreate(self:GetParent() or self)
 
     if oldDisplay ~= newDisplay then
@@ -260,6 +298,7 @@ function Cooldown:ShowText()
     end
 end
 
+---@param self OmniCCCooldown
 function Cooldown:HideText()
     local display = self._occ_display
 
@@ -269,6 +308,7 @@ function Cooldown:HideText()
     end
 end
 
+---@param self OmniCCCooldown
 function Cooldown:UpdateText()
     if self._occ_show and (not self:IsForbidden()) and self:IsVisible() then
         Cooldown.ShowText(self)
@@ -277,13 +317,14 @@ function Cooldown:UpdateText()
     end
 end
 
+---@param self OmniCCCooldown
 function Cooldown:UpdateStyle()
     local settings = self._occ_settings
     if not settings then
         return
     end
 
-    local opacity = tonumber(settings.cooldownOpacity) or 1
+    local opacity = settings.cooldownOpacity or 1
     if opacity < 1 then
         if self:GetAlpha() ~= opacity then
             self:SetAlpha(opacity)
@@ -314,6 +355,7 @@ do
     end
 end
 
+---@param self OmniCCCooldown
 function Cooldown:Refresh(force)
     if force then
         self._occ_start = nil
@@ -321,24 +363,25 @@ function Cooldown:Refresh(force)
         self._occ_modRate = nil
     end
 
+    Cooldown.Initialize(self)
+
     local start, duration = self:GetCooldownTimes()
-    local rawDuration = self:GetCooldownDisplayDuration()
-
-    start = (start or 0) / 1000
-    duration = (duration or 0) / 1000
-
-    local modRate
-    if rawDuration > 0 then
-        modRate = duration / rawDuration
+    if start == 0 or duration == 0 then
+        Cooldown.SetTimer(self, 0, 0, 1)
     else
+        Cooldown.SetTimer(self, start / 1000, duration / 1000, duration / self:GetCooldownDisplayDuration())
+    end
+end
+
+---@param self OmniCCCooldown
+---@param start number
+---@param duration number
+---@param modRate number?
+function Cooldown:SetTimer(start, duration, modRate)
+    if modRate == nil then
         modRate = 1
     end
 
-    Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, start, duration, modRate)
-end
-
-function Cooldown:SetTimer(start, duration, modRate)
     -- both the wow api and addons (espcially auras) have a habit of resetting
     -- cooldowns every time there's an update to an aura
     -- we chack and do nothing if there's an exact start/duration match
@@ -354,7 +397,7 @@ function Cooldown:SetTimer(start, duration, modRate)
     self._occ_duration = duration
     self._occ_modRate = modRate
 
-    self._occ_gcd = IsGlobalCooldown(start, duration, modRate)
+    self._occ_gcd = IsGCD(start, duration, modRate)
     self._occ_kind = Cooldown.GetKind(self)
     self._occ_priority = Cooldown.GetPriority(self)
     self._occ_show = Cooldown.CanShowText(self)
@@ -362,6 +405,9 @@ function Cooldown:SetTimer(start, duration, modRate)
     Cooldown.RequestUpdate(self)
 end
 
+---@param self OmniCCCooldown
+---@param disable boolean?
+---@param owner Frame|boolean|nil
 function Cooldown:SetNoCooldownCount(disable, owner)
     owner = owner or true
 
@@ -376,7 +422,7 @@ function Cooldown:SetNoCooldownCount(disable, owner)
     end
 end
 
--- attempts to trigger a finish effect
+---@param self OmniCCCooldown
 function Cooldown:TryShowFinishEffect()
     local show, effect = Cooldown.CanShowFinishEffect(self)
 
@@ -389,7 +435,7 @@ function Cooldown:TryShowFinishEffect()
     end
 end
 
--- events
+---@param self OmniCCCooldown
 function Cooldown:OnCooldownDone()
     if self.noCooldownCount or self:IsForbidden() then
         return
@@ -398,32 +444,32 @@ function Cooldown:OnCooldownDone()
     Cooldown.TryShowFinishEffect(self)
 end
 
+---@param self OmniCCCooldown
+---@param start number
+---@param duration number
+---@param modRate number?
 function Cooldown:OnSetCooldown(start, duration, modRate)
     if self.noCooldownCount or self:IsForbidden() then
         return
     end
 
-    start = tonumber(start) or 0
-    duration = tonumber(duration) or 0
-    modRate = tonumber(modRate) or 1
-
     Cooldown.Initialize(self)
     Cooldown.SetTimer(self, start, duration, modRate)
 end
 
+---@param self OmniCCCooldown
+---@param duration number
+---@param modRate number?
 function Cooldown:OnSetCooldownDuration(duration, modRate)
     if self.noCooldownCount or self:IsForbidden() then
         return
     end
 
-    local start = GetTime()
-    duration = tonumber(duration) or 0
-    modRate = tonumber(modRate) or 1
-
     Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, start, duration, modRate)
+    Cooldown.SetTimer(self, self:GetCooldownTimes() / 1000, duration, modRate)
 end
 
+---@param self OmniCCCooldown
 function Cooldown:SetDisplayAsPercentage()
     if self.noCooldownCount or self:IsForbidden() then
         return
@@ -432,6 +478,7 @@ function Cooldown:SetDisplayAsPercentage()
     Cooldown.SetNoCooldownCount(self, true)
 end
 
+---@param self OmniCCCooldown
 function Cooldown:OnVisibilityUpdated()
     if self.noCooldownCount or self:IsForbidden() then
         return
@@ -440,16 +487,7 @@ function Cooldown:OnVisibilityUpdated()
     Cooldown.RequestUpdate(self)
 end
 
--- misc
-function Cooldown:SetupHooks()
-    local Cooldown_MT = getmetatable(ActionButton1Cooldown).__index
-
-    hooksecurefunc(Cooldown_MT, 'SetCooldown', Cooldown.OnSetCooldown)
-    hooksecurefunc(Cooldown_MT, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
-    hooksecurefunc('CooldownFrame_SetDisplayAsPercentage',
-                   Cooldown.SetDisplayAsPercentage)
-end
-
+---@param self OmniCCCooldown
 function Cooldown:UpdateSettings(force)
     local newSettings = Cooldown.GetTheme(self)
 
@@ -462,23 +500,14 @@ function Cooldown:UpdateSettings(force)
     return false
 end
 
-local function getFirstAncestorWithName(cooldown)
-    local frame = cooldown
-    repeat
-        local name = frame:GetName()
-        if name then
-            return name
-        end
-        frame = frame:GetParent()
-    until not frame
-end
-
+---@param self OmniCCCooldown
+---@return OmniCCCooldownSettings
 function Cooldown:GetTheme()
     if self._occ_settings_force then
         return self._occ_settings_force
     end
 
-    local name = getFirstAncestorWithName(self)
+    local name = getFirstName(self)
 
     if name then
         local rule = Addon:GetMatchingRule(name)
@@ -490,6 +519,16 @@ function Cooldown:GetTheme()
     return Addon:GetDefaultTheme()
 end
 
+-- misc
+function Cooldown.SetupHooks()
+    local cooldown_mt = getmetatable(ActionButton1Cooldown).__index
+
+    hooksecurefunc(cooldown_mt, 'SetCooldown', Cooldown.OnSetCooldown)
+    hooksecurefunc(cooldown_mt, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
+    hooksecurefunc('CooldownFrame_SetDisplayAsPercentage', Cooldown.SetDisplayAsPercentage)
+end
+
+---@param method string
 function Cooldown:ForAll(method, ...)
     local func = self[method]
     if type(func) ~= 'function' then
