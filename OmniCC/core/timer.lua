@@ -41,7 +41,7 @@ function Timer:GetOrCreate(cooldown)
     local endTime = (cooldown._occ_start + cooldown._occ_duration) * SECOND
     local kind = cooldown._occ_kind
     local settings = cooldown._occ_settings
-    local key = strjoin('/', endTime, kind, tostring(settings or 'NONE'))
+    local key = strjoin('/', kind, tostring(endTime), tostring(settings or 'NONE'))
 
     local timer = active[key]
     if not timer then
@@ -91,17 +91,16 @@ function Timer:Destroy()
     inactive[self] = true
 end
 
+---@param key string?
 function Timer:Update(key)
     if self.key ~= key then return end
 
     local remain = self.endTime - (GetTime() * SECOND)
     if remain <= 0 then
-        if self.key then
-            self:Destroy()
-        end
+        self:Destroy()
         return
     end
-            
+
     local text, textSleep = self:GetTimerText(remain)
     if self.text ~= text then
         self.text = text
@@ -150,7 +149,7 @@ end
 
 -- Calculates timer text
 ---@param remain number -- The remaining time on the timer, in miliseconds
----@return stringView? -- The formatted text for the time remaining
+---@return string? -- The formatted text for the time remaining
 ---@return number -- How long, in miliseconds, until the the next text update
 function Timer:GetTimerText(remain)
     if remain <= 0 then
