@@ -146,7 +146,9 @@ function Cooldown:CanShowText()
 
     -- config checks
     local settings = self._occ_settings
-    if not settings then
+
+    -- text enabled
+    if not (settings and settings.enableText) then
         return false
     end
 
@@ -158,11 +160,6 @@ function Cooldown:CanShowText()
     -- at most max duration
     local maxDuration = settings.maxDuration or 0
     if maxDuration > 0 and duration > maxDuration then
-        return false
-    end
-
-    -- hide text if we don't want to display it for this kind of cooldown
-    if not settings.enableText then
         return false
     end
 
@@ -179,7 +176,7 @@ function Cooldown:CanShowFinishEffect()
     if duration <= 0 then
         return false
     end
- 
+
     local modRate = self._occ_modRate or 1
     if modRate <= 0 then
         return false
@@ -381,7 +378,7 @@ function Cooldown:SetTimer(start, duration, modRate)
     if modRate == nil then
         modRate = 1
     end
-    
+
     -- both the wow api and addons (espcially auras) have a habit of resetting
     -- cooldowns every time there's an update to an aura
     -- we chack and do nothing if there's an exact start/duration match
