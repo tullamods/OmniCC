@@ -381,7 +381,7 @@ function Cooldown:SetTimer(start, duration, modRate)
     if modRate == nil then
         modRate = 1
     end
-
+    
     -- both the wow api and addons (espcially auras) have a habit of resetting
     -- cooldowns every time there's an update to an aura
     -- we chack and do nothing if there's an exact start/duration match
@@ -488,6 +488,17 @@ function Cooldown:OnVisibilityUpdated()
 end
 
 ---@param self OmniCCCooldown
+function Cooldown:OnClear()
+    if self._occ_start ~= nil then
+        self._occ_start = nil
+        self._occ_duration = nil
+        self._occ_modRate = nil
+
+        Cooldown.HideText(self)
+    end
+end
+
+---@param self OmniCCCooldown
 function Cooldown:UpdateSettings(force)
     local newSettings = Cooldown.GetTheme(self)
 
@@ -525,6 +536,7 @@ function Cooldown.SetupHooks()
 
     hooksecurefunc(cooldown_mt, 'SetCooldown', Cooldown.OnSetCooldown)
     hooksecurefunc(cooldown_mt, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
+    hooksecurefunc(cooldown_mt, 'Clear', Cooldown.OnClear)
     hooksecurefunc('CooldownFrame_SetDisplayAsPercentage', Cooldown.SetDisplayAsPercentage)
 end
 
