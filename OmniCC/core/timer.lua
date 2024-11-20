@@ -91,11 +91,19 @@ function Timer:Destroy()
     inactive[self] = true
 end
 
+
+function Timer:Refresh()
+    local key = self.key
+    if key then
+        self:Update(key)
+    end
+end
+
 ---@param key string?
 function Timer:Update(key)
-    if self.key ~= key then return end
+    if not (key and self.key == key) then return end
 
-    local remain = self.endTime - (GetTime() * SECOND)
+    local remain = (self.endTime or 0) - (GetTime() * SECOND)
     if remain <= 0 then
         self:Destroy()
         return

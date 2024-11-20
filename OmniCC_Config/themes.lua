@@ -378,7 +378,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.mmSSDuration = val
-                                    OmniCC.Timer:ForActive('Update')
+                                    OmniCC.Timer:ForActive('Refresh')
                                 end
                             },
                             tenthsThreshold = {
@@ -395,7 +395,7 @@ local function addThemeOptions(owner, theme, id)
                                 end,
                                 set = function(_, val)
                                     theme.tenthsDuration = val
-                                    OmniCC.Timer:ForActive('Update')
+                                    OmniCC.Timer:ForActive('Refresh')
                                 end
                             },
                             timerOffset = {

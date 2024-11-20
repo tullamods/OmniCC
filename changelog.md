@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.0.5
+
+* Fix an error that could ocurr when updating timer settings while active timers are present
+
 ## 11.0.4
 
 * Update TOCs
