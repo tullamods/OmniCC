@@ -38,7 +38,17 @@ Timer.__index = Timer
 
 ---@param cooldown OmniCCCooldown
 function Timer:GetOrCreate(cooldown)
-    local endTime = (cooldown._occ_start + cooldown._occ_duration) * SECOND
+    local start = cooldown._occ_start or 0
+    if start <= 0 then
+        return
+    end
+
+    local duration = cooldown._occ_duration or 0
+    if duration <= 0 then
+        return
+    end 
+
+    local endTime = (start + duration) * SECOND
     local kind = cooldown._occ_kind
     local settings = cooldown._occ_settings
     local key = strjoin('/', kind, tostring(endTime), tostring(settings or 'NONE'))
