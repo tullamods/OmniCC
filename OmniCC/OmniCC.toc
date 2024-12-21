@@ -1,4 +1,4 @@
-## Interface: 110007, 110005, 40401, 11505
+## Interface: 110007, 110100, 40401, 11505
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트
@@ -6,7 +6,7 @@
 ## Notes-esES: Contador de tiempo de reutilización
 ## Notes-ptBR: Contagem de tempo de recarga
 ## Notes-frFR: Compte à rebours du temps de recharge
-## Notes-ruRU: Время восстановления абилок и т.п.
+## Notes-ruRU: Время восстановления способностей и т.п.
 ## Author: Tuller
 ## Version: @project-version@
 ## SavedVariables: OmniCCDB, OmniCC4Config

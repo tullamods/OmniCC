@@ -1,4 +1,4 @@
-## Interface: 110007, 110005, 40401, 11505
+## Interface: 110007, 110100, 40401, 11505
 ## Title: OmniCC Config
 ## Title-ruRU: Конфигурация OmniCC
 ## Notes: OmniCC's configuration menu
