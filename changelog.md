@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.0.7
+
+* Update TOCs for 11.1.0, 4.4.2 and 1.15.6
+
 ## 11.0.6
 
 * Fix another nil value error
