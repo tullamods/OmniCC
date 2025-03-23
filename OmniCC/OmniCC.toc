@@ -1,4 +1,4 @@
-## Interface: 110100, 110007, 40402, 40401, 11506
+## Interface: 110100, 40402, 11506
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-esMX: Contador de tiempo de reutilización
@@ -7,7 +7,17 @@
 ## Notes-frFR: Compte à rebours du temps de recharge
 ## Notes-ruRU: Время восстановления способностей и т.п.
 ## Author: Tuller
-## Category: Combat
+## Category-enUS: Combat
+## Category-deDE: Kampf
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-frFR: Combat
+## Category-itIT: Combattimento
+## Category-koKR: 전투
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
 ## Version: @project-version@
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop

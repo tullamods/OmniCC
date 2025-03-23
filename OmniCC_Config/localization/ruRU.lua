@@ -2,16 +2,16 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("OmniCC", "ruRU")
 if not L then return end
 
-L.Anchor = 'Якорь'
+L.Anchor = 'Крепление'
 L.Anchor_BOTTOM = 'Внизу'
-L.Anchor_BOTTOMLEFT = 'ВнизуСлева'
-L.Anchor_BOTTOMRIGHT = 'ВнизуСправа'
+L.Anchor_BOTTOMLEFT = 'Внизу слева'
+L.Anchor_BOTTOMRIGHT = 'Внизу справа'
 L.Anchor_CENTER = 'По центру'
 L.Anchor_LEFT = 'Слева'
 L.Anchor_RIGHT = 'Справа'
 L.Anchor_TOP = 'Вверху'
-L.Anchor_TOPLEFT = 'ВверхуСлева'
-L.Anchor_TOPRIGHT = 'ВверхуСправа'
+L.Anchor_TOPLEFT = 'Вверху слева'
+L.Anchor_TOPRIGHT = 'Вверху справа'
 L.ColorAndScale = 'Цвет и масштаб'
 L.ColorAndScaleDesc = 'Настройте цвет и масштаб для различных состояний восстановления.'
 L.CooldownOpacity = 'Непрозрачность'
