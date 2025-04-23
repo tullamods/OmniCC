@@ -140,7 +140,8 @@ function Cooldown:CanShowText()
     end
 
     if self.GetHideCountdownNumbers and not self:GetHideCountdownNumbers() then
-        return false
+        self:SetHideCountdownNumbers(true)
+        return true
     end
 
     local elapsed = GetTime() - start
