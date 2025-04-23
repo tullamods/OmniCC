@@ -32,7 +32,7 @@ end
 function Addon:GetDBDefaults()
     return {
         global = {
-            -- set to true to automatically disable blizzard cooldown count
+            -- force disable Blizzard's default cooldown text implementation
             disableBlizzardCooldownText = true
         },
         profile = {

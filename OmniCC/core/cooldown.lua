@@ -258,6 +258,10 @@ function Cooldown:Initialize()
     if not cooldowns[self] then
         self._occ_settings = Cooldown.GetTheme(self)
 
+        if Addon.db.global.disableBlizzardCooldownText then
+            self:SetHideCountdownNumbers(true)
+        end
+
         self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
@@ -531,12 +535,24 @@ function Cooldown:GetTheme()
     return Addon:GetDefaultTheme()
 end
 
+function Cooldown:OnSetHideCountdownNumbers(hide)
+    if hide or self.noCooldownCount or self:IsForbidden() then
+        return
+    end
+
+    if Addon.db.global.disableBlizzardCooldownText then
+        self:SetHideCountdownNumbers(true)
+        Cooldown.Refresh(self)
+    end
+end
+
 -- misc
 function Cooldown.SetupHooks()
     local cooldown_mt = getmetatable(ActionButton1Cooldown).__index
     hooksecurefunc(cooldown_mt, 'SetCooldown', Cooldown.OnSetCooldown)
     hooksecurefunc(cooldown_mt, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
     hooksecurefunc(cooldown_mt, 'Clear', Cooldown.OnClear)
+    hooksecurefunc(cooldown_mt, 'SetHideCountdownNumbers', Cooldown.OnSetHideCountdownNumbers)
     hooksecurefunc('CooldownFrame_SetDisplayAsPercentage', Cooldown.SetDisplayAsPercentage)
 end
 
