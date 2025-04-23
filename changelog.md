@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.2.1
+
+* Fix `/omnicc` not showing the options menu,
+
 ## 11.2.0
 
 * OmniCC will now disable Blizzard's default cooldown text implementation text
