@@ -536,11 +536,10 @@ function Cooldown:GetTheme()
 end
 
 function Cooldown:OnSetHideCountdownNumbers(hide)
-    if hide or self.noCooldownCount or self:IsForbidden() then
-        return
-    end
+    local disable = not (hide or self.noCooldownCount or self:IsForbidden())
+                    and Addon.db.global.disableBlizzardCooldownText
 
-    if Addon.db.global.disableBlizzardCooldownText then
+    if disable then
         self:SetHideCountdownNumbers(true)
         Cooldown.Refresh(self)
     end
