@@ -64,7 +64,7 @@ else
     ---@param start number
     ---@param duration number
     ---@param modRate number
-    ---@return boolean    
+    ---@return boolean
     IsGCD = function (start, duration, modRate)
         if not (start > 0 and duration > 0 and modRate > 0) then
             return false
@@ -139,6 +139,10 @@ function Cooldown:CanShowText()
         return false
     end
 
+    if self.GetHideCountdownNumbers and not self:GetHideCountdownNumbers() then
+        return false
+    end
+
     local elapsed = GetTime() - start
     if elapsed >= duration or elapsed <= MIN_START_OFFSET then
         return false
@@ -191,7 +195,7 @@ function Cooldown:CanShowFinishEffect()
 
     -- cooldown expired too long ago
     -- cooldown outside of GCD bounds
-    -- or has time remaining if we're outside of GCD    
+    -- or has time remaining if we're outside of GCD
     if remain < FINISH_EFFECT_BUFFER or remain > GetGCDTimeRemaining() then
         return false
     end
@@ -257,13 +261,13 @@ function Cooldown:Initialize()
         self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnCooldownDone', Cooldown.OnCooldownDone)
-    
+
         -- this is a hack to make sure that text for charge cooldowns can appear
         -- above the charge cooldown itself, as charge cooldowns have a TOOLTIP
         -- frame level
         ---@type Frame|{ chargeCooldown: Cooldown?, cooldown: Cooldown? }?
         local parent = self:GetParent()
-        
+
         if parent and parent.chargeCooldown == self then
             local cooldown = parent.cooldown
             if cooldown then
@@ -530,7 +534,6 @@ end
 -- misc
 function Cooldown.SetupHooks()
     local cooldown_mt = getmetatable(ActionButton1Cooldown).__index
-
     hooksecurefunc(cooldown_mt, 'SetCooldown', Cooldown.OnSetCooldown)
     hooksecurefunc(cooldown_mt, 'SetCooldownDuration', Cooldown.OnSetCooldownDuration)
     hooksecurefunc(cooldown_mt, 'Clear', Cooldown.OnClear)

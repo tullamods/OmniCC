@@ -79,6 +79,7 @@ cooldown:SetAllPoints(icon)
 cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
 cooldown:SetSwipeColor(0, 0, 0)
 cooldown:SetDrawEdge(false)
+cooldown:SetHideCountdownNumbers(true)
 cooldown:SetScript(
     "OnCooldownDone",
     function()
