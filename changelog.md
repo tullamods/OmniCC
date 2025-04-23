@@ -2,7 +2,7 @@
 
 ## 11.1.0
 
-* (Retail) OmniCC will now check GetHideCountdownNumbers and skip displayin text where the value is set to false.
+* (Retail) OmniCC will now check GetHideCountdownNumbers and skip displaying text where the value is set to false.
   This should prevent double text.
 
 ## 11.0.8
