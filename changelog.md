@@ -1,5 +1,11 @@
 # OmniCC Changelog
 
+## 11.2.0
+
+* OmniCC will now disable Blizzard's default cooldown text implementation text
+  on all cooldowns by default. You can toggle this behavior via the new `/occ blizzard`
+  slash command.
+
 ## 11.1.0
 
 * (Retail) OmniCC will now check GetHideCountdownNumbers and skip displaying text where the value is set to false.

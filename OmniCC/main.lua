@@ -20,7 +20,14 @@ EventUtil.ContinueOnAddOnLoaded(AddonName, function(addonName)
     SlashCmdList[AddonName] = function(cmd, ...)
         if cmd == 'version' then
             print(L.Version:format(Addon.db.global.addonVersion))
-        else
+        elseif cmd == 'blizzard' then
+            if Addon.db.global.disableBlizzardCooldownText then
+                Addon.db.global.disableBlizzardCooldownText = false
+            else
+                Addon.db.global.disableBlizzardCooldownText = true
+            end
+            C_UI.Reload()
+        elseif cmd == 'config' or not cmd then
             Addon:ShowOptionsFrame()
         end
     end
