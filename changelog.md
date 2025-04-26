@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.2.2
+
+* Added a more agressive disable for cooldown text to handle flickering issues.
+
 ## 11.2.1
 
 * Fix `/omnicc` not showing the options menu,

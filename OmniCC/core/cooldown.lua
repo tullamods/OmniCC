@@ -255,12 +255,9 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:Initialize()
+    -- one time initialization
     if not cooldowns[self] then
         self._occ_settings = Cooldown.GetTheme(self)
-
-        if Addon.db.global.disableBlizzardCooldownText then
-            self:SetHideCountdownNumbers(true)
-        end
 
         self:HookScript('OnShow', Cooldown.OnVisibilityUpdated)
         self:HookScript('OnHide', Cooldown.OnVisibilityUpdated)
@@ -281,6 +278,11 @@ function Cooldown:Initialize()
         end
 
         cooldowns[self] = true
+    end
+
+    -- check and turn off blizzard text if needed
+    if Addon.db.global.disableBlizzardCooldownText then
+        self:SetHideCountdownNumbers(true)
     end
 end
 
@@ -387,9 +389,9 @@ function Cooldown:SetTimer(start, duration, modRate)
         modRate = 1
     end
 
-    -- both the wow api and addons (espcially auras) have a habit of resetting
+    -- both the wow api and addons (especially auras) have a habit of resetting
     -- cooldowns every time there's an update to an aura
-    -- we chack and do nothing if there's an exact start/duration match
+    -- we check and do nothing if there is an exact start/duration match
     if self._occ_start == start and self._occ_duration == duration and self._occ_modRate == modRate then
         return
     end
