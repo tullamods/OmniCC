@@ -55,7 +55,9 @@ do
 	end
 
 	local function shine_OnHide(self)
-		FlarePool:Release(self)
+		if not self.released then
+			FlarePool:Release(self)
+		end
 	end
 
 	local function pool_OnCreate(self)
@@ -76,6 +78,8 @@ do
 	end
 
 	local function pool_OnRelease(self, shine)
+		self.released = true
+
 		if shine.animation:IsPlaying() then
 			shine.animation:Finish()
 		end
