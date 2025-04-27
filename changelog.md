@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.2.3
+
+* Fix an error that could appear when hiding flare finish effect.
+
 ## 11.2.2
 
 * Added a more agressive disable for cooldown text to handle flickering issues.
