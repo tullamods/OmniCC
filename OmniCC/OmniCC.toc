@@ -1,4 +1,4 @@
-## Interface: 110105, 110100, 40402, 11507
+## Interface: 110107, 50500, 40402, 11507
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-esMX: Contador de tiempo de reutilización
