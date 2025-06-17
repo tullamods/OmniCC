@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.2.4
+
+* Update TOCs for 11.1.7 and 5.5.0
+
 ## 11.2.3
 
 * Fix an error that could appear when hiding flare finish effect.
