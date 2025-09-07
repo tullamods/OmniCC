@@ -57,7 +57,6 @@ function Timer:GetOrCreate(cooldown)
     end
 
     local endTime = (start + duration) * SECOND
-    local settings = cooldown._occ_settings
     local kind = cooldown._occ_kind
     local key = strjoin('/', kind, tostring(endTime), tostring(settings or 'NONE'))
 
