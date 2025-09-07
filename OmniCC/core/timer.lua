@@ -46,11 +46,19 @@ function Timer:GetOrCreate(cooldown)
     local duration = cooldown._occ_duration or 0
     if duration <= 0 then
         return
-    end 
+    end
+
+    local settings = cooldown._occ_settings
+    if settings and settings.timerOffset ~= 0 then
+        duration = duration - (settings.timerOffset/SECOND)
+        if duration <= 0 then
+            return
+        end
+    end
 
     local endTime = (start + duration) * SECOND
-    local kind = cooldown._occ_kind
     local settings = cooldown._occ_settings
+    local kind = cooldown._occ_kind
     local key = strjoin('/', kind, tostring(endTime), tostring(settings or 'NONE'))
 
     local timer = active[key]
