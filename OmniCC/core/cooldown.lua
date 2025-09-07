@@ -310,8 +310,11 @@ function Cooldown:HideText()
     local display = self._occ_display
 
     if display then
-        display:RemoveCooldown(self)
         self._occ_display = nil
+
+        if display.RemoveCooldown then
+            display:RemoveCooldown(self)
+        end
     end
 end
 
