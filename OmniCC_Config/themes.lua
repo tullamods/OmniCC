@@ -404,7 +404,7 @@ local function addThemeOptions(owner, theme, id)
                                 desc = L.TimerOffsetDesc,
                                 width = 'full',
                                 order = 40,
-                                min = 0,
+                                min = -3000,
                                 softMax = 3000,
                                 step = 100,
                                 get = function()
