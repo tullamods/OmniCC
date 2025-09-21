@@ -1,5 +1,9 @@
 # OmniCC Changelog
 
+## 11.2.7
+
+* Update TOCs for 11.2.5 and 5.5.1
+
 ## 11.2.6
 
 * The Cooldown Timer Offset option should work again.
