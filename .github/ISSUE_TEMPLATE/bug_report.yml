@@ -1,0 +1,52 @@
+name: Bug Report
+description: File a bug report.
+title: ''
+type: 'bug'
+assignees: 'Tuller'
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Videos
+      description: Drag and drop screenshots, videos, or other files here to help illustrate the issue. These can help quite a bit with understanding the issue.
+      placeholder: You can paste images directly or drag files into this area.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: The best way for us to fix an issue is to know how to reproduce it.
+      placeholder: Reproducible steps help a ton with debugging things.
+  - type: textarea
+    id: clientErrors
+    attributes:
+      label: Error Messages
+      description: World of Warcraft disables errors by default. Install [BugSack](https://addons.wago.io/addons/bugsack) or addon error messages via `/console scriptErrors 1` and reload the game. If an error window appears, write here the first message (labelled 1/Many) that appeared. If you're getting especially low FPS, it probably means that you're getting a bunch of errors that are hidden.
+  - type: input
+    id: addonVersion
+    attributes:
+      label: AddOn Version
+      description: AddOn version (you can get this from /omnicc version). Please doublecheck that you're running the latest release.
+  - type: checkboxes
+    id: clientVersion
+    attributes:
+      label: Game Version
+      description: What versions of the game are you playing where the issue happens?
+      multiple: true
+      options:
+        - label: Retail
+        - label: Classic
+        - label: Vanilla
+        - label: PTR
+        - label: Beta
+  - type: input
+    id: clientBuild
+    attributes:
+      label: Game Build
+      description: You can get this via the command, `/dump GetBuildInfo()`
