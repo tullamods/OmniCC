@@ -202,11 +202,11 @@ do
         end
 
         -- prefer the one that isn't nil
-        if rhs == nil then
+        if rhs == nil or rhs._occ_start == nil then
             return lhs
         end
 
-        if lhs == nil then
+        if lhs == nil or lhs._occ_start == nil then
             return rhs
         end
 
