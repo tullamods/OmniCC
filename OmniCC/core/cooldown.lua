@@ -16,6 +16,9 @@ local GCD_SPELL_ID = 61304
 -- how much of a buffer we give finish effets (in seconds)
 local FINISH_EFFECT_BUFFER = -0.15
 
+-- is it after Midnight?
+local SECRETS_ENABLED = type(canaccessvalue) == "function"
+
 -------------------------------------------------------------------------------
 -- Utility Methods
 -------------------------------------------------------------------------------
@@ -23,12 +26,57 @@ local FINISH_EFFECT_BUFFER = -0.15
 local IsGCD, GetGCDTimeRemaining
 
 -- gcd tests
-if type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" then
+if SECRETS_ENABLED then
     ---@param start number
     ---@param duration number
     ---@param modRate number
     ---@return boolean
-    IsGCD = function (start, duration, modRate)
+    IsGCD = function(start, duration, modRate)
+        if not (start > 0 and duration > 0 and modRate > 0) then
+            return false
+        end
+
+        local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
+
+        if canaccessvalue(gcd) then
+            return gcd
+                and gcd.isEnabled
+                and start == gcd.startTime
+                and duration == gcd.duration
+                and modRate == gcd.modRate
+        end
+
+        return false
+    end
+
+    ---@return number
+    GetGCDTimeRemaining = function()
+        local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
+
+        if canaccessvalue(gcd) then
+            if not (gcd and gcd.isEnabled) then
+                return 0
+            end
+
+            local start, duration, modRate = gcd.startTime, gcd.duration, gcd.modRate
+            if not (start > 0 and duration > 0 and modRate > 0) then
+                return 0
+            end
+
+            local remain = (start + duration) - GetTime()
+            if remain > 0 then
+                return remain / modRate
+            end
+        end
+
+        return 0
+    end
+elseif type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" then
+    ---@param start number
+    ---@param duration number
+    ---@param modRate number
+    ---@return boolean
+    IsGCD = function(start, duration, modRate)
         if not (start > 0 and duration > 0 and modRate > 0) then
             return false
         end
@@ -42,6 +90,7 @@ if type(C_Spell) == "table" and type(C_Spell.GetSpellCooldown) == "function" the
             and modRate == gcd.modRate
     end
 
+    ---@return number
     GetGCDTimeRemaining = function()
         local gcd = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
         if not (gcd and gcd.isEnabled) then
@@ -65,7 +114,7 @@ else
     ---@param duration number
     ---@param modRate number
     ---@return boolean
-    IsGCD = function (start, duration, modRate)
+    IsGCD = function(start, duration, modRate)
         if not (start > 0 and duration > 0 and modRate > 0) then
             return false
         end
@@ -78,6 +127,7 @@ else
             and modRate == gcdModRate
     end
 
+    ---@return number
     GetGCDTimeRemaining = function()
         local start, duration, enabled, modRate = GetSpellCooldown(GCD_SPELL_ID)
         if (not enabled and start > 0 and duration > 0 and modRate > 0) then
@@ -139,8 +189,15 @@ function Cooldown:CanShowText()
         return false
     end
 
-    if self.GetHideCountdownNumbers and not self:GetHideCountdownNumbers() then
-        return false
+    if SECRETS_ENABLED then
+        local hide = self:GetHideCountdownNumbers()
+        if canaccessvalue(hide) and not hide then
+            return false
+        end
+    else
+        if self.GetHideCountdownNumbers and not self:GetHideCountdownNumbers() then
+            return false
+        end
     end
 
     local elapsed = GetTime() - start
@@ -367,6 +424,11 @@ end
 
 ---@param self OmniCCCooldown
 function Cooldown:Refresh(force)
+    local start, duration = self:GetCooldownTimes()
+    if SECRETS_ENABLED and not canaccessvalue(start) then
+        return
+    end
+
     if force then
         self._occ_start = nil
         self._occ_duration = nil
@@ -374,8 +436,6 @@ function Cooldown:Refresh(force)
     end
 
     Cooldown.Initialize(self)
-
-    local start, duration = self:GetCooldownTimes()
     if start == 0 or duration == 0 then
         Cooldown.SetTimer(self, 0, 0, 1)
     else
@@ -464,7 +524,11 @@ function Cooldown:OnSetCooldown(start, duration, modRate)
     end
 
     Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, start, duration, modRate)
+    if SECRETS_ENABLED and not canaccessvalue(start) then
+        Cooldown.CallWithProxy(self, 'SetCooldown', start, duration, modRate)
+    else
+        Cooldown.SetTimer(self, start or 0, duration or 0, modRate or 1)
+    end
 end
 
 ---@param self OmniCCCooldown
@@ -476,7 +540,11 @@ function Cooldown:OnSetCooldownDuration(duration, modRate)
     end
 
     Cooldown.Initialize(self)
-    Cooldown.SetTimer(self, self:GetCooldownTimes() / 1000, duration, modRate)
+    if SECRETS_ENABLED and not canaccessvalue(duration) then
+        Cooldown.CallWithProxy(self, 'SetCooldownDuration', duration, modRate)
+    else
+        Cooldown.SetTimer(self, self:GetCooldownTimes() / 1000, duration, modRate)
+    end
 end
 
 ---@param self OmniCCCooldown
@@ -541,8 +609,12 @@ function Cooldown:GetTheme()
 end
 
 function Cooldown:OnSetHideCountdownNumbers(hide)
+    if SECRETS_ENABLED and not canaccessvalue(hide) then
+        return
+    end
+
     local disable = not (hide or self.noCooldownCount or self:IsForbidden())
-                    and Addon.db.global.disableBlizzardCooldownText
+        and Addon.db.global.disableBlizzardCooldownText
 
     if disable then
         self:SetHideCountdownNumbers(true)
@@ -569,6 +641,100 @@ function Cooldown:ForAll(method, ...)
 
     for cooldown in pairs(cooldowns) do
         func(cooldown, ...)
+    end
+end
+
+-- This is a hack for Midnight. Cooldowns are secret in combat, but
+-- cooldown text is not. So, parse the text to figure out the current
+-- duration of a cooldown, to around the nearest second. I also think
+-- that its possible to abuse the SetMinimumCountdownDuration method
+-- to get a more accurate reading of the cooldown.
+if SECRETS_ENABLED then
+    -- get the text duration, in seconds
+    local function parseDuration(text)
+        if text and text ~= "" then
+            local days, hours, minutes, seconds
+
+            seconds = tonumber(text)
+            if seconds then
+                return seconds
+            end
+
+            minutes, seconds = text:match("^(%d+):(%d+)$")
+            if minutes and seconds then
+                return tonumber(minutes) * 60 + tonumber(seconds)
+            end
+
+            minutes = text:match("^(%d+)m$")
+            if minutes then
+                return tonumber(minutes) * 60
+            end
+
+            hours = text:match("^(%d+)h$")
+            if hours then
+                return tonumber(hours) * 3600
+            end
+
+            days = text:match("^(%d+)d$")
+            if days then
+                return tonumber(days) * 86400
+            end
+        end
+
+        return -1
+    end
+
+    local durations = setmetatable({}, {
+        __index = function(self, text)
+            local value = parseDuration(text)
+            self[text] = value
+            return value
+        end
+    })
+
+    local function findFirstFontString(...)
+        for i = 1, select("#", ...) do
+            local region = select(i, ...)
+            if region:GetObjectType() == "FontString" then
+                return region
+            end
+        end
+    end
+
+    function Cooldown:CallWithProxy(method, ...)
+        local proxy = self._occ_proxy
+        if not proxy then
+            proxy = CreateFrame('Cooldown')
+            proxy.owner = self
+            proxy.noCooldownCount = true
+            proxy:SetMinimumCountdownDuration(0)
+
+            proxy.callback = function()
+                proxy.scheduled = nil
+
+                local fontString = proxy.fontString
+                if not fontString then
+                    fontString = findFirstFontString(proxy:GetRegions())
+                    proxy.fontString = fontString
+                end
+
+                if fontString then
+                    local duration = durations[fontString:GetText() or ""]
+                    if duration > 0 then
+                        Cooldown.SetTimer(proxy.owner, GetTime(), duration, 1)
+                    end
+                end
+            end
+
+            self._occ_proxy = proxy
+        end
+
+        proxy[method](proxy, ...)
+
+        if not proxy.scheduled then
+            proxy.scheduled = true
+            C_Timer.After(GetTickTime(), proxy.callback)
+        end
     end
 end
 
