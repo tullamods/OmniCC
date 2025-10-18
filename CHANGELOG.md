@@ -1,5 +1,10 @@
 # OmniCC Changelog
 
+## 12.0.0-beta.1
+
+* Update TOCs for 12.0.0 and 11.2.7
+* Added a workaround for Midnight that can approximate cooldown durations in combat.
+
 ## 11.2.7
 
 * Update TOCs for 11.2.5 and 5.5.1
