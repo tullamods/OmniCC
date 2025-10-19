@@ -1,7 +1,7 @@
 package-as: OmniCC
 
 manual-changelog:
-  filename: changelog.md
+  filename: CHANGELOG.md
   markup-type: markdown
 
 move-folders:
